@@ -1,4 +1,3 @@
-import Link from "next/link";
 import NavLink from "./nav-link";
 import ThemeSelector from "./theme-selector/theme-selector";
 
