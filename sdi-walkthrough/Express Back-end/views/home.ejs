@@ -1,0 +1,53 @@
+<% layout('layouts/boilerplate') %>
+<h1>Welcome to HM Walkthrough</h1>
+<p>
+  The walkthrough is up and running. I'll be checking data to verify everything
+  is working smoothly. I'll be adding more to this app as time goes on to make
+  the app more useful.
+</p>
+<p>Graphing now works. If there are any bugs let me know.</p>
+<p>If a log was accidentally not submitted, it is now possible to go back and submit the log. Just pick the date it was missed and enter data like normal.</p>
+<div class="container-fluid"></div>
+<h4>TODO List:</h4>
+<ul>
+  <li><s>Check if a log was entered within the last 24hrs at 7am and send email if no log</s></li>
+  <li><s>A way to look at previous logs</s></li>
+  <li><s>Add log updating for making corrections</s></li>
+  <li><s>The ability to pick a previous date of a missed log and submit a log</s></li>
+  <li><s>Graph data</s></li>
+  <li><s>Report page.</s></li>
+  <li>Analysis of data showing anomalies.</li>
+  <li>On analog data when selecting an entry, bring up a small historical graph of previous entries.</li>
+  <li>Change UI to React to streamline process.</li>
+  <li>Display average for every entry and last entry.</li>
+</ul>
+<h4>Suggestions:</h4>
+<p>Vogel, stop adding garbage to the suggestions.</p><br>
+<% if (results.length > 0) { %>
+<div>
+  <ul id="suggestionList">
+    <% results.forEach(item => { %>
+    <li><%= item.suggestion %> - <%= item.user.username %></li>
+    <% }) %>
+  </ul>
+</div>
+<% } else { %>
+<div>No suggestions</div>
+<% } %>
+
+<div class="container d-flex m-4">
+<div class="row align-items-end flex-column w-50">
+    <h4>Add a suggestion:</h4>
+    <form action="<%- process.env.DOMAIN %>/"
+        method="post"
+        id="suggestions"">
+    <textarea type="text" class="w-50 align-self-stretch" placeholder="Suggestion"
+    name="suggestionTextBox"
+    id="suggestionTextBox"
+    rows="3"></textarea>
+    <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+</div>
+</div>
+
+</div>

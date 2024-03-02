@@ -1,0 +1,43 @@
+<% layout('layouts/boilerplate') %>
+
+<div class="container">
+  <div class="row text-center justify-content-center align-items-center">
+    <div class="col-3 justify-content-center form-floating">
+      <select class="form-select" name="dataSelector" id="dataSelector">
+        <option value="">--Please choose a data point--</option>
+        <% if (dataPoints && dataPoints.length > 0) { %> <%
+        dataPoints.forEach(element => { %>
+        <option value="<%- element %>"><%= element %></option>
+        <% }) %> <% } %>
+      </select>
+      <label for="dataSelector">Select data to graph</label>
+    </div>
+    <div class="col-3 align-items-center">
+      <label class="mx-1" for="fromDate">From:</label>
+      <input
+        type="date"
+        name="fromDate"
+        id="fromDate"
+        value="<%= fromDate %>"
+      />
+    </div>
+    <div class="col-3">
+      <label class="mx-1" for="toDate">To:</label>
+      <input type="date" name="toDate" id="toDate" value="<%= toDate %>" />
+    </div>
+    <div class="col-3">
+      <button onclick="getData()" class="btn btn-primary" type="button">
+        Graph Data
+      </button>
+    </div>
+  </div>
+
+  <div class="my-4">
+    <canvas id="Chart"></canvas>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script
+    type="module"
+    src="http://fs3s-hotmilllog/HM_Walkthrough/js/graph.js"
+  ></script>
+</div>
