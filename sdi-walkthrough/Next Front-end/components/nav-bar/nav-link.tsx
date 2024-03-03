@@ -8,14 +8,21 @@ import { usePathname } from "next/navigation";
 interface NavLinkProps {
   href: string;
   children: React.ReactNode;
+  button?: boolean;
 }
 
-export default function NavLink({ href, children }: NavLinkProps) {
+export default function NavLink({ href, children, button }: NavLinkProps) {
   const path = usePathname();
 
-  return (
-    <Link href={href} className={path === href ? "text-blue-500" : ""}>
-      {children}
-    </Link>
-  );
+  if (button) {
+    return (
+      <Link
+        href={href}
+        className={`btn m-2 px-4 py-2 rounded-md ${path === href ? "btn-primary" : ""}`}
+      >
+        {children}
+      </Link>
+    );
+  }
+  return <Link href={href}>{children}</Link>;
 }

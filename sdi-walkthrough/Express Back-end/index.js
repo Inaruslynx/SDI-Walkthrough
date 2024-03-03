@@ -76,6 +76,7 @@ const userRoutes = require("./routes/users");
 const walkthroughRoutes = require("./routes/walkthrough");
 const graphRoutes = require("./routes/graph");
 const reportsRoutes = require("./routes/report");
+const apiRoutes = require("./routes/api")
 
 const uri = `mongodb://${process.env.MONGO_USERNAME}:${process.env.MONGO_PASSWORD}@127.0.0.1:27017/?authMechanism=DEFAULT`;
 const session_uri = `mongodb://${process.env.SESSION_USERNAME}:${process.env.SESSION_PASSWORD}@127.0.0.1:27017/?authMechanism=DEFAULT`;
@@ -150,6 +151,7 @@ app.use("/", userRoutes);
 app.use("/walkthrough", walkthroughRoutes);
 app.use("/graph", graphRoutes);
 app.use("/report", reportsRoutes);
+app.use("/api", apiRoutes);
 
 // Got to home
 app.get("/", async (req, res) => {

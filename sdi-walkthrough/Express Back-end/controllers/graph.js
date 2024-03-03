@@ -1,6 +1,6 @@
 const Log = require("../models/logs");
 
-module.exports.getPage = async (req, res, next) => {
+module.exports.getPage = async (req, res) => {
   const result = await Log.findOne({}, "data").sort({ createdAt: -1 });
   let data = [];
 
@@ -22,7 +22,7 @@ module.exports.getPage = async (req, res, next) => {
   // toDate will be YYYY-MM-DD
   const toDate = intermToDate.join("-");
 
-  let intermFromDate = new Date(nowDate.getTime() - 7 * 24 * 60 * 60 * 1000);
+  let intermFromDate = new Date(nowDate.getTime() - 30 * 24 * 60 * 60 * 1000);
   // console.log("This is intermFromDate before locale", intermFromDate);
   intermFromDate = intermFromDate.toLocaleDateString("en-US", {
     year: "numeric",
@@ -52,7 +52,7 @@ module.exports.getPage = async (req, res, next) => {
   res.render("graphs/graph", { dataPoints: data, toDate, fromDate });
 };
 
-module.exports.processGraph = async (req, res, next) => {
+module.exports.processGraph = async (req, res) => {
   const { dataSelection, fromDate, toDate } = req.body;
   // console.log(dataSelection, fromDate, toDate);
   // Create new Date objects based on extracted values
