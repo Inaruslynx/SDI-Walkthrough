@@ -1,74 +1,75 @@
+"use client";
+import { useState, useEffect } from "react";
 import Graph from "./graph";
-import api from "@/utils/api"
+import GraphForm from "./form";
+import api from "@/utils/api";
 
-export default async function GraphPage({
-    params,
-  }: {
-    params: { department: string };
-  }) {
-  // Title at top, selector for data point, from date input, to date input
-  const pageData = await api.get(`/graph?dataSelection=${params.department}`)
-  return <div className="p-16"><h1>{params.department} Graph</h1>
-  <Graph/></div>;
-  }
-  
+interface Response {
+  data: {
+    dataPoints: string[];
+    fromDate: string;
+    toDate: string;
+  };
+}
 
-  /*
+interface GraphData {
+  labels: Date[];
+  datasets: 
+    [{
+      data: number[];
+    }];
+}
 
-  import { useState, useEffect } from 'react';
-import axios from 'axios';
+export default function GraphPage({
+  params,
+}: {
+  params: { department: string };
+}) {
+  const [Results, setResults] = useState<GraphData | null>(null);
+  const [ShowGraph, setShowGraph] = useState(false);
+  const [Options, setOptions] = useState<string[]>([]);
+  const [FromDate, setFromDate] = useState<Date>(new Date());
+  const [ToDate, setToDate] = useState<Date>(new Date());
 
-const YourComponent = () => {
-  // State for the options in the selector
-  const [options, setOptions] = useState([]);
-
-  // State for the "From" and "To" dates
-  const [fromDate, setFromDate] = useState('');
-  const [toDate, setToDate] = useState('');
-
-  // Effect to fetch options on component mount
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get('your-api-endpoint'); // Replace with your API endpoint
-        setOptions(response.data);
+        const response: Response = await api.get(
+          `http://fs3s-hotmilllog/HM_Walkthrough/api/graph`,
+          {
+            params: {
+              dataSelection: params.department,
+            },
+          }
+        );
+        console.log("recieved data:", response.data)
+        setOptions(response.data.dataPoints);
+        setFromDate(new Date(response.data.fromDate));
+        setToDate(new Date(response.data.toDate));
       } catch (error) {
-        console.error('Error fetching options:', error);
+        console.error("Error fetching data:", error);
       }
     };
 
     fetchData();
-  }, []); // Empty dependency array ensures the effect runs only once on component mount
+  }, [params.department]); // Run the effect whenever params.department changes
 
+  const handleDataFromChild = (data: GraphData) => {
+    setResults(data);
+    setShowGraph(true);
+  };
+
+  // Title at top, selector for data point, from date input, to date input
   return (
-    <div>
-      {/* Selector filled with options *//*}
-      <select>
-        {options.map((option) => (
-          <option key={option.id} value={option.value}>
-            {option.label}
-          </option>
-        ))}
-      </select>
-
-      {/* "From" date selector *//*}
-      <input
-        type="date"
-        value={fromDate}
-        onChange={(e) => setFromDate(e.target.value)}
+    <div className="p-16">
+      <h1>{params.department} Graph</h1>
+      <GraphForm
+        onDataFromChild={handleDataFromChild}
+        Options={Options}
+        fromDate={FromDate}
+        toDate={ToDate}
       />
-
-      {/* "To" date selector *//*}
-      <input
-        type="date"
-        value={toDate}
-        onChange={(e) => setToDate(e.target.value)}
-      />
-
-      {/* Rest of your component *//*}
+      {ShowGraph && Results && <Graph data={Results} />}
     </div>
   );
-};
-
-export default YourComponent;
-*/
+}

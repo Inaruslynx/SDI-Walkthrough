@@ -143,8 +143,17 @@ app.use((req, res, next) => {
   res.locals.currentUser = req.user;
   res.locals.success = req.flash("success");
   res.locals.error = req.flash("error");
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
   next();
 });
+
+// CORS middleware for the /api route
+// app.use('/api', (req, res, next) => {
+  
+//   next();
+// });
 
 // Tell Express to use routes
 app.use("/", userRoutes);

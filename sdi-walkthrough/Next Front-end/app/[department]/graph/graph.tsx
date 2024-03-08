@@ -13,25 +13,24 @@ ChartJS.register(
   LinearScale,
   PointElement,
   LineElement,
-  Title,
   Tooltip
 );
 
 interface GraphData {
   labels: Date[];
-  datasets: [
-    {
-      data: number[];
-    },
-  ];
+  datasets: [{
+    data: number[];
+  }];
 }
 
-export default function Graph( data?: GraphData) {
+// TODO Find out how to access theme colors and assign them to lines
+export default function Graph(prop: { data: GraphData }) {
+  const data = prop.data;
   const options = {
     responsive: true,
   };
 
-    if (data) {
-        return <Line data={data} options={options} />;
-    }
+  if (prop) {
+    return <Line data={data} options={options} />;
+  }
 }
