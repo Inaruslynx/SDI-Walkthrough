@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
+import type { ChartData } from "chart.js";
 import Graph from "./graph";
 import GraphForm from "./form";
 import api from "@/utils/api";
@@ -25,7 +26,7 @@ export default function GraphPage({
 }: {
   params: { department: string };
 }) {
-  const [Results, setResults] = useState<GraphData | null>(null);
+  const [Results, setResults] = useState<ChartData<'line'>>(null);
   const [ShowGraph, setShowGraph] = useState(false);
   const [Options, setOptions] = useState<string[]>([]);
   const [FromDate, setFromDate] = useState<Date>(new Date());
@@ -54,9 +55,16 @@ export default function GraphPage({
     fetchData();
   }, [params.department]); // Run the effect whenever params.department changes
 
-  const handleDataFromChild = (data: GraphData) => {
+  const handleDataFromChild = (data: ChartData<'line'>) => {
     setResults(data);
     setShowGraph(true);
+  };
+
+  const handleAdditionalDateFromChild = (data: ChartData<'line'>) => {
+    setResults((prevData) => ({
+      ...prevData,
+      data
+    }));
   };
 
   // Title at top, selector for data point, from date input, to date input
@@ -69,7 +77,7 @@ export default function GraphPage({
         fromDate={FromDate}
         toDate={ToDate}
       />
-      {ShowGraph && Results && <Graph data={Results} />}
+      {ShowGraph && Results && <Graph data={Results} onDataFromChild={handleAdditionalDateFromChild} />}
     </div>
   );
 }

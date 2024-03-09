@@ -1,9 +1,10 @@
 "use client";
 import React from "react";
-import { SubmitHandler, useForm, Controller } from "react-hook-form";
+import { SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import api from "@/utils/api";
+import type { ChartData } from "chart.js";
 
 const schema = z.object({
   dataSelection: z.string().min(1, { message: "Please select a data point." }),
@@ -24,16 +25,7 @@ const schema = z.object({
 type FormData = z.infer<typeof schema>;
 
 interface PostResponse {
-  data: [{date: string, value: number}];
-}
-
-interface GraphData {
-  labels: Date[];
-  datasets: [
-    {
-      data: number[];
-    },
-  ];
+  data: [{ date: string; value: number }];
 }
 
 export default function GraphForm({
@@ -45,7 +37,7 @@ export default function GraphForm({
   Options: string[];
   fromDate: Date;
   toDate: Date;
-  onDataFromChild: (data: GraphData) => void;
+  onDataFromChild: (data: ChartData<"line">) => void;
 }) {
   const {
     register,
@@ -56,7 +48,7 @@ export default function GraphForm({
   } = useForm({
     resolver: zodResolver(schema),
     defaultValues: {
-      dataSelection: "",
+      dataSelection: Options[0],
       fromDate: fromDate,
       toDate: toDate,
     },
@@ -76,7 +68,14 @@ export default function GraphForm({
         }
       );
       console.log("recieved data:", response);
-      const labels: Date[] = response.data.map((item) => new Date(item.date));
+      const labels: string[] = response.data.map((item) =>
+        new Date(item.date).toLocaleDateString("en-US", {
+          year: "numeric",
+          month: "long",
+            day: "numeric",
+          timeZone: "UTC"
+        })
+      );
       const data: number[] = response.data.map((item) => item.value);
 
       // Set the results in state
@@ -108,8 +107,8 @@ export default function GraphForm({
 
         <label htmlFor="FromDate">From Date</label>
         <input
-                  {...register("fromDate")}
-                  onChange={(e) => setValue("fromDate", new Date(e.target.value))}
+          {...register("fromDate")}
+          onChange={(e) => setValue("fromDate", new Date(e.target.value).toISOString().split('T')[0])}
           title="FromDate"
           name="FromDate"
           type="date"
@@ -119,8 +118,8 @@ export default function GraphForm({
         )}
         <label htmlFor="ToDate">To Date</label>
         <input
-                  {...register("toDate")}
-                  onChange={(e) => setValue("toDate", new Date(e.target.value))}
+          {...register("toDate")}
+          onChange={(e) => setValue("toDate", new Date(e.target.value))}
           title="ToDate"
           name="ToDate"
           type="date"
