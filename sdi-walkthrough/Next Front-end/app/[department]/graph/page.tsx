@@ -13,12 +13,10 @@ interface Response {
   };
 }
 
-interface GraphData {
-  labels: Date[];
-  datasets: 
-    [{
-      data: number[];
-    }];
+interface FetchData {
+  options: string[];
+  fromDate: string;
+  toDate: string;
 }
 
 export default function GraphPage({
@@ -26,14 +24,16 @@ export default function GraphPage({
 }: {
   params: { department: string };
 }) {
-  const [Results, setResults] = useState<ChartData<'line'>>(null);
+  const [Results, setResults] = useState<ChartData<"line">>();
   const [ShowGraph, setShowGraph] = useState(false);
+  const [showForm, setShowForm] = useState(false);
   const [Options, setOptions] = useState<string[]>([]);
-  const [FromDate, setFromDate] = useState<Date>(new Date());
-  const [ToDate, setToDate] = useState<Date>(new Date());
+  const [FromDate, setFromDate] = useState<string>(new Date().toDateString());
+  const [ToDate, setToDate] = useState<string>(new Date().toDateString());
 
   useEffect(() => {
     const fetchData = async () => {
+      console.log("Fetching form initial data.");
       try {
         const response: Response = await api.get(
           `http://fs3s-hotmilllog/HM_Walkthrough/api/graph`,
@@ -43,41 +43,60 @@ export default function GraphPage({
             },
           }
         );
-        console.log("recieved data:", response.data)
+        console.log("useEffect ran for Form initial load");
+        console.log("recieved data:", response.data);
         setOptions(response.data.dataPoints);
-        setFromDate(new Date(response.data.fromDate));
-        setToDate(new Date(response.data.toDate));
+        setFromDate(response.data.fromDate);
+        setToDate(response.data.toDate);
+        setShowForm(true);
+        console.log("Finished fetching form data.");
       } catch (error) {
         console.error("Error fetching data:", error);
       }
     };
-
     fetchData();
-  }, [params.department]); // Run the effect whenever params.department changes
+  }, [params.department]);
 
-  const handleDataFromChild = (data: ChartData<'line'>) => {
+  const handleDataFromChild = (data: ChartData<"line">) => {
     setResults(data);
     setShowGraph(true);
   };
 
-  const handleAdditionalDateFromChild = (data: ChartData<'line'>) => {
+  const handleAdditionalDateFromChild = (data: ChartData<"line">) => {
     setResults((prevData) => ({
       ...prevData,
-      data
+      data,
     }));
   };
 
   // Title at top, selector for data point, from date input, to date input
   return (
     <div className="p-16">
-      <h1>{params.department} Graph</h1>
-      <GraphForm
-        onDataFromChild={handleDataFromChild}
-        Options={Options}
-        fromDate={FromDate}
-        toDate={ToDate}
-      />
-      {ShowGraph && Results && <Graph data={Results} onDataFromChild={handleAdditionalDateFromChild} />}
+      <div className="grid prose md:prose-lg max-w-full container items-center justify-center justify-items-center content-center place-content-center">
+        <div className="row">
+          <h1 className="justify-self-center self-center place-self-center">
+            {params.department} Graph
+          </h1>
+        </div>
+        {showForm && (
+          <div className="mb-8 pb-4 row">
+            <GraphForm
+              onDataFromChild={handleDataFromChild}
+              options={Options}
+              fromDate={FromDate}
+              toDate={ToDate}
+            />
+          </div>
+        )}
+      </div>
+      {ShowGraph && Results && (
+        <div className="container w-full mt-4 pt-2">
+          <Graph
+            data={Results}
+            onDataFromChild={handleAdditionalDateFromChild}
+          />
+        </div>
+      )}
     </div>
   );
 }

@@ -2,6 +2,16 @@
 const { v4: uuid } = require("uuid");
 const { std, mean, min, max, round } = require("mathjs");
 const path = require("path");
+const {
+  format,
+  isToday,
+  isBefore,
+  endOfTomorrow,
+  formatISO,
+  addDays,
+  subDays,
+  set
+} = require("date-fns");
 
 // import utils
 const { sendEmail } = require("../utils/sendEmail");
@@ -26,41 +36,11 @@ module.exports.getGraphData = async (req, res) => {
   const result = await Log.findOne({}, "data").sort({ createdAt: -1 });
   let data = [];
 
-  const nowDate = new Date();
-  // console.log("This is nowDate before locale:", nowDate);
-  let intermToDate = nowDate.toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    timeZone: "America/Chicago",
-  });
-  // console.log("After:", intermToDate);
-  intermToDate = intermToDate.split("/");
-  intermToDate = [
-    intermToDate[2],
-    intermToDate[0].padStart(2, "0"),
-    intermToDate[1].padStart(2, "0"),
-  ];
   // toDate will be YYYY-MM-DD
-  const toDate = intermToDate.join("-");
+  const toDate = new Date();
 
-  let intermFromDate = new Date(nowDate.getTime() - 30 * 24 * 60 * 60 * 1000);
-  // console.log("This is intermFromDate before locale", intermFromDate);
-  intermFromDate = intermFromDate.toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    timeZone: "America/Chicago",
-  });
-  // console.log("After:", intermFromDate);
-  intermFromDate = intermFromDate.split("/");
-  intermFromDate = [
-    intermFromDate[2],
-    intermFromDate[0].padStart(2, "0"),
-    intermFromDate[1].padStart(2, "0"),
-  ];
   // FromDate will be YYYY-MM-DD
-  const fromDate = intermFromDate.join("-");
+  const fromDate = subDays(new Date(), 30);
 
   // console.log(result.data)
   if (result.data && typeof result.data === "object") {
@@ -87,16 +67,18 @@ module.exports.processGraphFetch = async (req, res) => {
   // console.log(dataSelection, fromDate, toDate);
   // Create new Date objects based on extracted values
   const fromDateObject = new Date(fromDate);
-  const toDateObject = new Date(toDate);
+  let toDateObject = new Date(toDate);
+  // console.log(toDateObject);
 
   // Set UTC hours for the new objects
   fromDateObject.setUTCHours(14, 0, 0, 0);
-  toDateObject.setUTCHours(14, 0, 0, 0);
-  const options = {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-  };
+  if (!isToday(toDateObject)) {
+    // console.log("Not today.");
+    toDateObject.setUTCHours(14, 0, 0, 0);
+  } else {
+    // console.log("Submitted day is today.");
+    toDateObject = new Date();
+  }
   // console.log(dataSelection, fromDateObject, toDateObject);
   const result = await Log.find(
     { date: { $gte: fromDateObject, $lte: toDateObject } },
@@ -107,36 +89,34 @@ module.exports.processGraphFetch = async (req, res) => {
    * justSelectedData should send [{date: Date, value: number}]
    */
   const justSelectedData = result.map((item) => {
-    const itemDate = item.date;
-    const itemTimeUTC = itemDate.getUTCHours() * 60 + itemDate.getUTCMinutes(); // Convert time to minutes
-
-    // Check if the time is before UTC 14:00
-    if (itemTimeUTC < 14 * 60) {
+    let itemDate = new Date(item.date);
+    const sameDateAtFourteen =  set(itemDate, { hours: 7, minutes: 0, seconds: 0, milliseconds: 0 })
+    console.log("before if statement");
+    console.log(itemDate, " : ", sameDateAtFourteen)
+    if (
+      isBefore(
+        itemDate,
+        sameDateAtFourteen
+      )
+    ) {
+      console.log("adjusting time");
       // If before UTC 14:00, set the time to 14:01 the day before
-      const adjustedDate = new Date(itemDate);
-      adjustedDate.setUTCDate(itemDate.getUTCDate() - 1);
-      adjustedDate.setUTCHours(14, 1, 0, 0); // Set time to 14:01:00.000 UTC
-      return {
-        value:
-          item.data[dataSelection] === "true"
-            ? 1
-            : item.data[dataSelection] === "false"
-            ? 0
-            : item.data[dataSelection],
-        date: adjustedDate.toLocaleDateString("en-US", options),
-      };
-    } else {
-      // If after or at UTC 14:00, keep the original date
-      return {
-        value:
-          item.data[dataSelection] === "true"
-            ? 1
-            : item.data[dataSelection] === "false"
-            ? 0
-            : item.data[dataSelection],
-        date: itemDate.toLocaleDateString("en-US", options),
-      };
+      itemDate = subDays(
+        set(itemDate, { hours: 7, minutes: 1, seconds: 0, milliseconds: 0 }),
+        1
+      );
+      // console.log("New time:", itemDate)
     }
+    console.log(format(itemDate, "PPP"));
+    return {
+      value:
+        item.data[dataSelection] === "true"
+          ? 1
+          : item.data[dataSelection] === "false"
+          ? 0
+          : item.data[dataSelection],
+      date: format(itemDate, "PPP"),
+    };
   });
 
   // console.log(justSelectedData);
