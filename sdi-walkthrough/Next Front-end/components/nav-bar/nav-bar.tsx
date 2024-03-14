@@ -1,3 +1,4 @@
+import { UserButton } from "@clerk/nextjs";
 import NavLink from "./nav-link";
 import NavDropdown from "./nav-dropdown";
 import ThemeSelector from "./theme-selector/theme-selector";
@@ -41,12 +42,15 @@ export default async function NavBar() {
       <header className="bg-base-300 container fixed top-0 max-w-full">
         <nav className="p-4 navbar bg-base-300">
           <div className="flex-1">
-            <NavLink button href="/">Home</NavLink>
+            <NavLink button href="/">
+              Home
+            </NavLink>
             {departments.map((department) => (
               <NavDropdown name={department.name} key={department.name} />
             ))}
           </div>
           <div className="flex-none">
+            <UserButton />
             <ThemeSelector />
           </div>
         </nav>

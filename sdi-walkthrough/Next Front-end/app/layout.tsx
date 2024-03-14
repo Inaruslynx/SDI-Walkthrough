@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { ClerkProvider } from '@clerk/nextjs'
 import NavBar from "@/components/nav-bar/nav-bar";
 import "./globals.css";
 
@@ -13,11 +14,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
+    <ClerkProvider>
     <html data-theme="dark" lang="en" id="mainHtml">
       <body className="bg-base-100">
         <NavBar />
         <div className="mt-16">{children}</div>
       </body>
     </html>
+    </ClerkProvider>
   );
 }
