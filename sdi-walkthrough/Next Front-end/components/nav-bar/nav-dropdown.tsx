@@ -10,7 +10,7 @@ export default function NavDropdown({ name }: { name: string }) {
       <div
         tabIndex={0}
         role="button"
-        className={`btn m-2 px-4 py-2 rounded-md ${path.includes(name) ? "btn-primary" : ""}`}
+        className={`btn m-2 px-4 py-2 ${path.includes(name) ? "btn-primary" : "hover:btn-primary"} rounded-btn`}
       >
         {name}
       </div>

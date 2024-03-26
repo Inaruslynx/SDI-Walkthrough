@@ -24,10 +24,8 @@ ChartJS.register(
 
 export default function Graph({
   data,
-  onDataFromChild,
 }: {
   data: ChartData<"line">;
-  onDataFromChild: (data: ChartData<"line">) => void;
 }) {
   const chartRef = useRef<ChartJSOrUndefined<"line">>(null);
   const [color, setColor] = useState<string>("dark");

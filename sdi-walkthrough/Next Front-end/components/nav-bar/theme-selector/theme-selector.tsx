@@ -45,7 +45,7 @@ export default function ThemeSelector(): ReactNode {
 
   return (
     <div className="dropdown dropdown-bottom dropdown-end">
-      <div tabIndex={0} role="button" className="btn m-1">
+      <div tabIndex={0} role="button" className="btn m-1 hover:btn-primary">
         Theme
         <svg
           width="12px"

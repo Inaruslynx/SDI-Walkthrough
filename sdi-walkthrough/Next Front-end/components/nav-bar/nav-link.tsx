@@ -18,7 +18,7 @@ export default function NavLink({ href, children, button }: NavLinkProps) {
     return (
       <Link
         href={href}
-        className={`btn m-2 px-4 py-2 rounded-md ${path === href ? "btn-primary" : ""}`}
+        className={`btn m-2 px-4 py-2 ${path === href ? "btn-primary" : "hover:btn-primary"} rounded-btn`}
       >
         {children}
       </Link>

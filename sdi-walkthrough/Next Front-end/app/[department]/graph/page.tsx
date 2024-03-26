@@ -57,17 +57,30 @@ export default function GraphPage({
     fetchData();
   }, [params.department]);
 
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 1024) {
+        // Change data here if window size is smaller than large
+        setResults((prevData) => ({
+          prevData.labels = [],
+          ...prevData,
+          }),
+        )
+      }
+    };
+
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
+
   const handleDataFromChild = (data: ChartData<"line">) => {
     setResults(data);
     setShowGraph(true);
   };
 
-  const handleAdditionalDateFromChild = (data: ChartData<"line">) => {
-    setResults((prevData) => ({
-      ...prevData,
-      data,
-    }));
-  };
 
   // Title at top, selector for data point, from date input, to date input
   return (
@@ -90,10 +103,9 @@ export default function GraphPage({
         )}
       </div>
       {ShowGraph && Results && (
-        <div className="container w-full mt-4 pt-2">
+        <div className="container w-full lg:mt-4 lg:pt-2 relative z-0">
           <Graph
             data={Results}
-            onDataFromChild={handleAdditionalDateFromChild}
           />
         </div>
       )}

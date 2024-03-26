@@ -65,8 +65,8 @@ export default function GraphForm({
       toDatePicker: new Date(toDate),
     },
   });
-//   console.log("fromDate:", fromDate);
-//   console.log("toDate:", toDate);
+  //   console.log("fromDate:", fromDate);
+  //   console.log("toDate:", toDate);
 
   async function onSubmit(Data: z.infer<typeof FormSchema>) {
     toast({
@@ -80,7 +80,7 @@ export default function GraphForm({
     try {
       // Make Axios POST request with input data
       // response should be [{date: Date, value: number}]
-    //   console.log("form data:", Data);
+      //   console.log("form data:", Data);
       const response: PostResponse = await api.post(
         "http://fs3s-hotmilllog/HM_Walkthrough/api/graph",
         {
@@ -89,7 +89,7 @@ export default function GraphForm({
           toDate: Data.toDatePicker.toISOString(),
         }
       );
-    //   console.log("recieved data:", response);
+      //   console.log("recieved data:", response);
       const labels: string[] = response.data.map((item) => item.date);
       const data: number[] = response.data.map((item) => item.value);
 
@@ -103,13 +103,13 @@ export default function GraphForm({
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-        <div className="grid grid-cols-4 gap-4 items-end">
+        <div className="grid lg:grid-cols-4 gap-4 items-end">
           <div>
             <FormField
               control={form.control}
               name="dataSelection"
               render={({ field }) => (
-                <FormItem>
+                <FormItem className="flex flex-col">
                   <FormLabel>Data Point</FormLabel>
                   <Select
                     onValueChange={field.onChange}
@@ -120,9 +120,13 @@ export default function GraphForm({
                         <SelectValue placeholder="Select a data point" />
                       </SelectTrigger>
                     </FormControl>
-                    <SelectContent className="bg-opacity-0">
+                    <SelectContent className="bg-base-100">
                       {options.map((datapoint) => (
-                        <SelectItem key={datapoint} value={datapoint}>
+                        <SelectItem
+                          className=""
+                          key={datapoint}
+                          value={datapoint}
+                        >
                           {datapoint}
                         </SelectItem>
                       ))}
@@ -160,8 +164,12 @@ export default function GraphForm({
                         </Button>
                       </FormControl>
                     </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
+                    <PopoverContent
+                      className="w-auto p-0 bg-opacity-100 opacity-100"
+                      align="start"
+                    >
                       <Calendar
+                        className="bg-base-100"
                         mode="single"
                         selected={field.value}
                         onSelect={field.onChange}
@@ -205,6 +213,7 @@ export default function GraphForm({
                     </PopoverTrigger>
                     <PopoverContent className="w-auto p-0" align="start">
                       <Calendar
+                        className="bg-base-100"
                         mode="single"
                         selected={field.value}
                         onSelect={field.onChange}
@@ -220,7 +229,10 @@ export default function GraphForm({
               )}
             />
           </div>
-          <Button className="btn btn-primary" type="submit">
+          <Button
+            className="btn btn-primary bg-primary bg-opacity-100 opacity-100"
+            type="submit"
+          >
             Submit
           </Button>
         </div>
