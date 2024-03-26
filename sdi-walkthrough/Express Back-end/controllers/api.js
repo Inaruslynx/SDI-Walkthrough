@@ -10,7 +10,7 @@ const {
   formatISO,
   addDays,
   subDays,
-  set
+  set,
 } = require("date-fns");
 
 // import utils
@@ -90,16 +90,16 @@ module.exports.processGraphFetch = async (req, res) => {
    */
   const justSelectedData = result.map((item) => {
     let itemDate = new Date(item.date);
-    const sameDateAtFourteen =  set(itemDate, { hours: 7, minutes: 0, seconds: 0, milliseconds: 0 })
-    console.log("before if statement");
-    console.log(itemDate, " : ", sameDateAtFourteen)
-    if (
-      isBefore(
-        itemDate,
-        sameDateAtFourteen
-      )
-    ) {
-      console.log("adjusting time");
+    const sameDateAtFourteen = set(itemDate, {
+      hours: 7,
+      minutes: 0,
+      seconds: 0,
+      milliseconds: 0,
+    });
+    // console.log("before if statement");
+    // console.log(itemDate, " : ", sameDateAtFourteen);
+    if (isBefore(itemDate, sameDateAtFourteen)) {
+      // console.log("adjusting time");
       // If before UTC 14:00, set the time to 14:01 the day before
       itemDate = subDays(
         set(itemDate, { hours: 7, minutes: 1, seconds: 0, milliseconds: 0 }),
@@ -107,7 +107,7 @@ module.exports.processGraphFetch = async (req, res) => {
       );
       // console.log("New time:", itemDate)
     }
-    console.log(format(itemDate, "PPP"));
+    // console.log(format(itemDate, "PPP"));
     return {
       value:
         item.data[dataSelection] === "true"

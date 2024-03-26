@@ -50,10 +50,7 @@ export default async function NavBar() {
           <div className="navbar-start">
             {/* Below is UI for small screens  */}
             <div className="dropdown">
-              <label
-                tabIndex={0}
-                className="btn btn-ghost btn-circle lg:hidden"
-              >
+              <label tabIndex={0} className="btn btn-ghost lg:hidden">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   className="h-5 w-5"
@@ -104,7 +101,7 @@ export default async function NavBar() {
             </div>
 
             {/* This is the UI for large screens */}
-            <div className="hidden lg:flex-1">
+            <div className="hidden lg:flex">
               <NavLink button href="/">
                 Home
               </NavLink>

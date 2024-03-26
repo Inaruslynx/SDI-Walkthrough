@@ -43,13 +43,13 @@ export default function GraphPage({
             },
           }
         );
-        console.log("useEffect ran for Form initial load");
-        console.log("recieved data:", response.data);
+        // console.log("useEffect ran for Form initial load");
+        // console.log("recieved data:", response.data);
         setOptions(response.data.dataPoints);
         setFromDate(response.data.fromDate);
         setToDate(response.data.toDate);
         setShowForm(true);
-        console.log("Finished fetching form data.");
+        // console.log("Finished fetching form data.");
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -57,30 +57,28 @@ export default function GraphPage({
     fetchData();
   }, [params.department]);
 
-  useEffect(() => {
-    const handleResize = () => {
-      if (window.innerWidth < 1024) {
-        // Change data here if window size is smaller than large
-        setResults((prevData) => ({
-          prevData.labels = [],
-          ...prevData,
-          }),
-        )
-      }
-    };
+  // useEffect(() => {
+  //   const handleResize = () => {
+  //     if (window.innerWidth < 1024) {
+  //       // Change data here if window size is smaller than large
+  //       setResults((prevData) => ({
+  //         ...prevData,
+  //         }),
+  //       )
+  //     }
+  //   };
 
-    window.addEventListener("resize", handleResize);
+  //   window.addEventListener("resize", handleResize);
 
-    return () => {
-      window.removeEventListener("resize", handleResize);
-    };
-  }, []);
+  //   return () => {
+  //     window.removeEventListener("resize", handleResize);
+  //   };
+  // }, []);
 
   const handleDataFromChild = (data: ChartData<"line">) => {
     setResults(data);
     setShowGraph(true);
   };
-
 
   // Title at top, selector for data point, from date input, to date input
   return (
@@ -104,9 +102,7 @@ export default function GraphPage({
       </div>
       {ShowGraph && Results && (
         <div className="container w-full lg:mt-4 lg:pt-2 relative z-0">
-          <Graph
-            data={Results}
-          />
+          <Graph data={Results} />
         </div>
       )}
     </div>
