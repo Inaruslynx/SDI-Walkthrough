@@ -4,6 +4,7 @@ import {
   SignedOut,
   SignInButton,
   SignUpButton,
+  OrganizationSwitcher,
 } from "@clerk/nextjs";
 import NavLink from "./nav-link";
 import NavDropdown from "./nav-dropdown";
@@ -45,12 +46,12 @@ export default async function NavBar() {
   // At some point I need to check a database and generate links based on that ie. Electrical, Mechanical, and Operations
   return (
     <>
-      <header className="bg-base-300 container fixed top-0 max-w-full">
-        <nav className="p-4 navbar bg-base-300 z-10">
+      <header className="bg-base-300 z-50 container fixed top-0 max-w-full">
+        <nav className="p-4 navbar bg-base-300">
           <div className="navbar-start">
             {/* Below is UI for small screens  */}
-            <div className="dropdown">
-              <label tabIndex={0} className="btn btn-ghost lg:hidden">
+            <div className="dropdown lg:hidden">
+              <label tabIndex={0} className="btn btn-ghost">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   className="h-5 w-5"
@@ -112,7 +113,39 @@ export default async function NavBar() {
           </div>
           <div className="flex-none navbar-end">
             <SignedIn>
-              <UserButton />
+              <OrganizationSwitcher
+                appearance={{
+                  elements: {
+                    organizationPreview: "text-base-content",
+                    userPreviewTextContainer: "text-base-content",
+                    organizationSwitcherTriggerIcon: "stroke-base-content",
+                    organizationSwitcherPopoverCard:
+                      "bg-base-200 text-base-content",
+                    organizationSwitcherPopoverActionButtonText:
+                      "text-base-content",
+                    organizationSwitcherPopoverActionButtonIcon:
+                      "stroke-base-content",
+                    organizationPreviewSecondaryIdentifier: "text-base-content",
+                    organizationSwitcherPopoverFooter:
+                      "text-base-content stroke-base-content",
+                    organizationSwitcherPreviewButton: "text-base-content",
+                  },
+                }}
+              />
+              <div className="p-2">
+                <UserButton
+                  appearance={{
+                    elements: {
+                      userButtonPopoverCard: "bg-base-200 text-base-content",
+                      userButtonPopoverActionButtonText: "text-base-content",
+                      userButtonPopoverActionButtonIcon: "stroke-base-content",
+                      userPreviewSecondaryIdentifier: "text-base-content",
+                      userButtonPopoverFooter:
+                        "text-base-content stroke-base-content",
+                    },
+                  }}
+                />
+              </div>
             </SignedIn>
             <SignedOut>
               <div className="px-4 mx-2 btn rounded-btn hover:btn-primary">

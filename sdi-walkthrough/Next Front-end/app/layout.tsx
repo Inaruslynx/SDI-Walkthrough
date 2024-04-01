@@ -14,11 +14,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <ClerkProvider>
+    <ClerkProvider >
       <html data-theme="dark" lang="en" id="mainHtml">
         <body className="bg-base-100">
-          <NavBar />
-          <div className="mt-16">{children}</div>
+          <div className="grid grid-rows-2 h-screen">
+            <NavBar />
+            <div className="mt-16">{children}</div>
+          </div>
         </body>
       </html>
     </ClerkProvider>

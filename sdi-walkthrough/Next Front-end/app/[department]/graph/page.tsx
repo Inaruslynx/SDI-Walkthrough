@@ -89,6 +89,7 @@ export default function GraphPage({
             {params.department} Graph
           </h1>
         </div>
+        
         {showForm && (
           <div className="mb-8 pb-4 row">
             <GraphForm

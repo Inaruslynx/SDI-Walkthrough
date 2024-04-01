@@ -132,6 +132,8 @@ module.exports.processGraphFetch = async (req, res) => {
  */
 
 module.exports.getReport = async (req, res) => {
+  // TODO: use derpartment
+  const { department } = req.body
   const results = {};
   const resultsOfRecentLogs = {};
   // get all logs which will be an array of objects
