@@ -13,7 +13,7 @@ export default function NavDropdown({ name }: { name: string }) {
   const orgAdmin = orgSlug === `${name.toLowerCase()}-admins`;
   // console.log("orgAdmin:", orgAdmin);
   const canFillInWalkthrough =
-    (user?.publicMetadata.role === `org:${name.toLowerCase()}`) || orgAdmin ;
+    user?.publicMetadata.role === `org:${name.toLowerCase()}` || orgAdmin;
   // console.log("canFillInWalkthrough:", canFillInWalkthrough);
 
   return (
@@ -41,9 +41,19 @@ export default function NavDropdown({ name }: { name: string }) {
           <NavLink href={`/${name}/report/`}>Report</NavLink>
         </li>
         {orgAdmin && (
-          <li>
-            <NavLink href={`/${name}/admin/`}>Admin</NavLink>
-          </li>
+          <details className="collapse">
+            <summary className="collapse-title">Admin</summary>
+            <ul className="collapse-content">
+              <li>
+                <NavLink href={`/${name}/admin/users`}>Users</NavLink>
+              </li>
+              <li>
+                <NavLink href={`/${name}/admin/walkthrough`}>
+                  Walkthrough
+                </NavLink>
+              </li>
+            </ul>
+          </details>
         )}
       </ul>
     </div>

@@ -46,7 +46,7 @@ export default async function NavBar() {
   // At some point I need to check a database and generate links based on that ie. Electrical, Mechanical, and Operations
   return (
     <>
-      <header className="bg-base-300 z-50 container fixed top-0 max-w-full">
+      <header className="row row-span-1 bg-base-300 z-50 container fixed top-0 max-w-full">
         <nav className="p-4 navbar bg-base-300">
           <div className="navbar-start">
             {/* Below is UI for small screens  */}

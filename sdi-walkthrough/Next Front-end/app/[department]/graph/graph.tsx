@@ -7,11 +7,12 @@ import {
   Tooltip,
   // Colors,
 } from "chart.js";
-import type { ChartData, ChartOptions } from "chart.js";
-import type { ChartJSOrUndefined } from "react-chartjs-2/dist/types";
 import autocolors from "chartjs-plugin-autocolors";
 import { Line } from "react-chartjs-2";
-import React, { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
+
+import type { ChartData, ChartOptions } from "chart.js";
+import type { ChartJSOrUndefined } from "react-chartjs-2/dist/types";
 
 ChartJS.register(
   CategoryScale,

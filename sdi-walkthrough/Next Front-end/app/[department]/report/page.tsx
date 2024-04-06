@@ -1,6 +1,15 @@
 "use client";
 import api from "@/utils/api";
 import { useEffect, useState } from "react";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
 type Log = {
   [key: string]: Number;
@@ -64,46 +73,61 @@ export default function ReportPage({
 
   return (
     <>
-      <div className="p-16 grid justify-center">
+      <div className="p-8 grid justify-center">
         <div className="row m-4 p-4 relative justify-center prose md:prose-lg max-w-full container">
           <h1 className="text-center">{params.department} Report</h1>
         </div>
         <div className="row max-w-screen-2xl mx-auto overflow-auto overscroll-contain">
-          <table className="table max-h-screen w-full table-zebra table-pin-rows">
-            <thead>
-              <tr>
-                <th colSpan={4}></th>
-                <th colSpan={4} className="text-center">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead colSpan={4}></TableHead>
+                <TableHead className="text-center" colSpan={4}>
                   Statistics
-                </th>
-              </tr>
-              <tr>
-                <th></th>
-                <th>Last Log</th>
-                <th>Before Last Log</th>
-                <th>Difference</th>
-                <th>Mean</th>
-                <th>StdDev</th>
-                <th>Min</th>
-                <th>Max</th>
-              </tr>
-            </thead>
-            <tbody>
-              {showTable &&
-                Object.keys(lastLog).map((key) => (
-                  <tr key={key}>
-                    <th>{key}</th>
-                    <td>{lastLog[key]}</td>
-                    <td>{beforeLastLog[key]}</td>
-                    <td>{resultsOfRecentLogs[key]}</td>
-                    <td>{results[key].Mean}</td>
-                    <td>{results[key].stdDev}</td>
-                    <td>{results[key].Min}</td>
-                    <td>{results[key].Max}</td>
-                  </tr>
-                ))}
-            </tbody>
-          </table>
+                </TableHead>
+              </TableRow>
+              <TableRow>
+                <TableHead></TableHead>
+                <TableHead>Last Log</TableHead>
+                <TableHead>Before Last Log</TableHead>
+                <TableHead>Difference</TableHead>
+                <TableHead>Mean</TableHead>
+                <TableHead>StdDev</TableHead>
+                <TableHead>Min</TableHead>
+                <TableHead>Max</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {Object.keys(lastLog).map((key) => (
+                <TableRow key={key}>
+                  <TableCell className="font-bold">{key}</TableCell>
+                  <TableCell>
+                    {key in lastLog ? lastLog[key].toString() : ""}
+                  </TableCell>
+                  <TableCell>
+                    {key in beforeLastLog ? beforeLastLog[key].toString() : ""}
+                  </TableCell>
+                  <TableCell>
+                    {key in resultsOfRecentLogs
+                      ? resultsOfRecentLogs[key].toString()
+                      : ""}
+                  </TableCell>
+                  <TableCell>
+                    {key in results ? results[key].Mean.toString() : ""}
+                  </TableCell>
+                  <TableCell>
+                    {key in results ? results[key].stdDev.toString() : ""}
+                  </TableCell>
+                  <TableCell>
+                    {key in results ? results[key].Min.toString() : ""}
+                  </TableCell>
+                  <TableCell>
+                    {key in results ? results[key].Max.toString() : ""}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
         </div>
       </div>
     </>

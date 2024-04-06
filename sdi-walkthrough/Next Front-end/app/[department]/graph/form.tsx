@@ -229,12 +229,9 @@ export default function GraphForm({
               )}
             />
           </div>
-          <Button
-            className="btn btn-primary bg-primary bg-opacity-100 opacity-100"
-            type="submit"
-          >
+          <button className="btn btn-primary" type="submit">
             Submit
-          </Button>
+          </button>
         </div>
       </form>
     </Form>
