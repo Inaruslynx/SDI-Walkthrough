@@ -15,7 +15,7 @@ interface Department {
 }
 
 async function getData() {
-  const URL = process.env.API_URL + "departments";
+  const URL = process.env.NEXT_PUBLIC_API_URL + "/departments";
   // console.log(URL);
   const response = await fetch(URL);
   // The return value is *not* serialized

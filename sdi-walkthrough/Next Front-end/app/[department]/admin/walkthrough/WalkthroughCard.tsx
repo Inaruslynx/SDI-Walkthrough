@@ -21,7 +21,7 @@ export default function WalkthroughCard(): ReactNode {
   };
 
   return (
-    <div className="card w-96 bg-base-300 text-base-content">
+    <div className="card m-4 w-96 bg-base-200 text-base-content shadow-lg shadow-base-200">
       <div className="card-body">
         {canEdit ? (
           // TODO delete readOnly once I have some actual logic

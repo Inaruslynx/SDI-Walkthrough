@@ -32,7 +32,7 @@ import {
 } from "@/components/ui/select";
 import { toast } from "@/components/ui/use-toast";
 import { ChartData } from "chart.js";
-import api from "@/utils/api";
+import api from "@/lib/api";
 
 const FormSchema = z.object({
   dataSelection: z.string().min(1, { message: "Please select a data point." }),

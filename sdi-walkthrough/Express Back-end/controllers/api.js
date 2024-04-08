@@ -22,6 +22,7 @@ const User = require("../models/users");
 const Log = require("../models/logs");
 const PasswordReset = require("../models/PasswordReset");
 const Department = require("../models/departments");
+const Walkthrough = require("../models/walkthroughs");
 
 /**
  * Retrieves the latest log data and processes dates to retrieve the date range.
@@ -133,7 +134,7 @@ module.exports.processGraphFetch = async (req, res) => {
 
 module.exports.getReport = async (req, res) => {
   // TODO: use derpartment
-  const { department } = req.body
+  const { department } = req.body;
   const results = {};
   const resultsOfRecentLogs = {};
   // get all logs which will be an array of objects
@@ -188,4 +189,40 @@ module.exports.getReport = async (req, res) => {
 module.exports.getDepartments = async (req, res) => {
   const departments = await Department.find().select("-_id").exec();
   res.json(departments);
+};
+
+module.exports.getWalkthroughs = async (req, res) => {
+  const { department } = req.query;
+  const deptDoc = await Department.findOne({ name: department })
+    .populate("walkthroughs", "name -_id")
+    .exec();
+  if (!deptDoc) {
+    return res.status(404).json({ error: "Department not found" });
+  } else {
+    const result = deptDoc.walkthroughs.map((walkthrough) => {
+      return walkthrough.name;
+    })
+    res.status(200).json(result);
+  }
+};
+
+module.exports.createNewWalkthrough = async (req, res) => {
+  const { department, name } = req.body;
+  const walkthrough = await Walkthrough.findOne({ name: name }).exec();
+  const deptDoc = await Department.findOne({ name: department }).exec();
+  if (!deptDoc) {
+    return res.status(404).json({ error: "Department not found" });
+  } else if (walkthrough && walkthrough.length > 0) {
+    return res.status(400).json({ error: "Walkthrough already exists" });
+  } else {
+    const newWalkthrough = new Walkthrough({
+      name: name,
+      department: deptDoc._id,
+    });
+    const result = await newWalkthrough.save();
+    console.log(result);
+    deptDoc.walkthroughs.push(newWalkthrough._id);
+    await deptDoc.save();
+    res.status(200).json(result);
+  }
 };

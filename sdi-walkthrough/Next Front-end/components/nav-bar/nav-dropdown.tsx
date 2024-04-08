@@ -2,7 +2,6 @@
 import NavLink from "./nav-link";
 import { usePathname } from "next/navigation";
 import { useAuth, useUser } from "@clerk/nextjs";
-import { checkRole } from "@/utils/roles";
 
 export default function NavDropdown({ name }: { name: string }) {
   const path: string = usePathname();

@@ -6,6 +6,10 @@ const Department = new Schema(
         name: {
             type: String,
             require: true
+        },
+        walkthroughs: {
+            type: [Schema.Types.ObjectId],
+            ref: "Walkthrough",
         }
     }
 )

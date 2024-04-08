@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import type { ChartData } from "chart.js";
 import Graph from "./graph";
 import GraphForm from "./form";
-import api from "@/utils/api";
+import api from "@/lib/api";
 
 interface Response {
   data: {
@@ -57,24 +57,6 @@ export default function GraphPage({
     fetchData();
   }, [params.department]);
 
-  // useEffect(() => {
-  //   const handleResize = () => {
-  //     if (window.innerWidth < 1024) {
-  //       // Change data here if window size is smaller than large
-  //       setResults((prevData) => ({
-  //         ...prevData,
-  //         }),
-  //       )
-  //     }
-  //   };
-
-  //   window.addEventListener("resize", handleResize);
-
-  //   return () => {
-  //     window.removeEventListener("resize", handleResize);
-  //   };
-  // }, []);
-
   const handleDataFromChild = (data: ChartData<"line">) => {
     setResults(data);
     setShowGraph(true);
@@ -89,7 +71,7 @@ export default function GraphPage({
             {params.department} Graph
           </h1>
         </div>
-        
+
         {showForm && (
           <div className="mb-8 pb-4 row">
             <GraphForm

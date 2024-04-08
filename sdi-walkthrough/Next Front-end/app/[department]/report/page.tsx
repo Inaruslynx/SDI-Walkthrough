@@ -1,5 +1,5 @@
 "use client";
-import api from "@/utils/api";
+import api from "@/lib/api";
 import { useEffect, useState } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {

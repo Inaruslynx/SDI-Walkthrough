@@ -11,4 +11,6 @@ router.route("/report").get(tryAsync(api.getReport));
 
 router.route("/departments").get(tryAsync(api.getDepartments));
 
+router.route("/admin/walkthrough").get(tryAsync(api.getWalkthroughs)).post(tryAsync(api.createNewWalkthrough));
+
 module.exports = router;
