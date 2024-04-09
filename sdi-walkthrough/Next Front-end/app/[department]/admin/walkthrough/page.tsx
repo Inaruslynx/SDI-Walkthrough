@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -13,7 +13,8 @@ export default function WalkthroughPage({
 }: {
   params: { department: string };
 }) {
-  const [walkthroughs, setWalkthroughs] = React.useState([]);
+  const [walkthroughs, setWalkthroughs] = useState([]);
+  const [selectedWalkthrough, setSelectedWalkthrough] = useState("")
 
   React.useEffect(() => {
     api
@@ -30,10 +31,6 @@ export default function WalkthroughPage({
   }, [params.department]);
 
   const handleCreateNewWalkthrough = (name: String) => {
-    // TODO Write code to create new walkthrough
-    console.log("Creating new walkthrough");
-    console.log("process.env:", process.env);
-    console.log(api);
     api
       .post("/admin/walkthrough", { department: params.department, name: name })
       .then((res) => {
@@ -84,6 +81,7 @@ export default function WalkthroughPage({
         id="pickWalkthrough"
         className="m-4 select select-bordered"
         defaultValue="Select a Walkthrough"
+        onChange={(e) => setSelectedWalkthrough(e.target.value)}
       >
         {walkthroughs.length === 0 ? (
           <option disabled>Select a walkthrough</option>
