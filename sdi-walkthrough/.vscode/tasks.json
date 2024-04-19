@@ -18,6 +18,14 @@
             }
         },
         {
+            "label": "Start Nestjs Server",
+            "type": "shell",
+            "command": "npm run start:dev",
+            "options": {
+                "cwd": "c:/Next.js/sdi-walkthrough/nestjs-back-end"
+            }
+        },
+        {
             "label": "Start Both Servers",
             "dependsOrder": "sequence",
             "dependsOn": [
