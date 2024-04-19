@@ -21,5 +21,6 @@ import {
   ],
   controllers: [GraphController],
   providers: [GraphService],
+  exports: [GraphService, MongooseModule],
 })
 export class GraphModule {}

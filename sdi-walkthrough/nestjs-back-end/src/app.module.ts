@@ -6,6 +6,10 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { GraphController } from './graph/graph.controller';
 import { GraphModule } from './graph/graph.module';
 import { DepartmentsModule } from './departments/departments.module';
+import { GraphService } from './graph/graph.service';
+import { ReportModule } from './report/report.module';
+import { WalkthroughModule } from './walkthrough/walkthrough.module';
+import { LogModule } from './log/log.module';
 
 @Module({
   imports: [
@@ -20,11 +24,11 @@ import { DepartmentsModule } from './departments/departments.module';
     }),
     GraphModule,
     DepartmentsModule,
+    ReportModule,
+    WalkthroughModule,
+    LogModule,
   ],
   controllers: [AppController, GraphController],
-  providers: [AppService],
+  providers: [AppService, GraphService],
 })
 export class AppModule {}
-
-// `mongodb://${process.env.MONGO_USERNAME}:${process.env.MONGO_PASSWORD}@127.0.0.1:27017/?authMechanism=DEFAULT`
-// 'mongodb://DataEntry:secret@localhost:27017/?authMechanism=DEFAULT'

@@ -2,14 +2,26 @@ import { Injectable } from '@nestjs/common';
 import { CreateDepartmentDto } from './dto/create-department.dto';
 import { UpdateDepartmentDto } from './dto/update-department.dto';
 
+import { Model } from 'mongoose';
+import { InjectModel } from '@nestjs/mongoose';
+import { Department } from 'src/schemas/departments.schema';
+
 @Injectable()
 export class DepartmentsService {
+  constructor(
+    @InjectModel(Department.name) private departmentModel: Model<Department>,
+  ) {}
+
   create(createDepartmentDto: CreateDepartmentDto) {
     return 'This action adds a new department';
   }
 
-  findAll() {
-    return `This action returns all departments`;
+  async findAll() {
+    const departments = await this.departmentModel
+      .find()
+      .select('-__v -_id')
+      .exec();
+    return departments;
   }
 
   findOne(id: number) {

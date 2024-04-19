@@ -15,6 +15,14 @@
         "-Command",
         "cd 'c:/Next.js/sdi-walkthrough/Express Back-end'; npm run dev"
       ]
+    },
+    "Nestjs Back-end": {
+      "path": "PowerShell",
+      "args": [
+        "-NoExit",
+        "-Command",
+        "cd 'c:/Next.js/sdi-walkthrough/nestjs-back-end'; npm run start:dev"
+      ]
     }
   },
   "terminal.integrated.defaultProfile.windows": "PowerShell"
