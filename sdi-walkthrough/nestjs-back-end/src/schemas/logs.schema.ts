@@ -7,7 +7,7 @@ import { Department } from './departments.schema';
 export type LogDocument = HydratedDocument<Log>;
 
 export interface LogData {
-  [key: string]: string | number | boolean;
+  [key: string]: string;
 }
 
 @Schema({ timestamps: true })
@@ -30,7 +30,7 @@ export class Log {
   walkthrough: Walkthrough;
 
   @Prop({ required: true, type: Object })
-  data: LogData[];
+  data: LogData;
 
   @Prop({ default: Date.now })
   date: Date;
