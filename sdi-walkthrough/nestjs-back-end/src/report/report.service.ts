@@ -11,16 +11,17 @@ export class ReportService {
   async find(walkthrough: string) {
     const results = {};
     const resultsOfRecentLogs = {};
+    // console.log(walkthrough);
     // get all logs which will be an array of objects
     const logs = await this.logModel
       .find({ name: walkthrough })
       .select('data -_id')
       .exec();
-    let refinedLogs = logs.map((log) => {
+    const refinedLogs = logs.map((log) => {
       return log.data;
     });
-    refinedLogs = refinedLogs.map((data) => {
-      let result = Object.fromEntries(
+    const newRefinedLogs = refinedLogs.map((data) => {
+      const result = Object.fromEntries(
         Object.entries(data).filter(
           ([_key, value]) =>
             typeof parseFloat(value) === 'number' && !isNaN(parseFloat(value)),
@@ -28,22 +29,25 @@ export class ReportService {
       );
       return result;
     });
-    const lastLog = refinedLogs.pop();
-    const beforeLastLog = refinedLogs[refinedLogs.length - 1];
+    const lastLog = newRefinedLogs.pop();
+    const beforeLastLog = newRefinedLogs[newRefinedLogs.length - 1];
 
     // Iterate over each key in lastLog
     Object.keys(lastLog).forEach((key) => {
       // Check if the key exists in beforeLastLog
       if (beforeLastLog.hasOwnProperty(key)) {
         // Calculate the difference and store it in the results object
-        resultsOfRecentLogs[key] = round(lastLog[key] - beforeLastLog[key], 2);
+        resultsOfRecentLogs[key] = round(
+          Number(lastLog[key]) - Number(beforeLastLog[key]),
+          2,
+        );
       }
     });
     // console.log(resultsOfRecentLogs);
 
     // console.log(refinedLogs);
-    Object.keys(refinedLogs[0]).forEach((key) => {
-      let values = refinedLogs.map((data) => parseFloat(data[key]));
+    Object.keys(newRefinedLogs[0]).forEach((key) => {
+      let values = newRefinedLogs.map((data) => parseFloat(data[key]));
       values = values.filter((value) => !isNaN(value));
       const Mean = round(mean(values), 2);
       const stdDev = round(std(values), 2);
@@ -58,6 +62,6 @@ export class ReportService {
     });
     // console.log(lastLog);
     // This will render the page
-    return logs;
+    return { lastLog, beforeLastLog, results, resultsOfRecentLogs };
   }
 }

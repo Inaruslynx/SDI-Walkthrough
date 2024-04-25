@@ -11,10 +11,11 @@ export class GraphController {
 
   @Post()
   processGraphFetch(
-    @Body('department') department: string,
+    @Body('walkthrough') walkthrough: string,
     @Body('fromDate') fromDate: string,
     @Body('toDate') toDate: string,
+    @Body('dataSelection') dataSelection: string,
   ) {
-    return this.graphService.processGraphFetch(department, fromDate, toDate);
+    return this.graphService.processGraphFetch(walkthrough, fromDate, toDate, dataSelection);
   }
 }

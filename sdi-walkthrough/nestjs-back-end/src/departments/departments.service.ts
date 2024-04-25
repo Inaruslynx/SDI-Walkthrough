@@ -19,7 +19,8 @@ export class DepartmentsService {
   async findAll() {
     const departments = await this.departmentModel
       .find()
-      .select('-__v -_id')
+      .select('name walkthroughs -_id')
+      .populate('walkthroughs', 'name -_id')
       .exec();
     return departments;
   }
