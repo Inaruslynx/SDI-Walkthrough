@@ -2,21 +2,18 @@ import { Module } from '@nestjs/common';
 import { GraphController } from './graph.controller';
 import { GraphService } from './graph.service';
 import { MongooseModule } from '@nestjs/mongoose';
-import { Log, LogSchema } from 'src/schemas/logs.schema';
-import { Department, DepartmentSchema } from 'src/schemas/departments.schema';
-import {
-  Walkthrough,
-  WalkthroughSchema,
-} from 'src/schemas/walkthroughs.schema';
+import { LogSchema } from 'src/schemas/logs.schema';
+import { DepartmentSchema } from 'src/schemas/departments.schema';
+import { WalkthroughSchema } from 'src/schemas/walkthroughs.schema';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: Log.name, schema: LogSchema }]),
+    MongooseModule.forFeature([{ name: 'Log', schema: LogSchema }]),
     MongooseModule.forFeature([
-      { name: Department.name, schema: DepartmentSchema },
+      { name: 'Department', schema: DepartmentSchema },
     ]),
     MongooseModule.forFeature([
-      { name: Walkthrough.name, schema: WalkthroughSchema },
+      { name: 'Walkthrough', schema: WalkthroughSchema },
     ]),
   ],
   controllers: [GraphController],

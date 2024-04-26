@@ -1,4 +1,12 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+} from '@nestjs/common';
 import { WalkthroughService } from './walkthrough.service';
 import { CreateWalkthroughDto } from './dto/create-walkthrough.dto';
 import { UpdateWalkthroughDto } from './dto/update-walkthrough.dto';
@@ -13,8 +21,8 @@ export class WalkthroughController {
   }
 
   @Get()
-  findAll() {
-    return this.walkthroughService.findAll();
+  findAll(@Param('department') department: string) {
+    return this.walkthroughService.findAll(department);
   }
 
   @Get(':id')
@@ -23,7 +31,10 @@ export class WalkthroughController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateWalkthroughDto: UpdateWalkthroughDto) {
+  update(
+    @Param('id') id: string,
+    @Body() updateWalkthroughDto: UpdateWalkthroughDto,
+  ) {
     return this.walkthroughService.update(+id, updateWalkthroughDto);
   }
 
