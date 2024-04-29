@@ -8,14 +8,6 @@
         "cd 'c:/Next.js/sdi-walkthrough/Next Front-end'; npm run dev"
       ]
     },
-    "Express Back-end": {
-      "path": "PowerShell",
-      "args": [
-        "-NoExit",
-        "-Command",
-        "cd 'c:/Next.js/sdi-walkthrough/Express Back-end'; npm run dev"
-      ]
-    },
     "Nestjs Back-end": {
       "path": "PowerShell",
       "args": [

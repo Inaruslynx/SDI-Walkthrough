@@ -1,37 +1,26 @@
 {
-    "version": "2.0.0",
-    "tasks": [
-        {
-            "label": "Start Express Server",
-            "type": "shell",
-            "command": "npm run dev",
-            "options": {
-                "cwd": "c:/Next.js/sdi-walkthrough/Express Back-end"
-            }
-        },
-        {
-            "label": "Start Next Server",
-            "type": "shell",
-            "command": "npm run dev",
-            "options": {
-                "cwd": "c:/Next.js/sdi-walkthrough/Next Front-end"
-            }
-        },
-        {
-            "label": "Start Nestjs Server",
-            "type": "shell",
-            "command": "npm run start:dev",
-            "options": {
-                "cwd": "c:/Next.js/sdi-walkthrough/nestjs-back-end"
-            }
-        },
-        {
-            "label": "Start Both Servers",
-            "dependsOrder": "sequence",
-            "dependsOn": [
-                "Start Express Server",
-                "Start Next Server"
-            ]
-        }
-    ]
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Start Next Server",
+      "type": "shell",
+      "command": "npm run dev",
+      "options": {
+        "cwd": "c:/Next.js/sdi-walkthrough/Next Front-end"
+      }
+    },
+    {
+      "label": "Start Nestjs Server",
+      "type": "shell",
+      "command": "npm run start:dev",
+      "options": {
+        "cwd": "c:/Next.js/sdi-walkthrough/nestjs-back-end"
+      }
+    },
+    {
+      "label": "Start Both Servers",
+      "dependsOrder": "parallel",
+      "dependsOn": ["Start Nestjs Server", "Start Next Server"]
+    }
+  ]
 }
