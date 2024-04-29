@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
+import { ToastContainer } from "react-toastify";
 import { ClerkProvider } from "@clerk/nextjs";
+import ReactQueryProvider from "@/providers/ReactQueryProvider";
 import NavBar from "@/components/nav-bar/nav-bar";
 import "./globals.css";
 
@@ -14,15 +16,27 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <ClerkProvider>
-      <html data-theme="dark" lang="en" id="mainHtml">
-        <body className="bg-base-100">
-          <div className="grid grid-rows-2 h-screen">
-            <NavBar />
-            <div className="row auto-rows-auto mt-24">{children}</div>
-          </div>
-        </body>
-      </html>
-    </ClerkProvider>
+    <>
+      <ClerkProvider>
+        <html data-theme="dark" lang="en" id="mainHtml">
+          <body className="bg-base-100">
+            <ReactQueryProvider>
+              <div className="grid grid-rows-2 h-screen">
+                <NavBar />
+                <div className="row mt-32">{children}</div>
+                <div className="row h-0">
+                  <ToastContainer
+                    position="top-center"
+                    autoClose={3000}
+                    closeOnClick
+                    theme="colored"
+                  />
+                </div>
+              </div>
+            </ReactQueryProvider>
+          </body>
+        </html>
+      </ClerkProvider>
+    </>
   );
 }

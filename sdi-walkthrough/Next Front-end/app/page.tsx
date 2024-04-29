@@ -1,7 +1,7 @@
 export default function Home() {
   return (
     <>
-      <main className="p-12 bg-base-100 prose md:prose-lg text-base-content max-w-full">
+      <main className="px-12 bg-base-100 prose md:prose-lg text-base-content max-w-full">
         <div className="container">
           <h1>Welcome to SDI Walkthrough</h1>
           <p>
@@ -28,12 +28,16 @@ export default function Home() {
             </li>
             <li>Ability for admins to configure walkthroughs.</li>
             <li>
-              <s>Connect to Microsoft identities so users log in with Microsoft
-              account. Either use Clerk or something on Express. (maybe)</s>
+              <s>
+                Connect to Microsoft identities so users log in with Microsoft
+                account. Either use Clerk or something on Express. (maybe)
+              </s>
             </li>
             <li>
-              <s>Leverage Microsoft identities to know what department a user is
-              part of and if they are an admin. (maybe)</s>
+              <s>
+                Leverage Microsoft identities to know what department a user is
+                part of and if they are an admin. (maybe)
+              </s>
             </li>
           </ul>
         </div>

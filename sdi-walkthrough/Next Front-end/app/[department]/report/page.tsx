@@ -1,7 +1,6 @@
 "use client";
 import api from "@/lib/api";
 import { useEffect, useState } from "react";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Table,
   TableBody,
@@ -10,6 +9,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import type { AxiosResponse } from "axios";
+import type { WalkthroughsResponse } from "@/types";
+import SelectWalkthrough from "@/components/ui/selectWalkthrough";
 
 type Log = {
   [key: string]: Number;
@@ -24,14 +26,12 @@ type MathResults = {
   };
 };
 
-type Response = {
-  data: {
-    lastLog: Log;
-    beforeLastLog: Log;
-    results: MathResults;
-    resultsOfRecentLogs: Log;
-  };
-};
+type ReportResponse = AxiosResponse<{
+  lastLog: Log;
+  beforeLastLog: Log;
+  results: MathResults;
+  resultsOfRecentLogs: Log;
+}>;
 
 export default function ReportPage({
   params,
@@ -43,27 +43,51 @@ export default function ReportPage({
   const [results, setResults] = useState<MathResults>({});
   const [resultsOfRecentLogs, setResultsOfRecentLogs] = useState<Log>({});
   const [showTable, setShowTable] = useState(false);
+  const [selectedWalkthrough, setSelectedWalkthrough] = useState("");
+  const [walkthroughs, setWalkthroughs] = useState<string[]>([
+    "Select a Walkthrough",
+  ]);
 
   useEffect(() => {
     const fetchData = async () => {
-      console.log("Fetching report data.");
+      // console.log("Fetching Walkthroughs in department");
+      if (selectedWalkthrough === "") {
+        return;
+      }
       try {
-        const response: Response = await api.get(
-          `http://fs3s-hotmilllog/HM_Walkthrough/api/report`,
-          {
-            params: {
-              dataSelection: params.department,
-            },
-          }
-        );
-        console.log("useEffect ran for getting report");
-        console.log("recieved data:", response.data);
+        const response: ReportResponse = await api.get("report", {
+          params: {
+            walkthrough: selectedWalkthrough,
+          },
+        });
         setLastLog(response.data.lastLog);
         setBeforeLastLog(response.data.beforeLastLog);
         setResults(response.data.results);
         setResultsOfRecentLogs(response.data.resultsOfRecentLogs);
         setShowTable(true);
-        console.log("Finished fetching form data.");
+        // console.log("Finished fetching form data.");
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+    fetchData();
+  }, [selectedWalkthrough]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      // console.log("Fetching report data.");
+      try {
+        const response: WalkthroughsResponse = await api.get(`walkthrough`, {
+          params: {
+            department: params.department,
+          },
+        });
+        // console.log("useEffect ran for getting walkthroughs");
+        // console.log("recieved data:", response.data);
+        setWalkthroughs([...walkthroughs, ...response.data.walkthroughs]);
+        console.log(...walkthroughs, ...response.data.walkthroughs);
+        console.log(walkthroughs.length);
+        // console.log("Finished fetching form data.");
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -73,9 +97,17 @@ export default function ReportPage({
 
   return (
     <>
-      <div className="p-8 grid justify-center">
-        <div className="row m-4 p-4 relative justify-center prose md:prose-lg max-w-full container">
+      <div className="px-8 grid justify-center">
+        <div className="row mb-8 relative justify-center prose md:prose-lg max-w-full container">
           <h1 className="text-center">{params.department} Report</h1>
+        </div>
+        <div className="row flex m-2 p-2 justify-center container">
+          <SelectWalkthrough
+            walkthroughs={walkthroughs}
+            defaultSelection={walkthroughs[0]}
+            disabledSelection={walkthroughs[0]}
+            onChange={setSelectedWalkthrough}
+          />
         </div>
         <div className="row max-w-screen-2xl mx-auto overflow-auto overscroll-contain">
           <Table>

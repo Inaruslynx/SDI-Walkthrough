@@ -1,3 +1,4 @@
+"use client";
 import {
   UserButton,
   SignedIn,
@@ -9,44 +10,21 @@ import {
 import NavLink from "./nav-link";
 import NavDropdown from "./nav-dropdown";
 import ThemeSelector from "./theme-selector/theme-selector";
+import { getDepartmentData } from "@/lib/api";
+import { useQuery } from "@tanstack/react-query";
+import { Department } from "@/types";
 
-interface Department {
-  name: string;
-}
+export default function NavBar() {
+  // const [departments, setDepartments] = useState<Department[]>([]);
+  const departments = useQuery<Department[], Error>({
+    queryKey: ["departments"],
+    queryFn: getDepartmentData,
+    staleTime: 1000 * 60 * 5, // ms * s * m
+  });
 
-async function getData() {
-  const URL = process.env.NEXT_PUBLIC_API_URL + "/departments";
-  // console.log(URL);
-  const response = await fetch(URL);
-  // The return value is *not* serialized
-  // You can return Date, Map, Set, etc.
-
-  if (!response.ok) {
-    // This will activate the closest `error.js` Error Boundary
-    throw new Error("Failed to fetch data");
-  }
-
-  const responseData = await response.arrayBuffer();
-  const data = new TextDecoder().decode(responseData);
-  // console.log(data);
-  const parsedData: Array<{ name: string }> = JSON.parse(data).map(
-    (item: { name: string }) => {
-      // console.log(item.name);
-      return { name: item.name };
-    }
-  );
-  // console.log(parsedData);
-
-  return parsedData;
-}
-
-export default async function NavBar() {
-  const data = await getData();
-  const departments: Department[] = data;
-  // At some point I need to check a database and generate links based on that ie. Electrical, Mechanical, and Operations
   return (
     <>
-      <header className="row row-span-1 bg-base-300 z-50 container fixed top-0 max-w-full">
+      <header className="row row-span-1 bg-base-300 z-40 container fixed top-0 max-w-full">
         <nav className="p-4 navbar bg-base-300">
           <div className="navbar-start">
             {/* Below is UI for small screens  */}
@@ -74,7 +52,7 @@ export default async function NavBar() {
                 <li>
                   <NavLink href="/">Home</NavLink>
                 </li>
-                {departments.map((department) => (
+                {departments.data?.map((department) => (
                   <details key={department.name} className="collapse">
                     <summary className="collapse-title">
                       {department.name}
@@ -106,7 +84,7 @@ export default async function NavBar() {
               <NavLink button href="/">
                 Home
               </NavLink>
-              {departments.map((department) => (
+              {departments.data?.map((department) => (
                 <NavDropdown name={department.name} key={department.name} />
               ))}
             </div>

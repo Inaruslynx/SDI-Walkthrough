@@ -1,27 +1,30 @@
 "use client";
 import React, { useState } from "react";
-import { ToastContainer, toast } from "react-toastify";
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import WalkthroughCard from "./WalkthroughCard";
 import api from "@/lib/api";
 import Modal from "./modal";
 import Button from "./button";
+import SelectWalkthrough from "@/components/ui/selectWalkthrough";
 
 export default function WalkthroughPage({
   params,
 }: {
   params: { department: string };
 }) {
-  const [walkthroughs, setWalkthroughs] = useState([]);
-  const [selectedWalkthrough, setSelectedWalkthrough] = useState("")
+  const [walkthroughs, setWalkthroughs] = useState(["Select a Walkthrough"]);
+  const [selectedWalkthrough, setSelectedWalkthrough] = useState("");
 
   React.useEffect(() => {
     api
-      .get("/admin/walkthrough", { params: { department: params.department } })
+      .get("walkthrough", { params: { department: params.department } })
       .then((res) => {
-        console.log(res.data);
-        setWalkthroughs(res.data);
+        // console.log(res.data);
+        // console.log("Toast opening");
+        toast.success("Got Walkthroughs!");
+        setWalkthroughs([...walkthroughs, ...res.data.walkthroughs]);
       })
       .catch((err) => {
         toast.error(
@@ -32,7 +35,7 @@ export default function WalkthroughPage({
 
   const handleCreateNewWalkthrough = (name: String) => {
     api
-      .post("/admin/walkthrough", { department: params.department, name: name })
+      .post("walkthrough", { department: params.department, name: name })
       .then((res) => {
         if (res.status === 200) {
           toast.success("Successfully created new walkthough.");
@@ -46,16 +49,10 @@ export default function WalkthroughPage({
   };
 
   return (
-    <div className="p-8">
-      <div className="m-4 p-4 relative justify-center prose md:prose-lg max-w-full container">
+    <div className="px-8 pb-4">
+      <div className="mb-4 relative justify-center prose md:prose-lg max-w-full container">
         <h1 className="text-center">Admin - {params.department} Walkthrough</h1>
       </div>
-      <ToastContainer
-        position="top-center"
-        autoClose={3000}
-        closeOnClick
-        theme="colored"
-      />
       <Button />
       <Modal
         id="walkthrough-dialog"
@@ -76,24 +73,13 @@ export default function WalkthroughPage({
       >
         Create
       </Modal>
-      <select
-        name="pickWalkthrough"
-        id="pickWalkthrough"
-        className="m-4 select select-bordered"
-        defaultValue="Select a Walkthrough"
-        onChange={(e) => setSelectedWalkthrough(e.target.value)}
-      >
-        {walkthroughs.length === 0 ? (
-          <option disabled>Select a walkthrough</option>
-        ) : (
-          ""
-        )}
-        {walkthroughs.map((walkthrough) => (
-          <option key={walkthrough} value={walkthrough}>
-            {walkthrough}
-          </option>
-        ))}
-      </select>
+      <SelectWalkthrough
+        walkthroughs={walkthroughs}
+        defaultSelection={walkthroughs[0]}
+        disabledSelection={walkthroughs[0]}
+        onChange={setSelectedWalkthrough}
+      />
+
       <ScrollArea id="scroll-area" className="border min-h-screen">
         <WalkthroughCard />
       </ScrollArea>

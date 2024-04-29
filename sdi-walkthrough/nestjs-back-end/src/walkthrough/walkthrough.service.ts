@@ -1,4 +1,10 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  HttpException,
+  HttpStatus,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateWalkthroughDto } from './dto/create-walkthrough.dto';
 import { UpdateWalkthroughDto } from './dto/update-walkthrough.dto';
 import { InjectModel } from '@nestjs/mongoose';
@@ -13,22 +19,32 @@ export class WalkthroughService {
   ) {}
 
   create(createWalkthroughDto: CreateWalkthroughDto) {
-    
     return 'This action adds a new walkthrough';
   }
 
   async findAll(department) {
+    if (!department) {
+      throw new BadRequestException('Request is empty', {
+        cause: new Error(),
+        description: 'Request is empty',
+      });
+    }
     const deptDoc = await this.departmentModel
       .findOne({ name: department })
       .select('walkthroughs -_id')
+      .populate('walkthroughs', 'name -_id')
       .exec();
+    // console.log(department, deptDoc);
     if (!deptDoc) {
-      throw new HttpException('Department not found', HttpStatus.NOT_FOUND);
+      throw new NotFoundException('Department not found', {
+        cause: new Error(),
+        description: 'Department not found',
+      });
     }
     const result = deptDoc.walkthroughs.map((walkthrough) => {
       return walkthrough.name;
     });
-    return result;
+    return { walkthroughs: result };
   }
 
   findOne(id: number) {

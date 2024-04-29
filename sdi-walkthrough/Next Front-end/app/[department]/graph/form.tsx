@@ -30,9 +30,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { toast } from "@/components/ui/use-toast";
+import { toast } from "react-toastify";
 import { ChartData } from "chart.js";
 import api from "@/lib/api";
+import type { AxiosResponse } from "axios";
 
 const FormSchema = z.object({
   dataSelection: z.string().min(1, { message: "Please select a data point." }),
@@ -40,9 +41,11 @@ const FormSchema = z.object({
   toDatePicker: z.date(),
 });
 
-interface PostResponse {
-  data: [{ date: string; value: number }];
-}
+type PostResponse = AxiosResponse<[{
+    date: string,
+    value: number,
+  }]>;
+
 
 interface GraphFormProps {
   onDataFromChild: (data: ChartData<"line">) => void;
@@ -69,20 +72,13 @@ export default function GraphForm({
   //   console.log("toDate:", toDate);
 
   async function onSubmit(Data: z.infer<typeof FormSchema>) {
-    toast({
-      title: "You submitted the following values:",
-      description: (
-        <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-          <code className="text-white">{JSON.stringify(Data, null, 2)}</code>
-        </pre>
-      ),
-    });
+    toast.success('Successfully got graph!');
     try {
       // Make Axios POST request with input data
       // response should be [{date: Date, value: number}]
       //   console.log("form data:", Data);
       const response: PostResponse = await api.post(
-        "http://fs3s-hotmilllog/HM_Walkthrough/api/graph",
+        "graph",
         {
           dataSelection: Data.dataSelection,
           fromDate: Data.fromDatePicker.toISOString(),

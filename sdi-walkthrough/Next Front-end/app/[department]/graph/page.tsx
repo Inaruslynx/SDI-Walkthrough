@@ -35,14 +35,11 @@ export default function GraphPage({
     const fetchData = async () => {
       console.log("Fetching form initial data.");
       try {
-        const response: Response = await api.get(
-          `http://fs3s-hotmilllog/HM_Walkthrough/api/graph`,
-          {
-            params: {
-              dataSelection: params.department,
-            },
-          }
-        );
+        const response: Response = await api.get(`graph`, {
+          params: {
+            walkthrough: params.department,
+          },
+        });
         // console.log("useEffect ran for Form initial load");
         // console.log("recieved data:", response.data);
         setOptions(response.data.dataPoints);
@@ -64,7 +61,7 @@ export default function GraphPage({
 
   // Title at top, selector for data point, from date input, to date input
   return (
-    <div className="p-16">
+    <div className="px-16">
       <div className="grid prose md:prose-lg max-w-full container items-center justify-center justify-items-center content-center place-content-center">
         <div className="row">
           <h1 className="justify-self-center self-center place-self-center">

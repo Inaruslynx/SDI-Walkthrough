@@ -6,6 +6,7 @@ import {
   Patch,
   Param,
   Delete,
+  Query,
 } from '@nestjs/common';
 import { WalkthroughService } from './walkthrough.service';
 import { CreateWalkthroughDto } from './dto/create-walkthrough.dto';
@@ -21,7 +22,7 @@ export class WalkthroughController {
   }
 
   @Get()
-  findAll(@Param('department') department: string) {
+  findAll(@Query('department') department: string) {
     return this.walkthroughService.findAll(department);
   }
 
