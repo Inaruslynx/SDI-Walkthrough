@@ -1,1 +1,4 @@
-export class CreateWalkthroughDto {}
+export class CreateWalkthroughDto {
+  name: string;
+  department: string;
+}

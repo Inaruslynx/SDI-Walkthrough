@@ -13,10 +13,12 @@ import ThemeSelector from "./theme-selector/theme-selector";
 import { getDepartmentData } from "@/lib/api";
 import { useQuery } from "@tanstack/react-query";
 import { Department } from "@/types";
+import { AxiosResponse } from "axios";
+// import { useEffect } from "react";
 
 export default function NavBar() {
   // const [departments, setDepartments] = useState<Department[]>([]);
-  const departments = useQuery<Department[], Error>({
+  const departments = useQuery<AxiosResponse<Department[]>, Error>({
     queryKey: ["departments"],
     queryFn: getDepartmentData,
     staleTime: 1000 * 60 * 5, // ms * s * m
@@ -52,7 +54,10 @@ export default function NavBar() {
                 <li>
                   <NavLink href="/">Home</NavLink>
                 </li>
-                {departments.data?.map((department) => (
+                {departments.isLoading && (
+                  <div className="skeleton h-10 w-20 rounded-md"></div>
+                )}
+                {departments.data?.data?.map((department) => (
                   <details key={department.name} className="collapse">
                     <summary className="collapse-title">
                       {department.name}
@@ -84,7 +89,14 @@ export default function NavBar() {
               <NavLink button href="/">
                 Home
               </NavLink>
-              {departments.data?.map((department) => (
+              {departments.isLoading && (
+                <>
+                  <div className="skeleton m-2 px-4 py-2 w-20"></div>
+                  <div className="skeleton m-2 px-4 py-2 w-20"></div>
+                  <div className="skeleton m-2 px-4 py-2 w-20"></div>
+                </>
+              )}
+              {departments.data?.data?.map((department) => (
                 <NavDropdown name={department.name} key={department.name} />
               ))}
             </div>

@@ -7,6 +7,9 @@ import {
   Param,
   Delete,
   Query,
+  HttpCode,
+  HttpStatus,
+  BadRequestException,
 } from '@nestjs/common';
 import { WalkthroughService } from './walkthrough.service';
 import { CreateWalkthroughDto } from './dto/create-walkthrough.dto';
@@ -17,18 +20,20 @@ export class WalkthroughController {
   constructor(private readonly walkthroughService: WalkthroughService) {}
 
   @Post()
+  @HttpCode(HttpStatus.CREATED)
   create(@Body() createWalkthroughDto: CreateWalkthroughDto) {
     return this.walkthroughService.create(createWalkthroughDto);
   }
 
   @Get()
-  findAll(@Query('department') department: string) {
-    return this.walkthroughService.findAll(department);
-  }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.walkthroughService.findOne(+id);
+  find(@Query('department') department?: string, @Query('name') name?: string) {
+    if (department) {
+      return this.walkthroughService.findAll(department);
+    }
+    if (name) {
+      return this.walkthroughService.findOne(name);
+    }
+    throw new BadRequestException('Request is empty');
   }
 
   @Patch(':id')

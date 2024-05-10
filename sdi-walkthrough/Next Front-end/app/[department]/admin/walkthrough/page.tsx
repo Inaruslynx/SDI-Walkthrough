@@ -1,52 +1,61 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import WalkthroughCard from "./WalkthroughCard";
-import api from "@/lib/api";
+import { createWalkthrough, getWalkthrough, getWalkthroughs } from "@/lib/api";
 import Modal from "./modal";
 import Button from "./button";
 import SelectWalkthrough from "@/components/ui/selectWalkthrough";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { Walkthrough, Walkthroughs } from "@/types";
+import { AxiosResponse } from "axios";
 
 export default function WalkthroughPage({
   params,
 }: {
   params: { department: string };
 }) {
-  const [walkthroughs, setWalkthroughs] = useState(["Select a Walkthrough"]);
+  const queryClient = useQueryClient();
   const [selectedWalkthrough, setSelectedWalkthrough] = useState("");
 
-  React.useEffect(() => {
-    api
-      .get("walkthrough", { params: { department: params.department } })
-      .then((res) => {
-        // console.log(res.data);
-        // console.log("Toast opening");
-        toast.success("Got Walkthroughs!");
-        setWalkthroughs([...walkthroughs, ...res.data.walkthroughs]);
-      })
-      .catch((err) => {
-        toast.error(
-          `Failed to fetch walkthrough because ${err.response.data.error}`
-        );
-      });
-  }, [params.department]);
+  // Fetch all walkthroughs for department
+  const walkthroughs = useQuery<AxiosResponse<Walkthroughs>, Error>({
+    queryKey: ["walkthrough", { department: params.department }],
+    queryFn: () => getWalkthroughs(params.department),
+    staleTime: 1000 * 60 * 5,
+  });
 
-  const handleCreateNewWalkthrough = (name: String) => {
-    api
-      .post("walkthrough", { department: params.department, name: name })
-      .then((res) => {
-        if (res.status === 200) {
-          toast.success("Successfully created new walkthough.");
-        }
-      })
-      .catch((err) => {
-        toast.error(
-          `Failed to create walkthrough because ${err.response.data.error}`
-        );
-      });
-  };
+  // Create new walkthrough
+  const handleCreateNewWalkthrough = useMutation({
+    mutationFn: (name: string) => {
+      return createWalkthrough(name, params.department);
+    },
+    onSuccess: () => {
+      toast.success("Successfully created new walkthrough.");
+      queryClient.invalidateQueries({ queryKey: ["walkthrough"] });
+    },
+    onError: () => {
+      toast.error("Failed to create walkthrough.");
+    },
+  });
+
+  const selectedWalkthroughQuery = useQuery<AxiosResponse<Walkthrough>, Error>({
+    queryKey: ["walkthrough", { name: selectedWalkthrough }],
+    queryFn: () => getWalkthrough(selectedWalkthrough),
+    staleTime: 1000 * 60 * 5,
+    enabled: selectedWalkthrough !== "",
+  });
+
+  // is this necessary?
+  useEffect(() => {
+    // TODO - load all of the areas and datapoints
+    if (selectedWalkthrough !== "") {
+      selectedWalkthroughQuery.refetch();
+      console.log("selectedWalkthrough", selectedWalkthroughQuery?.data?.data);
+    }
+  }, [selectedWalkthrough]);
 
   return (
     <div className="px-8 pb-4">
@@ -57,7 +66,7 @@ export default function WalkthroughPage({
       <Modal
         id="walkthrough-dialog"
         onClick={() => {
-          handleCreateNewWalkthrough(
+          handleCreateNewWalkthrough.mutate(
             (
               window.document.getElementById(
                 "walkthroughName"
@@ -74,9 +83,7 @@ export default function WalkthroughPage({
         Create
       </Modal>
       <SelectWalkthrough
-        walkthroughs={walkthroughs}
-        defaultSelection={walkthroughs[0]}
-        disabledSelection={walkthroughs[0]}
+        walkthroughs={walkthroughs.data?.data?.walkthroughs}
         onChange={setSelectedWalkthrough}
       />
 

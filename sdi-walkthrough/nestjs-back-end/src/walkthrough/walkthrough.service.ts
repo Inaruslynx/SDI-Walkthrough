@@ -3,6 +3,7 @@ import {
   HttpException,
   HttpStatus,
   Injectable,
+  InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
 import { CreateWalkthroughDto } from './dto/create-walkthrough.dto';
@@ -16,10 +17,40 @@ import { Model } from 'mongoose';
 export class WalkthroughService {
   constructor(
     @InjectModel(Department.name) private departmentModel: Model<Department>,
+    @InjectModel(Walkthrough.name) private walkthroughModel: Model<Walkthrough>,
   ) {}
 
-  create(createWalkthroughDto: CreateWalkthroughDto) {
-    return 'This action adds a new walkthrough';
+  async create(createWalkthroughDto: CreateWalkthroughDto) {
+    if (!createWalkthroughDto.name || !createWalkthroughDto.department) {
+      throw new BadRequestException('Missing name.');
+    } else {
+      const DepartmentDocument = await this.departmentModel
+        .findOne({
+          name: createWalkthroughDto.department,
+        })
+        .populate('walkthroughs')
+        .exec();
+      if (!DepartmentDocument) {
+        throw new NotFoundException('Department not found', {
+          cause: new Error(),
+          description: 'Department not found',
+        });
+      } else {
+        const newWalkthrough = new this.walkthroughModel({
+          name: createWalkthroughDto.name,
+          department: DepartmentDocument,
+        });
+        DepartmentDocument.walkthroughs.push(newWalkthrough);
+        await DepartmentDocument.save();
+        const result = await newWalkthrough.save();
+        if (result.errors) {
+          throw new InternalServerErrorException(
+            'Failed to create walkthrough',
+          );
+        }
+        return;
+      }
+    }
   }
 
   async findAll(department) {
@@ -47,8 +78,17 @@ export class WalkthroughService {
     return { walkthroughs: result };
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} walkthrough`;
+  async findOne(name: string) {
+    if (!name) {
+      throw new BadRequestException('Request is empty', {
+        cause: new Error(),
+        description: 'Request is empty',
+      });
+    }
+    const walkthroughDoc = await this.walkthroughModel
+      .findOne({ name: name })
+      .select('-data');
+    return { data: walkthroughDoc };
   }
 
   update(id: number, updateWalkthroughDto: UpdateWalkthroughDto) {
