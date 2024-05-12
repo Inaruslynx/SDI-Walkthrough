@@ -95,7 +95,28 @@ export class WalkthroughService {
     return `This action updates a #${id} walkthrough`;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} walkthrough`;
+  async remove(name: string) {
+    if (!name) {
+      throw new BadRequestException('Request is empty', {
+        cause: new Error(),
+        description: 'Request is empty',
+      });
+    }
+    const walkthroughDoc = await this.walkthroughModel.findOne({ name: name });
+    const deptDoc = await this.departmentModel.findById(
+      walkthroughDoc.department,
+    );
+    const filteredWalkthroughs = deptDoc.walkthroughs.filter(
+      (walkthrough) => walkthrough.toString() !== walkthroughDoc._id.toString(),
+    )
+    deptDoc.walkthroughs = filteredWalkthroughs;
+    await deptDoc.save();
+    const result = await this.walkthroughModel.findByIdAndDelete(
+      walkthroughDoc._id,
+    )
+    if (!result) {
+
+    }
+    return `This action removes a #${name} walkthrough`;
   }
 }

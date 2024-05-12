@@ -6,7 +6,7 @@ import { Department } from './departments.schema';
 
 export type WalkthroughDocument = HydratedDocument<Walkthrough>;
 
-type DataPoint = {
+export type DataPoint = {
   text: string;
   type: 'number' | 'string' | 'boolean';
   value?: number | string | boolean;
@@ -16,7 +16,7 @@ type DataPoint = {
   choices?: string[];
 };
 
-type Area = {
+export type Area = {
   name: string;
   areas: Area[];
   dataPoints: DataPoint[];

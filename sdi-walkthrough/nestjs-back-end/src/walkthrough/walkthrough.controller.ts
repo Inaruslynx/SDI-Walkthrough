@@ -45,7 +45,7 @@ export class WalkthroughController {
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.walkthroughService.remove(+id);
+  remove(@Param('name') name: string) {
+    return this.walkthroughService.remove(name);
   }
 }
