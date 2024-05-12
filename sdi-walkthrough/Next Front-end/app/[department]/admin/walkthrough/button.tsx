@@ -1,17 +1,23 @@
 "use client";
 import IconPlus from "@/components/ui/icons/plus";
-export default function Button() {
+import IconDelete from "@/components/ui/icons/delete";
+
+type ButtonProps = {
+  children: React.ReactNode;
+  id: string;
+  type: "primary" | "error";
+};
+
+export default function Button({ children, id, type }: ButtonProps) {
   return (
     <button
-      className="btn btn-primary m-4 px-4 py-2 rounded-btn"
+      className={`btn ${type === "primary" ? "btn-primary" : "btn-error"} m-4 px-4 py-2 rounded-btn`}
       onClick={() => {
-        (
-          document.getElementById("walkthrough-dialog") as HTMLDialogElement
-        )?.showModal();
+        (document.getElementById(id) as HTMLDialogElement)?.showModal();
       }}
     >
-      <IconPlus />
-      Create New Walkthrough
+      {type === "primary" ? <IconPlus /> : <IconDelete />}
+      {children}
     </button>
   );
 }

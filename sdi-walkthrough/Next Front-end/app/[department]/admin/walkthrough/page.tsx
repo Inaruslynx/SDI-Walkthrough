@@ -4,7 +4,12 @@ import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import WalkthroughCard from "./WalkthroughCard";
-import { createWalkthrough, getWalkthrough, getWalkthroughs } from "@/lib/api";
+import {
+  createWalkthrough,
+  deleteWalkthrough,
+  getWalkthrough,
+  getWalkthroughs,
+} from "@/lib/api";
 import Modal from "./modal";
 import Button from "./button";
 import SelectWalkthrough from "@/components/ui/selectWalkthrough";
@@ -53,18 +58,39 @@ export default function WalkthroughPage({
     // TODO - load all of the areas and datapoints
     if (selectedWalkthrough !== "") {
       selectedWalkthroughQuery.refetch();
-      console.log("selectedWalkthrough", selectedWalkthroughQuery?.data?.data);
+      // console.log("selectedWalkthrough", selectedWalkthroughQuery?.data?.data);
     }
   }, [selectedWalkthrough]);
+
+  const handleDeleteWalkthrough = useMutation({
+    mutationFn: (name: string) => {
+      return deleteWalkthrough(name);
+    },
+    onSuccess: () => {
+      toast.success("Successfully deleted walkthrough.");
+    },
+    onError: () => {
+      toast.error("Failed to delete walkthrough.");
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["walkthrough"] });
+    },
+  });
 
   return (
     <div className="px-8 pb-4">
       <div className="mb-4 relative justify-center prose md:prose-lg max-w-full container">
         <h1 className="text-center">Admin - {params.department} Walkthrough</h1>
       </div>
-      <Button />
+      <div className="flex items-center justify-between">
+        <div>
+
+      <Button id="walkthrough-dialog" type="primary">
+        Create New Walkthrough
+      </Button>
       <Modal
         id="walkthrough-dialog"
+        type="primary"
         onClick={() => {
           handleCreateNewWalkthrough.mutate(
             (
@@ -82,10 +108,35 @@ export default function WalkthroughPage({
       >
         Create
       </Modal>
-      <SelectWalkthrough
+      <SelectWalkthrough className="align-end"
         walkthroughs={walkthroughs.data?.data?.walkthroughs}
         onChange={setSelectedWalkthrough}
       />
+        </div>
+
+      {selectedWalkthrough && (
+        <div className="justify-end">
+          <Button id="delete-walkthrough-dialog" type="error">
+            Delete Walkthrough
+          </Button>
+          <Modal
+            id="delete-walkthrough-dialog"
+            type="error"
+            target={selectedWalkthrough}
+            onClick={() => {
+              handleDeleteWalkthrough.mutate(selectedWalkthrough);
+              (
+                window.document.getElementById(
+                  "delete-walkthrough-dialog"
+                ) as HTMLDialogElement
+              )?.close();
+            }}
+          >
+            Delete
+          </Modal>
+        </div>
+      )}
+      </div>
 
       <ScrollArea id="scroll-area" className="border min-h-screen">
         <WalkthroughCard />

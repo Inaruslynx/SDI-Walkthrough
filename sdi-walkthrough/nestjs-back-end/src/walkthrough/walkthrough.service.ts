@@ -1,6 +1,5 @@
 import {
   BadRequestException,
-  HttpException,
   HttpStatus,
   Injectable,
   InternalServerErrorException,
@@ -91,8 +90,8 @@ export class WalkthroughService {
     return { data: walkthroughDoc };
   }
 
-  update(id: number, updateWalkthroughDto: UpdateWalkthroughDto) {
-    return `This action updates a #${id} walkthrough`;
+  update(name: string, updateWalkthroughDto: UpdateWalkthroughDto) {
+    return `This action updates a #${name} walkthrough`;
   }
 
   async remove(name: string) {
@@ -108,15 +107,16 @@ export class WalkthroughService {
     );
     const filteredWalkthroughs = deptDoc.walkthroughs.filter(
       (walkthrough) => walkthrough.toString() !== walkthroughDoc._id.toString(),
-    )
+    );
     deptDoc.walkthroughs = filteredWalkthroughs;
-    await deptDoc.save();
-    const result = await this.walkthroughModel.findByIdAndDelete(
+    const resultDept = await deptDoc.save();
+    const resultWalkthrough = await this.walkthroughModel.findByIdAndDelete(
       walkthroughDoc._id,
-    )
-    if (!result) {
-
+    );
+    if (!resultDept || !resultWalkthrough) {
+      throw new InternalServerErrorException('Failed to remove walkthrough');
+    } else {
+      return { statusCode: HttpStatus.OK, message: 'Walkthrough removed' };
     }
-    return `This action removes a #${name} walkthrough`;
   }
 }

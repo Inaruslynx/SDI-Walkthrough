@@ -10,6 +10,7 @@ import { GraphService } from './graph/graph.service';
 import { ReportModule } from './report/report.module';
 import { WalkthroughModule } from './walkthrough/walkthrough.module';
 import { LogModule } from './log/log.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { LogModule } from './log/log.module';
     ReportModule,
     WalkthroughModule,
     LogModule,
+    AuthModule,
   ],
   controllers: [AppController, GraphController],
   providers: [AppService, GraphService],

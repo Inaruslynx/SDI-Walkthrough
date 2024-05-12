@@ -34,11 +34,14 @@ export async function createWalkthrough(name: string, department: string) {
 }
 
 export async function getWalkthrough(name: string) {
-  const response = await api.get<Walkthrough>(`walkthrough`, {
-    params: {
-      name: name
-    }
-  })
+  const response = await api.get<Walkthrough>(`walkthrough/${name}`)
+  // console.log(response.data)
+  return response;
+}
+
+export async function deleteWalkthrough(name: string) {
+  console.log('Now deleting walkthrough:', name)
+  const response = await api.delete(`walkthrough/${name}`)
   return response;
 }
 

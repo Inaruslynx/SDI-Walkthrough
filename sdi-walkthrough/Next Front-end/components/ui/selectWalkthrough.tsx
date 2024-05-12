@@ -1,13 +1,15 @@
 export default function SelectWalkthrough({
   walkthroughs,
   onChange,
+  className
 }: {
   walkthroughs: string[] | unknown;
   onChange: (walkthrough: string) => void;
+  className?: string;
 }) {
   return (
     <select
-      className="select select-bordered"
+      className={`select select-bordered ${className}`}
       defaultValue="Select a Walkthrough"
       onChange={(event) => onChange(event.target.value)}
     >
