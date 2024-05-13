@@ -47,7 +47,7 @@ export class WalkthroughService {
             'Failed to create walkthrough',
           );
         }
-        return;
+        return { name: result.name };
       }
     }
   }

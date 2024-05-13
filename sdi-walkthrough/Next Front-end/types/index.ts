@@ -40,6 +40,10 @@ export interface Walkthrough {
   areas: Array<Areas>;
 }
 
+export interface createWalkthroughResponse {
+  name: string;
+}
+
 export interface Department {
   name: string;
   walkthroughs: Walkthrough[];

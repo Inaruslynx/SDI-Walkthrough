@@ -21,7 +21,7 @@ export default function Home() {
               </s>
             </li>
             <li>When navigating to walkthrough dynamically generate form.</li>
-            <li>Departments can have multiple walkthroughs.</li>
+            <li><s>Departments can have multiple walkthroughs.</s></li>
             <li>Forms will have form validation and show a small graph.</li>
             <li>
               <s>Graph page.</s>

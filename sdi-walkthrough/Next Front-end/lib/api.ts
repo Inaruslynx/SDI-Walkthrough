@@ -1,5 +1,11 @@
-import axios, { AxiosResponse } from "axios";
-import { Walkthrough, Walkthroughs, type Department } from "@/types";
+import axios from "axios";
+import {
+  Walkthrough,
+  Walkthroughs,
+  createWalkthroughResponse,
+  type Department,
+} from "@/types";
+// import { useAuth } from "@clerk/nextjs";
 
 const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL,
@@ -14,34 +20,41 @@ export async function getDepartmentData() {
   return response;
 }
 
-export async function getWalkthroughs(
-  department: string) {
+export async function getWalkthroughs(department: string) {
   // console.log("Fetching walkthroughs.");
-    const response = await api.get<Walkthroughs>(`walkthrough`, {
-      params: {
-        department: department
-      }
-    })
+  const response = await api.get<Walkthroughs>(`walkthrough`, {
+    params: {
+      department: department,
+    },
+  });
   return response;
 }
-  
+
 export async function createWalkthrough(name: string, department: string) {
-  const response = await api.post<Walkthroughs>(`walkthrough`, {
-    name: name,
-    department: department
-  })
+  const response = await api.post<createWalkthroughResponse>(
+    `walkthrough`,
+    {
+      name: name,
+      department: department,
+    },
+    {
+      withCredentials: true,
+    }
+  );
   return response;
 }
 
 export async function getWalkthrough(name: string) {
-  const response = await api.get<Walkthrough>(`walkthrough/${name}`)
+  const response = await api.get<Walkthrough>(`walkthrough/${name}`);
   // console.log(response.data)
   return response;
 }
 
 export async function deleteWalkthrough(name: string) {
-  console.log('Now deleting walkthrough:', name)
-  const response = await api.delete(`walkthrough/${name}`)
+  // console.log('Now deleting walkthrough:', name)
+  const response = await api.delete(`walkthrough/${name}`, {
+    withCredentials: true,
+  });
   return response;
 }
 

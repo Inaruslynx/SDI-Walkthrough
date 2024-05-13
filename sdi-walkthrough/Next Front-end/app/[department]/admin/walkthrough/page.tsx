@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -23,27 +23,18 @@ export default function WalkthroughPage({
   params: { department: string };
 }) {
   const queryClient = useQueryClient();
-  const [selectedWalkthrough, setSelectedWalkthrough] = useState("");
+  const [selectedWalkthrough, setSelectedWalkthrough] = useState(
+    "Select a Walkthrough"
+  );
+  const walkthroughNameRef = useRef<HTMLInputElement>(null);
+  const createWalkthroughModalRef = useRef<HTMLDialogElement>(null);
+  const deleteWalkthroughModalRef = useRef<HTMLDialogElement>(null);
 
   // Fetch all walkthroughs for department
   const walkthroughs = useQuery<AxiosResponse<Walkthroughs>, Error>({
     queryKey: ["walkthrough", { department: params.department }],
     queryFn: () => getWalkthroughs(params.department),
     staleTime: 1000 * 60 * 5,
-  });
-
-  // Create new walkthrough
-  const handleCreateNewWalkthrough = useMutation({
-    mutationFn: (name: string) => {
-      return createWalkthrough(name, params.department);
-    },
-    onSuccess: () => {
-      toast.success("Successfully created new walkthrough.");
-      queryClient.invalidateQueries({ queryKey: ["walkthrough"] });
-    },
-    onError: () => {
-      toast.error("Failed to create walkthrough.");
-    },
   });
 
   const selectedWalkthroughQuery = useQuery<AxiosResponse<Walkthrough>, Error>({
@@ -53,18 +44,26 @@ export default function WalkthroughPage({
     enabled: selectedWalkthrough !== "",
   });
 
-  // is this necessary?
-  useEffect(() => {
-    // TODO - load all of the areas and datapoints
-    if (selectedWalkthrough !== "") {
-      selectedWalkthroughQuery.refetch();
-      // console.log("selectedWalkthrough", selectedWalkthroughQuery?.data?.data);
-    }
-  }, [selectedWalkthrough]);
+  // Create new walkthrough
+  const handleCreateNewWalkthrough = useMutation({
+    mutationFn: async () => {
+      const name = walkthroughNameRef.current?.value || "";
+
+      return createWalkthrough(name, params.department);
+    },
+    onSuccess: (data) => {
+      toast.success("Successfully created new walkthrough.");
+      queryClient.invalidateQueries({ queryKey: ["walkthrough"] });
+      setSelectedWalkthrough(data.data.name);
+    },
+    onError: () => {
+      toast.error("Failed to create walkthrough.");
+    },
+  });
 
   const handleDeleteWalkthrough = useMutation({
-    mutationFn: (name: string) => {
-      return deleteWalkthrough(name);
+    mutationFn: () => {
+      return deleteWalkthrough(selectedWalkthrough);
     },
     onSuccess: () => {
       toast.success("Successfully deleted walkthrough.");
@@ -77,6 +76,14 @@ export default function WalkthroughPage({
     },
   });
 
+  // is this necessary?
+  useEffect(() => {
+    if (selectedWalkthrough !== "") {
+      selectedWalkthroughQuery.refetch();
+      // console.log("selectedWalkthrough", selectedWalkthroughQuery?.data?.data);
+    }
+  }, [selectedWalkthrough]);
+
   return (
     <div className="px-8 pb-4">
       <div className="mb-4 relative justify-center prose md:prose-lg max-w-full container">
@@ -84,58 +91,52 @@ export default function WalkthroughPage({
       </div>
       <div className="flex items-center justify-between">
         <div>
-
-      <Button id="walkthrough-dialog" type="primary">
-        Create New Walkthrough
-      </Button>
-      <Modal
-        id="walkthrough-dialog"
-        type="primary"
-        onClick={() => {
-          handleCreateNewWalkthrough.mutate(
-            (
-              window.document.getElementById(
-                "walkthroughName"
-              ) as HTMLInputElement
-            )?.value
-          );
-          (
-            window.document.getElementById(
-              "walkthrough-dialog"
-            ) as HTMLDialogElement
-          )?.close();
-        }}
-      >
-        Create
-      </Modal>
-      <SelectWalkthrough className="align-end"
-        walkthroughs={walkthroughs.data?.data?.walkthroughs}
-        onChange={setSelectedWalkthrough}
-      />
-        </div>
-
-      {selectedWalkthrough && (
-        <div className="justify-end">
-          <Button id="delete-walkthrough-dialog" type="error">
-            Delete Walkthrough
+          <Button id="walkthrough-dialog" type="primary">
+            Create New Walkthrough
           </Button>
           <Modal
-            id="delete-walkthrough-dialog"
-            type="error"
-            target={selectedWalkthrough}
+            id="walkthrough-dialog"
+            type="primary"
+            ref={createWalkthroughModalRef}
+            targetInput={walkthroughNameRef}
             onClick={() => {
-              handleDeleteWalkthrough.mutate(selectedWalkthrough);
-              (
-                window.document.getElementById(
-                  "delete-walkthrough-dialog"
-                ) as HTMLDialogElement
-              )?.close();
+              handleCreateNewWalkthrough.mutate();
+            }}
+            onClose={() => {
+              createWalkthroughModalRef.current?.close();
             }}
           >
-            Delete
+            Create
           </Modal>
+          <SelectWalkthrough
+            className="align-end"
+            selectedWalkthrough={selectedWalkthrough}
+            walkthroughs={walkthroughs.data?.data?.walkthroughs}
+            onChange={setSelectedWalkthrough}
+          />
         </div>
-      )}
+
+        {selectedWalkthrough && (
+          <div className="justify-end">
+            <Button id="delete-walkthrough-dialog" type="error">
+              Delete Walkthrough
+            </Button>
+            <Modal
+              id="delete-walkthrough-dialog"
+              type="error"
+              ref={deleteWalkthroughModalRef}
+              target={selectedWalkthrough}
+              onClick={() => {
+                handleDeleteWalkthrough.mutate();
+              }}
+              onClose={() => {
+                deleteWalkthroughModalRef.current?.close();
+              }}
+            >
+              Delete
+            </Modal>
+          </div>
+        )}
       </div>
 
       <ScrollArea id="scroll-area" className="border min-h-screen">
