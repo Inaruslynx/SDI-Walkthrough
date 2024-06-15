@@ -9,8 +9,9 @@ export class ReportService {
   constructor(@InjectModel(Log.name) private logModel: Model<Log>) {}
 
   async find(walkthrough: string) {
-    const results = {};
+    /* const results = {};
     const resultsOfRecentLogs = {};
+    const itemsOfConcern = {};
     // console.log(walkthrough);
     // get all logs which will be an array of objects
     const logs = await this.logModel
@@ -47,6 +48,7 @@ export class ReportService {
 
     // console.log(refinedLogs);
     Object.keys(newRefinedLogs[0]).forEach((key) => {
+      // TODO add code to create items of concern
       let values = newRefinedLogs.map((data) => parseFloat(data[key]));
       values = values.filter((value) => !isNaN(value));
       const Mean = round(mean(values), 2);
@@ -62,6 +64,7 @@ export class ReportService {
     });
     // console.log(lastLog);
     // This will render the page
-    return { lastLog, beforeLastLog, results, resultsOfRecentLogs };
+    return { lastLog, beforeLastLog, results, resultsOfRecentLogs }; */
+    return 'Still in development';
   }
 }

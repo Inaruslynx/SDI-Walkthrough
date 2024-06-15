@@ -3,9 +3,10 @@ import {
   Walkthrough,
   Walkthroughs,
   createWalkthroughResponse,
+  Area,
+  DataPoint,
   type Department,
 } from "@/types";
-// import { useAuth } from "@clerk/nextjs";
 
 const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL,
@@ -20,17 +21,12 @@ export async function getDepartmentData() {
   return response;
 }
 
-export async function getWalkthroughs(department: string) {
-  // console.log("Fetching walkthroughs.");
-  const response = await api.get<Walkthroughs>(`walkthrough`, {
-    params: {
-      department: department,
-    },
-  });
-  return response;
-}
-
+// Walkthrough CRUD
+// Create
 export async function createWalkthrough(name: string, department: string) {
+  // if (!name || !department || name === "Select a Walkthrough") {
+  //   return null;
+  // }
   const response = await api.post<createWalkthroughResponse>(
     `walkthrough`,
     {
@@ -44,15 +40,94 @@ export async function createWalkthrough(name: string, department: string) {
   return response;
 }
 
-export async function getWalkthrough(name: string) {
-  const response = await api.get<Walkthrough>(`walkthrough/${name}`);
-  // console.log(response.data)
+// Read All
+export async function getWalkthroughs(department: string) {
+  // console.log("Fetching walkthroughs.");
+  // if (!department) {
+  //   return null;
+  // }
+  const response = await api.get<Walkthroughs>(`walkthrough`, {
+    params: {
+      department: department,
+    },
+  });
   return response;
 }
 
-export async function deleteWalkthrough(name: string) {
+// Read One
+export async function getWalkthrough(id: string) {
+  // if (!name || name === "Select a Walkthrough") {
+  //   return null;
+  // }
+  const response = await api.get<Walkthrough>(`walkthrough/${id}`);
+  // console.log(response.data);
+  return response;
+}
+
+// Update
+export async function updateWalkthrough(id: string, newName: string) {
+  const response = await api.patch(
+    `walkthrough/${id}`,
+    { newName: newName },
+    {
+      withCredentials: true,
+    }
+  );
+  return response;
+}
+
+// Delete
+export async function deleteWalkthrough(id: string) {
   // console.log('Now deleting walkthrough:', name)
-  const response = await api.delete(`walkthrough/${name}`, {
+  // if (!name || name === "Select a Walkthrough") {
+  //   return null;
+  // }
+  const response = await api.delete(`walkthrough/${id}`, {
+    withCredentials: true,
+  });
+  return response;
+}
+
+// Area CRUD
+// Create
+export async function createArea(areaPackage: Area) {
+  const response = await api.post<Area>(`area`, areaPackage, {
+    withCredentials: true,
+  });
+  return response;
+}
+
+// Find all
+export async function findAllAreas(walkthrough: string) {
+  const response = await api.get<Area[]>(`area`, {
+    params: {
+      walkthrough: walkthrough,
+    },
+  });
+  return response;
+}
+
+// Find one
+export async function findArea(areaId: string) {
+  const response = await api.get<Area>(`area/${areaId}`);
+  return response;
+}
+
+// Update
+export async function updateArea(areaPackage: Area) {
+  const response = await api.patch<Area>(
+    `area/${areaPackage._id}`,
+    areaPackage,
+    {
+      withCredentials: true,
+    }
+  );
+  return response;
+}
+
+// Delete
+export async function deleteArea(areaId: string) {
+  const response = await api.delete(`area/${areaId}`, {
     withCredentials: true,
   });
   return response;

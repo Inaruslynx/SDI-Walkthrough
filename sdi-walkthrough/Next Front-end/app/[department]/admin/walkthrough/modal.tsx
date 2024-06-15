@@ -7,10 +7,9 @@ type ModalProps = {
   onClick: () => void;
   onClose: () => void;
   targetInput?: React.RefObject<HTMLInputElement>;
-  target?: string;
 };
 const Modal = React.forwardRef<HTMLDialogElement, ModalProps>((props, ref) => {
-  const { children, id, type, onClick, onClose, targetInput, target } = props;
+  const { children, id, type, onClick, onClose, targetInput } = props;
   const handleClose = () => {
     if (onClose) {
       onClose();
@@ -35,7 +34,7 @@ const Modal = React.forwardRef<HTMLDialogElement, ModalProps>((props, ref) => {
               />
             ) : (
               <h4 className="text-center">
-                Please confirm that you want to delete {target} walkthrough
+                Please confirm that you want to delete walkthrough
               </h4>
             )}
             <div className="container flex justify-center">

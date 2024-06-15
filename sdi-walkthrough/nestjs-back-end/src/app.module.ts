@@ -11,6 +11,8 @@ import { ReportModule } from './report/report.module';
 import { WalkthroughModule } from './walkthrough/walkthrough.module';
 import { LogModule } from './log/log.module';
 import { AuthModule } from './auth/auth.module';
+import { AreaModule } from './area/area.module';
+import { DatapointModule } from './datapoint/datapoint.module';
 
 @Module({
   imports: [
@@ -29,6 +31,8 @@ import { AuthModule } from './auth/auth.module';
     WalkthroughModule,
     LogModule,
     AuthModule,
+    AreaModule,
+    DatapointModule,
   ],
   controllers: [AppController, GraphController],
   providers: [AppService, GraphService],

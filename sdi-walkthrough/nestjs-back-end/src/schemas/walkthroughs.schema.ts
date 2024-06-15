@@ -1,26 +1,9 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { HydratedDocument } from 'mongoose';
-// import { DataPoint } from './DataPoints.schema';
-// import { Area } from './areas.schema';
+import { Area } from './areas.schema';
 import { Department } from './departments.schema';
 
 export type WalkthroughDocument = HydratedDocument<Walkthrough>;
-
-export type DataPoint = {
-  text: string;
-  type: 'number' | 'string' | 'boolean';
-  value?: number | string | boolean;
-  unit?: string;
-  min?: number;
-  max?: number;
-  choices?: string[];
-};
-
-export type Area = {
-  name: string;
-  areas: Area[];
-  dataPoints: DataPoint[];
-};
 
 @Schema()
 export class Walkthrough {
@@ -34,7 +17,7 @@ export class Walkthrough {
   })
   department: Department;
 
-  @Prop()
+  @Prop([{ type: mongoose.Schema.Types.ObjectId, ref: 'Area' }])
   data: Area[];
 }
 

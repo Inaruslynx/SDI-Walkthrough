@@ -1,7 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import mongoose, { HydratedDocument } from 'mongoose';
-// import { Area } from './areas.schema';
-import { Walkthrough } from './walkthroughs.schema';
+import { HydratedDocument } from 'mongoose';
 import { IsEnum } from 'class-validator';
 
 export type DataPointDocument = HydratedDocument<DataPoint>;
@@ -11,16 +9,9 @@ export class DataPoint {
   @Prop({ required: true, index: true, unique: true })
   text: string;
 
-  @Prop({ required: true, enum: ['Text', 'Number', 'Boolean'] })
-  @IsEnum(['Text', 'Number', 'Boolean'])
+  @Prop({ required: true, enum: ['string', 'number', 'boolean'] })
+  @IsEnum(['string', 'number', 'boolean'])
   type: string;
-
-  @Prop({
-    required: true,
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Walkthrough',
-  })
-  walkthrough: Walkthrough;
 
   @Prop()
   min: number;

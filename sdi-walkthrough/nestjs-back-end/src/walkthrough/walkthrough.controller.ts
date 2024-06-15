@@ -32,23 +32,23 @@ export class WalkthroughController {
     return this.walkthroughService.findAll(department);
   }
 
-  @Get(':name')
-  findOne(@Param('name') name: string) {
-    return this.walkthroughService.findOne(name);
+  @Get(':id')
+  findOne(@Param('id') id: string) {
+    return this.walkthroughService.findOne(id);
   }
 
-  @Patch(':name')
+  @Patch(':id')
   @UseGuards(ClerkAuthGuard)
   update(
-    @Param('name') name: string,
+    @Param('id') id: string,
     @Body() updateWalkthroughDto: UpdateWalkthroughDto,
   ) {
-    return this.walkthroughService.update(name, updateWalkthroughDto);
+    return this.walkthroughService.update(id, updateWalkthroughDto);
   }
 
-  @Delete(':name')
+  @Delete(':id')
   @UseGuards(ClerkAuthGuard)
-  remove(@Param('name') name: string) {
-    return this.walkthroughService.remove(name);
+  remove(@Param('id') id: string) {
+    return this.walkthroughService.remove(id);
   }
 }

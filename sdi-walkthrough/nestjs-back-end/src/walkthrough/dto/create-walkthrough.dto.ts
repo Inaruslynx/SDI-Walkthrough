@@ -1,7 +1,8 @@
-import { Area } from 'src/schemas/walkthroughs.schema';
+import { Area } from 'src/schemas/areas.schema';
 
 export class CreateWalkthroughDto {
+  _id: string;
   name: string;
   department: string;
-  areas?: Area[];
+  data?: Area[];
 }

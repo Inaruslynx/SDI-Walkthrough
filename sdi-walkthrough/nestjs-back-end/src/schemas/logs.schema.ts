@@ -3,11 +3,13 @@ import mongoose, { HydratedDocument } from 'mongoose';
 import { User } from './users.schema';
 import { Walkthrough } from './walkthroughs.schema';
 import { Department } from './departments.schema';
+// import { DataPoint } from './DataPoints.schema';
 
 export type LogDocument = HydratedDocument<Log>;
 
 export interface LogData {
-  [key: string]: string;
+  dataPoint: mongoose.Schema.Types.ObjectId;
+  value: string | number | boolean;
 }
 
 @Schema({ timestamps: true })
@@ -29,16 +31,24 @@ export class Log {
   })
   walkthrough: Walkthrough;
 
-  @Prop({ required: true, type: Object })
-  data: LogData;
+  @Prop({
+    required: true,
+    type: [
+      {
+        dataPoint: { type: mongoose.Schema.Types.ObjectId, ref: 'DataPoint' },
+        value: { type: mongoose.Schema.Types.Mixed },
+      },
+    ],
+  })
+  data: LogData[];
 
   @Prop({ default: Date.now })
   date: Date;
 
-  @Prop()
+  @Prop({ default: Date.now })
   createdAt: Date;
 
-  @Prop()
+  @Prop({ default: Date.now })
   updatedAt: Date;
 }
 

@@ -1,17 +1,18 @@
 // import type { AxiosResponse } from 'axios';
 
 export interface GraphData {
-    labels: Date[];
-    datasets: [
-      {
-        data: number[];
-      },
-    ];
+  labels: Date[];
+  datasets: [
+    {
+      data: number[];
+    },
+  ];
 }
 
 export interface DataPoint {
+  _id?: string;
   text: string;
-  type: "number" | "text" | "boolean";
+  type: "number" | "string" | "boolean";
   value?: number | string | boolean;
   unit?: string;
   min?: number;
@@ -19,25 +20,30 @@ export interface DataPoint {
   choices?: string[];
 }
 
-export interface Areas {
+export interface Area {
+  _id?: string;
   name: string;
-  Areas?: Areas[];
-  dataPoints?: DataPoint[];
+  parentType: 'area' | 'walkthrough';
+  parentWalkthrough: string;
+  parentArea?: string;
+  areas: Area[];
+  dataPoints: DataPoint[];
+  isNew?: boolean;
 }
 
-// delete at some point as Walkthroughs is replacement
-// export type WalkthroughsResponse = AxiosResponse<{
-//   walkthroughs: string[];
-// }>;
+export interface WalkthroughData {
+  id: string;
+  name: string;
+}
 
 export interface Walkthroughs {
-  walkthroughs: string[];
+  walkthroughs: WalkthroughData[];
 }
 
 export interface Walkthrough {
   name: string;
   department: string;
-  areas: Array<Areas>;
+  data: Array<Area>;
 }
 
 export interface createWalkthroughResponse {

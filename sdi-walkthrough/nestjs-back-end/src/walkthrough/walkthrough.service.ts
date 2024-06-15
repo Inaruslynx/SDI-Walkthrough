@@ -1,6 +1,7 @@
 import {
   BadRequestException,
   HttpStatus,
+  Logger,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
@@ -9,7 +10,10 @@ import { CreateWalkthroughDto } from './dto/create-walkthrough.dto';
 import { UpdateWalkthroughDto } from './dto/update-walkthrough.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Department } from 'src/schemas/departments.schema';
-import { Walkthrough } from 'src/schemas/walkthroughs.schema';
+import {
+  Walkthrough,
+  WalkthroughDocument,
+} from 'src/schemas/walkthroughs.schema';
 import { Model } from 'mongoose';
 
 @Injectable()
@@ -18,11 +22,13 @@ export class WalkthroughService {
     @InjectModel(Department.name) private departmentModel: Model<Department>,
     @InjectModel(Walkthrough.name) private walkthroughModel: Model<Walkthrough>,
   ) {}
+  private readonly logger = new Logger(WalkthroughService.name);
 
   async create(createWalkthroughDto: CreateWalkthroughDto) {
     if (!createWalkthroughDto.name || !createWalkthroughDto.department) {
       throw new BadRequestException('Missing name.');
     } else {
+      this.logger.debug('creating walkthrough from:', createWalkthroughDto);
       const DepartmentDocument = await this.departmentModel
         .findOne({
           name: createWalkthroughDto.department,
@@ -38,7 +44,9 @@ export class WalkthroughService {
         const newWalkthrough = new this.walkthroughModel({
           name: createWalkthroughDto.name,
           department: DepartmentDocument,
+          data: [],
         });
+        this.logger.debug(newWalkthrough);
         DepartmentDocument.walkthroughs.push(newWalkthrough);
         await DepartmentDocument.save();
         const result = await newWalkthrough.save();
@@ -47,7 +55,7 @@ export class WalkthroughService {
             'Failed to create walkthrough',
           );
         }
-        return { name: result.name };
+        return { name: result._id };
       }
     }
   }
@@ -61,47 +69,84 @@ export class WalkthroughService {
     }
     const deptDoc = await this.departmentModel
       .findOne({ name: department })
-      .select('walkthroughs -_id')
-      .populate('walkthroughs', 'name -_id')
+      .select('walkthroughs _id')
+      .populate('walkthroughs _id')
       .exec();
-    // console.log(department, deptDoc);
+    // this.logger.log(department, deptDoc);
     if (!deptDoc) {
       throw new NotFoundException('Department not found', {
         cause: new Error(),
         description: 'Department not found',
       });
     }
-    const result = deptDoc.walkthroughs.map((walkthrough) => {
-      return walkthrough.name;
-    });
+    // console.log(deptDoc);
+    const result = deptDoc.walkthroughs.map(
+      (walkthrough: WalkthroughDocument) => {
+        // console.log(walkthrough);
+        const data = { name: walkthrough.name, id: walkthrough._id };
+        return data;
+      },
+    );
     return { walkthroughs: result };
   }
 
-  async findOne(name: string) {
-    if (!name) {
+  async findOne(id: string) {
+    if (!id) {
       throw new BadRequestException('Request is empty', {
         cause: new Error(),
         description: 'Request is empty',
       });
     }
-    const walkthroughDoc = await this.walkthroughModel
-      .findOne({ name: name })
-      .select('-data');
-    return { data: walkthroughDoc };
+    const walkthroughDoc = await this.walkthroughModel.findById(id);
+    await walkthroughDoc.populate('data');
+    // console.log(walkthroughDoc);
+    return walkthroughDoc;
   }
 
-  update(name: string, updateWalkthroughDto: UpdateWalkthroughDto) {
-    return `This action updates a #${name} walkthrough`;
+  async update(id: string, updateWalkthroughDto: UpdateWalkthroughDto) {
+    // This only needs to rename walkthroughs. The areas will now be handled by area route service
+    // this.logger.log('updateWalkthroughDto:', updateWalkthroughDto);
+    if (!id) {
+      throw new BadRequestException('Request did not include id', {
+        cause: new Error(),
+        description: 'Request did not include id',
+      });
+    }
+
+    // if neither area or data point exist then throw error
+    if (!updateWalkthroughDto.newName) {
+      throw new InternalServerErrorException(
+        'Failed to update walkthrough due to missing new name',
+      );
+    }
+
+    // First we find the walkthrough
+    const walkthroughDoc = await this.walkthroughModel.findById(id);
+    // Does it exist?
+    if (!walkthroughDoc) {
+      throw new InternalServerErrorException(
+        `Failed to update walkthrough because database did not find ${id}`,
+      );
+    }
+
+    // Have walkthrough, just need to change name
+    walkthroughDoc.name = updateWalkthroughDto.newName;
+    const result = await walkthroughDoc.save();
+    if (!result) {
+      throw new InternalServerErrorException('Failed to update walkthrough');
+    } else {
+      return { name: result._id };
+    }
   }
 
-  async remove(name: string) {
-    if (!name) {
+  async remove(id: string) {
+    if (!id) {
       throw new BadRequestException('Request is empty', {
         cause: new Error(),
         description: 'Request is empty',
       });
     }
-    const walkthroughDoc = await this.walkthroughModel.findOne({ name: name });
+    const walkthroughDoc = await this.walkthroughModel.findById(id);
     const deptDoc = await this.departmentModel.findById(
       walkthroughDoc.department,
     );

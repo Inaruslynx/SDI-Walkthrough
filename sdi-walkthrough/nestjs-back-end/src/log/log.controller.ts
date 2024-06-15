@@ -1,4 +1,12 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+} from '@nestjs/common';
 import { LogService } from './log.service';
 import { CreateLogDto } from './dto/create-log.dto';
 import { UpdateLogDto } from './dto/update-log.dto';
@@ -8,8 +16,8 @@ export class LogController {
   constructor(private readonly logService: LogService) {}
 
   @Post()
-  create(@Body() createLogDto: CreateLogDto) {
-    return this.logService.create(createLogDto);
+  create(@Body() walkthroughId: string, @Body() createLogDto: CreateLogDto) {
+    return this.logService.create(walkthroughId, createLogDto);
   }
 
   @Get()

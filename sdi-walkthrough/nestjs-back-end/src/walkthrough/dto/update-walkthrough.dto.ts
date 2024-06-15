@@ -1,4 +1,7 @@
 import { PartialType } from '@nestjs/mapped-types';
 import { CreateWalkthroughDto } from './create-walkthrough.dto';
 
-export class UpdateWalkthroughDto extends PartialType(CreateWalkthroughDto) {}
+// The data to update a walkthrough needs to be id of walkthrough and new name
+export class UpdateWalkthroughDto extends PartialType(CreateWalkthroughDto) {
+  newName: string;
+}

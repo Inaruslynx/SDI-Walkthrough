@@ -1,3 +1,4 @@
+import { WalkthroughData } from "@/types";
 import { useEffect } from "react";
 
 export default function SelectWalkthrough({
@@ -6,16 +7,18 @@ export default function SelectWalkthrough({
   onChange,
   className,
 }: {
-  walkthroughs: string[] | unknown;
+  walkthroughs?: WalkthroughData[];
   selectedWalkthrough: string;
   onChange: (walkthrough: string) => void;
   className?: string;
 }) {
   useEffect(() => {
     if (!Array.isArray(walkthroughs)) return;
-    if (walkthroughs.includes(selectedWalkthrough)) {
-      onChange(selectedWalkthrough);
-    }
+    walkthroughs.forEach(element => {
+      if (element.name === selectedWalkthrough) {
+        onChange(selectedWalkthrough);
+      }
+    });
   }, [selectedWalkthrough, onChange, walkthroughs]);
 
   return (
@@ -29,9 +32,9 @@ export default function SelectWalkthrough({
         Select a Walkthrough
       </option>
       {Array.isArray(walkthroughs)
-        ? walkthroughs.map((walkthrough: string) => (
-            <option key={walkthrough} value={walkthrough}>
-              {walkthrough}
+        ? walkthroughs.map((item) => (
+            <option key={item.id} value={item.id}>
+              {item.name}
             </option>
           ))
         : null}
