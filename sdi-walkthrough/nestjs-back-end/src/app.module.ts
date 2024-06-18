@@ -10,7 +10,7 @@ import { GraphService } from './graph/graph.service';
 import { ReportModule } from './report/report.module';
 import { WalkthroughModule } from './walkthrough/walkthrough.module';
 import { LogModule } from './log/log.module';
-import { AuthModule } from './auth/auth.module';
+// import { AuthModule } from './auth/auth.module';
 import { AreaModule } from './area/area.module';
 import { DatapointModule } from './datapoint/datapoint.module';
 
@@ -30,7 +30,7 @@ import { DatapointModule } from './datapoint/datapoint.module';
     ReportModule,
     WalkthroughModule,
     LogModule,
-    AuthModule,
+    // AuthModule,
     AreaModule,
     DatapointModule,
   ],
