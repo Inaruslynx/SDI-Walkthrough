@@ -18,6 +18,8 @@ export interface DataPoint {
   min?: number;
   max?: number;
   choices?: string[];
+  parentArea: string;
+  parentWalkthrough: string;
 }
 
 export interface Area {
