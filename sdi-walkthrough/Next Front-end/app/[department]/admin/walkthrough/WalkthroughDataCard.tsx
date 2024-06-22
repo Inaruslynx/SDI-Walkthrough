@@ -34,7 +34,7 @@ interface FromValues {
 interface WalkthroughDataCardProps {
   selectedWalkthrough: string;
   dataPoint?: DataPoint;
-  parentArea?: string[];
+  parentArea?: string;
 }
 
 export default function WalkthroughDataCard({

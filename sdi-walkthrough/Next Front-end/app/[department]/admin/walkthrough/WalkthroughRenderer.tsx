@@ -10,8 +10,6 @@ interface WalkthroughRendererProps {
   onAddDataPoint: (parentAreaName: string[]) => void;
 }
 
-const indentationClasses = ["ml-0", "ml-20", "ml-40", "ml-60", "ml-80"];
-
 const WalkthroughRenderer: React.FC<WalkthroughRendererProps> = ({
   selectedWalkthrough,
   areas,
