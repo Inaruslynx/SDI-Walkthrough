@@ -29,7 +29,7 @@ export class AreaService {
       throw new BadRequestException('Missing parent type.');
     }
     if (!createAreaDto.parentWalkthrough) {
-      throw new BadRequestException('Bad Request. Missing parent walkthrough.');
+      throw new BadRequestException('Missing parent walkthrough.');
     }
 
     const walkthroughDoc = await this.walkthroughModel.findById(
@@ -156,6 +156,7 @@ export class AreaService {
     }
     // The parent of the area is either the walkthrough or another area
     if (targetAreaDoc.parentType === 'walkthrough') {
+      // Find parent walkthrough and error if it's not found
       const walkthroughDoc = await this.walkthroughModel
         .findById(targetAreaDoc.parentWalkthrough)
         .populate('data');
@@ -166,22 +167,31 @@ export class AreaService {
       }
       // console.log('walkthroughDoc:', walkthroughDoc.data);
       // console.log('targetAreaDoc:', targetAreaDoc._id);
+
+      // Filter area from parent walkthrough
       walkthroughDoc.data = walkthroughDoc.data.filter(
         (area: AreaDocument) =>
           area._id.toString() != targetAreaDoc._id.toString(),
       );
       // console.log('walkthroughDoc:', walkthroughDoc.data);
+
+      // Save parent walkthrough with filtered area and throw error if fault
+      const walkthroughSave = await walkthroughDoc.save();
+      if (walkthroughSave.errors) {
+        throw new InternalServerErrorException(
+          `Failed to save change to parent walkthrough: ${walkthroughSave.errors}`,
+        );
+      }
+
+      // Delete area
       const result = await this.areaModel.findByIdAndDelete(id);
       if (result.errors) {
         throw new InternalServerErrorException(`Failed to delete ${id}`);
       }
-      const walkthroughSave = await walkthroughDoc.save();
-      if (walkthroughSave.errors) {
-        console.log(walkthroughSave);
-      }
       return result;
       // If parent isn't a walkthrough is it an area?
     } else if (targetAreaDoc.parentType === 'area') {
+      // find parent area and error if it's not found
       const parentAreaDoc = await this.areaModel
         .findById(targetAreaDoc.parentArea)
         .populate('areas');
@@ -190,16 +200,25 @@ export class AreaService {
           `Failed to find parent area: ${targetAreaDoc.parentArea}`,
         );
       }
+
       // filter the target area from the list of areas in target
       parentAreaDoc.areas = parentAreaDoc.areas.filter(
         (area: AreaDocument) =>
           area._id.toString() !== targetAreaDoc._id.toString(),
       );
+
+      const areaSave = await parentAreaDoc.save();
+      if (areaSave.errors) {
+        throw new InternalServerErrorException(
+          `Failed to save changes to parent area: ${areaSave.errors}`,
+        );
+      }
+
+      // Delete area
       const result = await this.areaModel.findByIdAndDelete(id);
       if (result.errors) {
         throw new InternalServerErrorException(`Failed to delete ${id}`);
       }
-      await parentAreaDoc.save();
       // return the results of deleting area
       return result;
     }
