@@ -188,22 +188,31 @@ export default function WalkthroughPage({
       newArea.parentArea = parentArea._id;
       newArea.parentType = "area";
       console.log(newArea);
-      setAreas((prevAreas) => {
-        const updatedAreas = prevAreas.map((area) => {
-          if (area._id === parentArea._id) {
-            return { ...area, areas: [...area.areas, newArea] };
-          } else {
-            return area;
-          }
-        });
-        console.log("Updated Areas:", updatedAreas);
-        return updatedAreas;
-      });
+      const currentAreas = areas;
+      const newAreas = addArea(currentAreas, newArea);
+      console.log("newAreas:", newAreas);
+      setAreas(newAreas);
     } else {
       // console.log("adding new area");
       setAreas((prevAreas) => [...prevAreas, newArea]);
     }
   };
+
+  function addArea(prevArea: Area[], newArea: Area): Area[] {
+    const result: Area[] = prevArea.map((area) => {
+      if (area._id === newArea.parentArea) {
+        console.log("Found area newArea belongs in");
+        return { ...area, areas: [...area.areas, newArea] };
+      }
+      if (area.areas.length > 0) {
+        console.log("entered subAreas");
+        return {...area, areas: addArea(area.areas, newArea)};
+      }
+      return area;
+    });
+    console.log("returning:", result);
+    return result;
+  }
 
   // Callback to add a new data point
   const handleAddDataPoint = (parentAreaName: string[]) => {

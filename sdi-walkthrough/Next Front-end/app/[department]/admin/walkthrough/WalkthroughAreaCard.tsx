@@ -156,7 +156,9 @@ export default function WalkthroughAreaCard({
   };
 
   return (
-    <div className="card m-4 w-96 bg-base-200 text-base-content shadow-lg shadow-base-200">
+    <div
+      className={`card m-4 w-96 bg-base-200 text-base-content shadow-lg shadow-base-200`}
+    >
       <div className="card-body">
         {canEdit ? (
           <form onSubmit={handleSubmit(handleSaveClick)} id="formName">

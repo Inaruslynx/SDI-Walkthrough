@@ -10,6 +10,8 @@ interface WalkthroughRendererProps {
   onAddDataPoint: (parentAreaName: string[]) => void;
 }
 
+const indentationClasses = ["ml-0", "ml-20", "ml-40", "ml-60", "ml-80"];
+
 const WalkthroughRenderer: React.FC<WalkthroughRendererProps> = ({
   selectedWalkthrough,
   areas,
@@ -19,12 +21,11 @@ const WalkthroughRenderer: React.FC<WalkthroughRendererProps> = ({
   if (selectedWalkthrough === "Select a Walkthrough") {
     return null;
   }
-  //   console.log("areas in renderer:", areas);
+  console.log("areas in renderer:", areas);
 
-  const renderAreas = (areas: Area[]): React.ReactNode => {
+  const renderAreas = (areas: Area[], indent = false): React.ReactNode => {
     return areas.map((area, index) => (
-      <div key={area._id || index}>
-        {/* <h3>{index}</h3> */}
+      <div className={indent ? "ml-20" : ""} key={area._id || index}>
         <WalkthroughAreaCard
           selectedWalkthrough={selectedWalkthrough}
           area={area}
@@ -37,10 +38,14 @@ const WalkthroughRenderer: React.FC<WalkthroughRendererProps> = ({
             key={dataPoint.text}
             selectedWalkthrough={selectedWalkthrough}
             dataPoint={dataPoint}
+            parentArea={area._id}
           />
         ))}
         {/* <h1>Hi</h1> */}
-        {area && area.areas && area.areas.length > 0 && renderAreas(area.areas)}
+        {area &&
+          area.areas &&
+          area.areas.length > 0 &&
+          renderAreas(area.areas, true)}
         {/* <h1>Hi 2</h1> */}
       </div>
     ));
