@@ -58,7 +58,7 @@ export default function NavDropdown({ name }: { name: string }) {
               </li>
               <li>
                 <NavLink href={`/${name}/admin/walkthrough`}>
-                  Walkthrough
+                  Walk-through
                 </NavLink>
               </li>
             </ul>
