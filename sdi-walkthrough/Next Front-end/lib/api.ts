@@ -16,7 +16,7 @@ const api = axios.create({
 export async function getDepartmentData() {
   // console.log("Fetching departments.");
   const response = await api.get<Department[]>(`departments`);
-  // console.log("recieved data:", response.data);
+  // console.log("received data:", response.data);
   // console.log("Finished fetching departments data.");
   return response;
 }
@@ -128,6 +128,51 @@ export async function updateArea(areaPackage: Area) {
 // Delete
 export async function deleteArea(areaId: string) {
   const response = await api.delete(`area/${areaId}`, {
+    withCredentials: true,
+  });
+  return response;
+}
+
+// DataPoint CRUD
+// Create
+export async function createDataPoint(dataPoint: DataPoint) {
+  const response = await api.post<DataPoint>(`datapoint`, dataPoint, {
+    withCredentials: true,
+  });
+  return response;
+}
+
+// Find all
+export async function findAllDataPoints(walkthrough: string) {
+  const response = await api.get<DataPoint[]>(`datapoint`, {
+    params: {
+      walkthrough: walkthrough,
+    },
+  });
+  return response;
+}
+
+// Find one
+export async function findDataPoint(dataPointId: string) {
+  const response = await api.get<DataPoint>(`datapoint/${dataPointId}`);
+  return response;
+}
+
+// Update
+export async function updateDataPoint(dataPoint: DataPoint) {
+  const response = await api.patch<DataPoint>(
+    `datapoint/${dataPoint._id}`,
+    dataPoint,
+    {
+      withCredentials: true,
+    }
+  );
+  return response;
+}
+
+// Delete
+export async function deleteDataPoint(dataPointId: string) {
+  const response = await api.delete(`datapoint/${dataPointId}`, {
     withCredentials: true,
   });
   return response;

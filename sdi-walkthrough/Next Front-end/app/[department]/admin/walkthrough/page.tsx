@@ -61,30 +61,46 @@ export default function WalkthroughPage({
   // Fetch the selected Walkthrough
   const selectedWalkthroughQuery = useQuery<AxiosResponse<Walkthrough>, Error>({
     queryKey: ["walkthrough", { id: selectedWalkthrough }],
-    queryFn: () => getWalkthrough(selectedWalkthrough),
+    queryFn: () => masterGetWalkthrough(selectedWalkthrough),
     staleTime: 1000 * 60 * 5,
     enabled:
       selectedWalkthrough !== "" &&
       selectedWalkthrough !== "Select a Walkthrough",
   });
 
-  const walkthrough = selectedWalkthroughQuery.data?.data;
-  const initialAreas = walkthrough?.data;
+  const masterGetWalkthrough = async (
+    walkthroughId: string
+  ): Promise<Area[]> => {
+    const response = await getWalkthrough(walkthroughId);
+    // console.log("response:", response.data.data);
+    if (response) {
+      const results = await fetchWalkthroughAreas(response.data.data);
+      // console.log("results:", results);
+      return results;
+    } else {
+      return [];
+    }
+  };
 
-  // TODO It would be better to just embed a recursive function into one query that fetches all areas in a walkthrough
-  const fetchedAreas = useQueries({
-    queries: initialAreas
-      ? initialAreas
-          .filter((area) => area._id)
-          .map((area) => {
-            return {
-              queryKey: ["area", area._id],
-              queryFn: () => fetchArea(area._id),
-              staleTime: 1000 * 60 * 5,
-            };
-          })
-      : [],
-  });
+  const fetchWalkthroughAreas = async (areas: Area[]): Promise<Area[]> => {
+    const allAreas: Area[] = await Promise.all(
+      areas.map(async (area: Area) => {
+        if (!area._id) return null;
+        const response = await findArea(area._id);
+        const areaData = response.data;
+  
+        if (areaData.areas && areaData.areas.length > 0) {
+          const subAreas = await fetchWalkthroughAreas(areaData.areas);
+          areaData.areas = subAreas;
+        }
+  
+        return areaData;
+      })
+    );
+  
+    // Filter out any null values
+    return allAreas.filter(area => area !== null);
+  };
 
   // Recursive function to fetch areas and their sub-areas
   const fetchArea = async (areaId: string) => {
@@ -102,23 +118,6 @@ export default function WalkthroughPage({
 
     return area;
   };
-
-  const allSuccess = fetchedAreas.every((query) => query.isSuccess === true);
-
-  useEffect(() => {
-    if (allSuccess) {
-      // console.log('fetchedAreas:', fetchedAreas)
-      const allAreas: Area[] = [];
-      fetchedAreas.forEach((area) => {
-        if (area.isSuccess) {
-          allAreas.push(area.data);
-          // console.log('area:', area.data);
-        }
-      });
-      console.log("allAreas:", allAreas);
-      setAreas(allAreas);
-    }
-  }, [allSuccess]);
 
   // Create new walkthrough
   const handleCreateNewWalkthrough = useMutation({
@@ -169,7 +168,6 @@ export default function WalkthroughPage({
   });
 
   // Callback to add a new area
-  // TODO Rethink this
   const handleAddArea = (parentArea?: Area) => {
     // console.log("trying to Add Area");
     // if (parentAreaName) {
@@ -184,13 +182,13 @@ export default function WalkthroughPage({
       isNew: true,
     };
     if (parentArea) {
-      console.log("In parentArea:", parentArea);
+      // console.log("In parentArea:", parentArea);
       newArea.parentArea = parentArea._id;
       newArea.parentType = "area";
-      console.log(newArea);
+      // console.log(newArea);
       const currentAreas = areas;
       const newAreas = addArea(currentAreas, newArea);
-      console.log("newAreas:", newAreas);
+      // console.log("newAreas:", newAreas);
       setAreas(newAreas);
     } else {
       // console.log("adding new area");
@@ -201,28 +199,50 @@ export default function WalkthroughPage({
   function addArea(prevArea: Area[], newArea: Area): Area[] {
     const result: Area[] = prevArea.map((area) => {
       if (area._id === newArea.parentArea) {
-        console.log("Found area newArea belongs in");
+        // console.log("Found area newArea belongs in");
         return { ...area, areas: [...area.areas, newArea] };
       }
       if (area.areas.length > 0) {
-        console.log("entered subAreas");
-        return {...area, areas: addArea(area.areas, newArea)};
+        // console.log("entered subAreas");
+        return { ...area, areas: addArea(area.areas, newArea) };
       }
       return area;
     });
-    console.log("returning:", result);
+    // console.log("returning:", result);
+    return result;
+  }
+
+  // Function to add a new dataPoint to it's parentArea
+  function addDataPoint(prevAreas: Area[], newDataPoint: DataPoint): Area[] {
+    console.log("New Data Point:", newDataPoint);
+    const result: Area[] = prevAreas.map((area) => {
+      console.log("Area:", area);
+      if (area._id === newDataPoint.parentArea) {
+        console.log("Found area newDataPoint belongs in");
+        return { ...area, dataPoints: [...area.dataPoints, newDataPoint] };
+      }
+      if (area.areas && area.areas.length > 0) {
+        return { ...area, areas: addDataPoint(area.areas, newDataPoint) };
+      }
+      return area;
+    });
+
     return result;
   }
 
   // Callback to add a new data point
-  const handleAddDataPoint = (parentAreaName: string[]) => {
+  const handleAddDataPoint = (parentArea: Area) => {
+    if (!parentArea || !parentArea._id) return;
+    console.log("Adding new Data Point!");
     const newDataPoint: DataPoint = {
-      text: `New Data Point`,
+      text: "New Data Point",
       type: "string",
+      parentArea: parentArea._id,
+      parentWalkthrough: selectedWalkthrough,
+      isNew: true,
     };
-    setAreas((prevAreas) =>
-      addDataPoint(prevAreas, parentAreaName, newDataPoint)
-    );
+    console.log("Adding new Data Point to areas:", newDataPoint);
+    setAreas((prevAreas) => addDataPoint(prevAreas, newDataPoint));
   };
 
   // is this necessary?
@@ -232,9 +252,15 @@ export default function WalkthroughPage({
       selectedWalkthrough !== "Select a Walkthrough"
     ) {
       selectedWalkthroughQuery.refetch();
-      // console.log("selectedWalkthrough", selectedWalkthroughQuery?.data?.data);
     }
   }, [selectedWalkthrough]);
+
+  useEffect(() => {
+    if (selectedWalkthroughQuery.isSuccess && selectedWalkthroughQuery.data) {
+      console.log("selectedWalkthrough", selectedWalkthroughQuery?.data);
+      setAreas(selectedWalkthroughQuery.data);
+    }
+  }, [selectedWalkthroughQuery.isSuccess, selectedWalkthroughQuery.data]);
 
   // useEffect(() => {
   //   console.log("areas:", areas);
@@ -326,19 +352,6 @@ export default function WalkthroughPage({
             onAddDataPoint={handleAddDataPoint}
           />
         )}
-
-        {/* {selectedWalkthrough !== "Select a Walkthrough" &&
-          areas.length > 0 &&
-          areas[0].name === "" && (
-            <>
-              <WalkthroughAreaCard
-                key={0}
-                selectedWalkthrough={selectedWalkthrough}
-                onAddArea={handleAddArea}
-                onAddDataPoint={handleAddDataPoint}
-              />
-            </>
-          )} */}
 
         {selectedWalkthrough !== "Select a Walkthrough" && (
           <button

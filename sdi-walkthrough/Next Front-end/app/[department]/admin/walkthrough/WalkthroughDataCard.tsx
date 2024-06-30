@@ -1,13 +1,16 @@
 "use client";
-import type { DataPoint, Area } from "@/types";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { max } from "date-fns";
+import type { DataPoint } from "@/types";
+// import { max } from "date-fns";
 import { ReactNode, useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
+import { DevTool } from "@hookform/devtools";
 import { z } from "zod";
-import { saveAreaMutationFn } from "./util";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
+import IconSave from "@/components/ui/icons/save";
+import IconDelete from "@/components/ui/icons/delete";
+import IconEdit from "@/components/ui/icons/edit";
 
 const dataPointSchema = z.object({
   text: z.string().min(1, "Text is required"),
@@ -33,8 +36,8 @@ interface FromValues {
 
 interface WalkthroughDataCardProps {
   selectedWalkthrough: string;
-  dataPoint?: DataPoint;
-  parentArea?: string;
+  dataPoint: DataPoint;
+  parentArea: string;
 }
 
 export default function WalkthroughDataCard({
@@ -46,6 +49,7 @@ export default function WalkthroughDataCard({
   const {
     register,
     handleSubmit,
+    control,
     formState: { errors },
     setValue,
     getValues,
@@ -57,30 +61,25 @@ export default function WalkthroughDataCard({
       unit: dataPoint?.unit || "%",
       min: dataPoint?.min || 0,
       max: dataPoint?.max || 100,
-      choices: dataPoint?.choices || [""],
+      choices: dataPoint?.choices || [],
     },
   });
 
+  const queryClient = useQueryClient();
   const [canEdit, setCanEdit] = useState<boolean>(false);
   const [newChoice, setNewChoice] = useState<string>("");
   const [_id, setId] = useState<string>("");
-  const queryClient = useQueryClient();
+  const choice = useWatch({
+    control,
+    name: "type",
+    defaultValue: dataPoint?.type || "number",
+  });
 
   useEffect(() => {
     if (dataPoint && dataPoint._id) {
       setId(dataPoint._id);
     }
   }, [dataPoint]);
-
-  const updateWalkthroughMutation = useMutation({
-    mutationFn: saveAreaMutationFn,
-    onSuccess: () => {
-      toast.success("Successfully updated walkthrough.");
-      queryClient.invalidateQueries({
-        queryKey: ["walkthrough", { name: selectedWalkthrough }],
-      });
-    },
-  });
 
   const handleEditClick = () => {
     setCanEdit(true);
@@ -94,6 +93,8 @@ export default function WalkthroughDataCard({
       unit: formData.unit,
       min: formData.min,
       max: formData.max,
+      parentArea: parentArea,
+      parentWalkthrough: selectedWalkthrough,
       choices: Array.isArray(formData.choices)
         ? formData.choices
         : [formData.choices],
@@ -103,6 +104,7 @@ export default function WalkthroughDataCard({
         selectedWalkthrough,
         action: "update",
         parentArea: parentArea,
+        parentWalkthrough: selectedWalkthrough,
         dataPoint: dataPointPackage,
       });
       setCanEdit(false);
@@ -134,6 +136,11 @@ export default function WalkthroughDataCard({
     }
   };
 
+  const handleCancelClick = () => {
+    setCanEdit(false);
+    setValue("choices", []);
+  };
+
   const handleAddChoice = () => {
     const currentChoices = getValues("choices");
     const currentChoicesArray = Array.isArray(currentChoices)
@@ -159,40 +166,75 @@ export default function WalkthroughDataCard({
 
   return (
     <>
-      <div className="card m-4 w-96 bg-base-200 text-base-content shadow-lg shadow-base-200">
-        <div className="card-body">
+      <div
+        className={`card m-4 ${canEdit ? "w-1/4" : "w-96"} bg-base-200 text-base-content shadow-lg shadow-base-300`}
+      >
+        <div className="card-body items-center text-center">
+          <div className="card-title">Data Point</div>
           {canEdit ? (
             <>
+              <DevTool control={control} />
               <form onSubmit={handleSubmit(handleSaveClick)}>
-                <input
-                  type="text"
-                  className={`input input-bordered focus:placeholder-transparent ${errors?.text ? "input-error" : ""}`}
-                  placeholder="Enter displayed text"
-                  {...register("text", { required: true })}
-                />
-                <select
-                  className={`select select-bordered ${errors?.type ? "input-error" : ""}`}
-                  {...register("type", { required: true })}
-                >
-                  <option value="number">Number</option>
-                  <option value="string">Text</option>
-                  <option value="boolean">Boolean</option>
-                </select>
-                <input
-                  className={`input input-bordered focus:placeholder-transparent ${errors?.unit ? "input-error" : ""}`}
-                  placeholder="Enter unit"
-                  {...register("unit")}
-                />
-                <input
-                  className={`input input-bordered focus:placeholder-transparent ${errors?.min ? "input-error" : ""}`}
-                  placeholder="Enter minimum value"
-                  {...register("min")}
-                />
-                <input
-                  type="text"
-                  className={`input input-bordered focus:placeholder-transparent ${errors?.min ? "input-error" : ""}`}
-                  placeholder="Enter max value"
-                />
+                <div>
+                  <label>
+                    Text to display
+                    <input
+                      type="text"
+                      className={`input input-bordered m-2 focus:placeholder-transparent ${errors?.text ? "input-error" : ""}`}
+                      placeholder="Enter displayed text"
+                      {...register("text", { required: true })}
+                    />
+                  </label>
+                </div>
+                <div>
+                  <label>
+                    What's to be recorded
+                    <select
+                      className={`select select-bordered m-2 ${errors?.type ? "input-error" : ""}`}
+                      {...register("type", { required: true })}
+                    >
+                      <option value="number">Number</option>
+                      <option value="string">Text</option>
+                      <option value="boolean">Yes/No</option>
+                    </select>
+                  </label>
+                </div>
+                {choice === "number" && (
+                  <>
+                    <div>
+                      <label>
+                        Unit
+                        <input
+                          className={`input input-bordered m-2 focus:placeholder-transparent ${errors?.unit ? "input-error" : ""}`}
+                          placeholder="Enter unit"
+                          {...register("unit")}
+                        />
+                      </label>
+                    </div>
+                    <div>
+                      <label>
+                        Minimum value
+                        <input
+                          type="text"
+                          className={`input input-bordered m-2 focus:placeholder-transparent ${errors?.min ? "input-error" : ""}`}
+                          placeholder="Enter minimum value"
+                          {...register("min")}
+                        />
+                      </label>
+                    </div>
+                    <div>
+                      <label>
+                        Max Value
+                        <input
+                          type="text"
+                          className={`input input-bordered m-2 focus:placeholder-transparent ${errors?.max ? "input-error" : ""}`}
+                          placeholder="Enter max value"
+                          {...register("max")}
+                        />
+                      </label>
+                    </div>
+                  </>
+                )}
                 <div className="mt-2">
                   <h3 className="font-bold mb-2">Choices</h3>
                   <div className="flex items-center">
@@ -212,9 +254,10 @@ export default function WalkthroughDataCard({
                     </button>
                   </div>
                   {Array.isArray(getValues("choices")) &&
+                    getValues("choices").length > 0 &&
                     getValues("choices").map((choice, index) => (
                       <div key={index} className="flex items-center mt-2">
-                        <span className="mr-2">{choice}</span>
+                        <div className="mr-2">{choice || "Blank"}</div>
                         <button
                           type="button"
                           className="btn btn-error btn-sm"
@@ -224,10 +267,12 @@ export default function WalkthroughDataCard({
                         </button>
                       </div>
                     ))}
-                  ;
                 </div>
-                <button type="submit" className="btn btn-success mt-4">
-                  Save
+                <button
+                  type="submit"
+                  className="btn btn-success btn-circle p-2 mt-4"
+                >
+                  <IconSave />
                 </button>
               </form>
             </>
@@ -235,13 +280,29 @@ export default function WalkthroughDataCard({
             <h2>{dataPoint?.text || "New Data Point"}</h2>
           )}
         </div>
-        <div className="card-actions">
-          <button className="btn btn-primary" onClick={handleEditClick}>
-            Edit
-          </button>
-          <button className="btn btn-error" onClick={handleDeleteClick}>
-            Delete
-          </button>
+        <div className="card-actions justify-end items-baseline">
+          {!canEdit ? (
+            <>
+              <button
+                className="btn btn-primary btn-circle p-2 m-1 mr-2 mb-2"
+                onClick={handleEditClick}
+              >
+                <IconEdit />
+              </button>
+            </>
+          ) : (
+            <>
+              <button className="btn btn-primary" onClick={handleCancelClick}>
+                Cancel
+              </button>
+              <button
+                className="btn btn-error btn-circle p-2 m-1 mr-2 mb-2"
+                onClick={handleDeleteClick}
+              >
+                <IconDelete />
+              </button>
+            </>
+          )}
         </div>
       </div>
     </>

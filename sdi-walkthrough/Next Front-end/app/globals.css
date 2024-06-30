@@ -1,7 +1,7 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
- 
+
 /* :root {
   --foreground-rgb: 0, 0, 0;
   --background-start-rgb: 214, 219, 220;
@@ -29,6 +29,11 @@
     )
     rgb(var(--background-start-rgb));
 } */
+ /* This is for theme buttons whenever theme is selected */
+.ACTIVECLASS {
+  background-color: oklch(var(--p)) !important;
+  color: oklch(var(--pc)) !important;
+}
 
 @layer utilities {
   .text-balance {

@@ -118,6 +118,10 @@ export default function WalkthroughAreaCard({
     setCanEdit(true);
   };
 
+  const handleCancelClick = () => {
+    setCanEdit(false);
+  };
+
   const handleSaveClick = async (formData: FormValues) => {
     // console.log("In handleSaveClick");
     const areaPackage: Area = {
@@ -157,33 +161,39 @@ export default function WalkthroughAreaCard({
 
   return (
     <div
-      className={`card m-4 w-96 bg-base-200 text-base-content shadow-lg shadow-base-200`}
+      className={`card m-4 w-96 bg-base-200 text-base-content shadow-lg shadow-base-300`}
     >
-      <div className="card-body">
+      <div className="card-body items-center text-center">
+        <div className="card-title">Area</div>
         {canEdit ? (
-          <form onSubmit={handleSubmit(handleSaveClick)} id="formName">
-            <label className="label m-1" htmlFor="name">
-              Area:
-            </label>
-            <input
-              id="name"
-              className={`input input-bordered focus:placeholder-transparent ${errors?.name ? "input-error" : ""}`}
-              placeholder="New Area"
-              {...register("name")}
-            />
-            {
-              <button
-                type="submit"
-                form="formName"
-                className="btn btn-primary btn-circle p-2 m-2"
-                // onClick={handleButtonClick}
-                onClick={handleSubmit(handleSaveClick)}
-              >
-                <IconSave />
-              </button>
-            }
-            {errors.name && <p className="text-error">{errors.name.message}</p>}
-          </form>
+          <>
+            <DevTool control={control} />
+            <form onSubmit={handleSubmit(handleSaveClick)} id="formName">
+              <label className="label m-1" htmlFor="name">
+                Area:
+              </label>
+              <input
+                id="name"
+                className={`input input-bordered focus:placeholder-transparent ${errors?.name ? "input-error" : ""}`}
+                placeholder="New Area"
+                {...register("name")}
+              />
+              {
+                <button
+                  type="submit"
+                  form="formName"
+                  className="btn btn-success btn-circle p-2 m-2"
+                  // onClick={handleButtonClick}
+                  onClick={handleSubmit(handleSaveClick)}
+                >
+                  <IconSave />
+                </button>
+              }
+              {errors.name && (
+                <p className="text-error">{errors.name.message}</p>
+              )}
+            </form>
+          </>
         ) : (
           <h2>{name || "New Area"}</h2>
         )}
@@ -191,6 +201,12 @@ export default function WalkthroughAreaCard({
       <div className="card-actions justify-end items-baseline">
         {canEdit ? (
           <>
+            <button
+              className="btn btn-primary p-2 m-2"
+              onClick={handleCancelClick}
+            >
+              Cancel
+            </button>
             <button
               className="btn btn-error btn-circle p-2 mr-2 mb-2"
               onClick={handleDeleteClick}
@@ -224,7 +240,6 @@ export default function WalkthroughAreaCard({
             </button>
           </>
         )}
-        <DevTool control={control} />
       </div>
     </div>
   );
