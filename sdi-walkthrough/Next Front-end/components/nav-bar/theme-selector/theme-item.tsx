@@ -9,14 +9,14 @@ export default function ThemeItem({
 }: Readonly<{ value: string }>): React.ReactNode {
   return (
     <li>
-      <input
-        type="radio"
-        name="theme-dropdown"
-        className="theme-controller my-1 btn btn-sm btn-block btn-ghost justify-start bg-base-200"
-        aria-label={capitalizeFirstLetter(value)}
-        value={value}
+      <button
+        className="theme-controller btn btn-sm btn-block btn-ghost justify-start"
+        aria-label={value}
         data-set-theme={value}
-      />
+        data-act-class="ACTIVECLASS"
+      >
+        {capitalizeFirstLetter(value)}
+      </button>
     </li>
   );
 }
