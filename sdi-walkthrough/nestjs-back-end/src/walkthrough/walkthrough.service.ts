@@ -70,7 +70,7 @@ export class WalkthroughService {
     const deptDoc = await this.departmentModel
       .findOne({ name: department })
       .select('walkthroughs _id')
-      .populate('walkthroughs _id')
+      .populate('walkthroughs _id', '', this.walkthroughModel)
       .exec();
     // this.logger.log(department, deptDoc);
     if (!deptDoc) {

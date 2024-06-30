@@ -9,14 +9,14 @@ import { UpdateDatapointDto } from './dto/update-datapoint.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Area } from 'src/schemas/areas.schema';
-import { Walkthrough } from 'src/schemas/walkthroughs.schema';
+// import { Walkthrough } from 'src/schemas/walkthroughs.schema';
 import { DataPoint, DataPointDocument } from 'src/schemas/DataPoints.schema';
 
 @Injectable()
 export class DatapointService {
   constructor(
     @InjectModel(Area.name) private areaModel: Model<Area>,
-    @InjectModel(Walkthrough.name) private walkthroughModel: Model<Walkthrough>,
+    // @InjectModel(Walkthrough.name) private walkthroughModel: Model<Walkthrough>,
     @InjectModel(DataPoint.name) private dataPointModel: Model<DataPoint>,
   ) {}
   async create(createDatapointDto: CreateDatapointDto) {
@@ -38,6 +38,7 @@ export class DatapointService {
         description: 'Area not found',
       });
     }
+
     const dataPointDoc = new this.dataPointModel({
       text: createDatapointDto.text,
       type: createDatapointDto.type,
@@ -47,17 +48,21 @@ export class DatapointService {
     if (createDatapointDto.min) dataPointDoc.min = createDatapointDto.min;
     if (createDatapointDto.max) dataPointDoc.max = createDatapointDto.max;
     if (createDatapointDto.unit) dataPointDoc.unit = createDatapointDto.unit;
-    if (createDatapointDto.choices)
+    if (createDatapointDto.choices && createDatapointDto.choices.length > 0)
       dataPointDoc.choices = createDatapointDto.choices;
+
     const result = await dataPointDoc.save();
     if (result.errors) {
       throw new InternalServerErrorException(
         'Failed to create data point: ' + result.errors,
       );
     }
-    areaDoc.dataPoints.push(dataPointDoc);
+    // console.log('before push');
+    areaDoc.dataPoints.push(result);
+    // console.log('after push');
     await areaDoc.save();
-    return result;
+    // console.log('after save');
+    return result._id;
   }
 
   async findAll(walkthrough: string) {

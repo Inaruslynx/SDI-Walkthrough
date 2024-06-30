@@ -61,7 +61,7 @@ export class AreaService {
       }
       walkthroughDoc.data.push(result);
       await walkthroughDoc.save();
-      return areaDoc;
+      return areaDoc._id;
     }
 
     // If parent is an area
@@ -91,10 +91,12 @@ export class AreaService {
           'Failed to create area: ' + result.errors,
         );
       }
-      console.log('error?');
+      // console.log('before push');
       parentAreaDoc.areas.push(result);
+      // console.log('after push');
       await parentAreaDoc.save();
-      return areaDoc;
+      // console.log('after save');
+      return result._id;
     }
     throw new InternalServerErrorException('Failed to create area');
   }

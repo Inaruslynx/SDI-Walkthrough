@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import mongoose, { HydratedDocument } from 'mongoose';
+import mongoose, { Document, HydratedDocument } from 'mongoose';
 import { DataPoint } from './DataPoints.schema';
 import { Walkthrough } from './walkthroughs.schema';
 import { IsEnum } from 'class-validator';
@@ -7,7 +7,7 @@ import { IsEnum } from 'class-validator';
 export type AreaDocument = HydratedDocument<Area>;
 
 @Schema()
-export class Area {
+export class Area extends Document {
   @Prop({ required: true })
   name: string;
 
