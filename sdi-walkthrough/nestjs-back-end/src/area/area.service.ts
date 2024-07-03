@@ -156,6 +156,26 @@ export class AreaService {
     if (targetAreaDoc.errors) {
       throw new InternalServerErrorException(`Failed to find area: ${id}`);
     }
+
+    // Need to get all child areas
+    const childrenAreas = await this.findChildAreas(id);
+
+    // Need to get all child data points
+    const childrenDataPoints = await this.findChildDataPoints(id);
+
+    // Function to delete child areas and data points
+    const deleteChildren = async () => {
+      // Delete child areas
+      for (const childArea of childrenAreas) {
+        await this.areaModel.findByIdAndDelete(childArea.id);
+      }
+
+      // Delete child data points
+      for (const childDataPoint of childrenDataPoints) {
+        await this.dataPointModel.findByIdAndDelete(childDataPoint.id); // Assuming you have a dataPointModel for handling data points
+      }
+    };
+
     // The parent of the area is either the walkthrough or another area
     if (targetAreaDoc.parentType === 'walkthrough') {
       // Find parent walkthrough and error if it's not found
@@ -190,6 +210,10 @@ export class AreaService {
       if (result.errors) {
         throw new InternalServerErrorException(`Failed to delete ${id}`);
       }
+
+      // Delete children after deleting the area
+      await deleteChildren();
+
       return result;
       // If parent isn't a walkthrough is it an area?
     } else if (targetAreaDoc.parentType === 'area') {
@@ -221,11 +245,47 @@ export class AreaService {
       if (result.errors) {
         throw new InternalServerErrorException(`Failed to delete ${id}`);
       }
+
+      // Delete children after deleting the area
+      await deleteChildren();
+
       // return the results of deleting area
       return result;
     }
     throw new InternalServerErrorException(
       `Parent type was neither area or walkthrough`,
     );
+  }
+
+  async findChildAreas(id: string): Promise<Area[]> {
+    const result: Area[] = [];
+
+    async function findChildren(parentId: string) {
+      const areaDocs = await this.areaModel.find({ parentArea: parentId });
+      for (const areaDoc of areaDocs) {
+        result.push(areaDoc);
+        await findChildren(areaDoc._id);
+      }
+    }
+
+    await findChildren(id);
+    return result;
+  }
+
+  async findChildDataPoints(id: string): Promise<DataPoint[]> {
+    const result: DataPoint[] = [];
+
+    async function findChildren(parentId: string) {
+      const dataPointDocs = await this.DatapointModule.find({
+        parentArea: parentId,
+      });
+      for (const dataPointDoc of dataPointDocs) {
+        result.push(dataPointDoc);
+        await findChildren(dataPointDoc._id);
+      }
+    }
+
+    await findChildren(id);
+    return result;
   }
 }

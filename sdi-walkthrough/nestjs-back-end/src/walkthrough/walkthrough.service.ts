@@ -15,12 +15,16 @@ import {
   WalkthroughDocument,
 } from 'src/schemas/walkthroughs.schema';
 import { Model } from 'mongoose';
+import { Area } from 'src/schemas/areas.schema';
+import { DataPoint } from 'src/schemas/DataPoints.schema';
 
 @Injectable()
 export class WalkthroughService {
   constructor(
     @InjectModel(Department.name) private departmentModel: Model<Department>,
     @InjectModel(Walkthrough.name) private walkthroughModel: Model<Walkthrough>,
+    @InjectModel(Area.name) private areaModel: Model<Area>,
+    @InjectModel(DataPoint.name) private dataPointModel: Model<DataPoint>,
   ) {}
   private readonly logger = new Logger(WalkthroughService.name);
 
@@ -146,7 +150,10 @@ export class WalkthroughService {
         description: 'Request is empty',
       });
     }
+    // Find walkthrough
     const walkthroughDoc = await this.walkthroughModel.findById(id);
+
+    // Find Department that walkthrough belongs to and delete walkthrough
     const deptDoc = await this.departmentModel.findById(
       walkthroughDoc.department,
     );
@@ -155,6 +162,24 @@ export class WalkthroughService {
     );
     deptDoc.walkthroughs = filteredWalkthroughs;
     const resultDept = await deptDoc.save();
+
+    // Find all areas belonging to Walkthrough
+    const areaDocs = await this.areaModel.find({ parentWalkthrough: id });
+
+    // Delete all areas
+    for (const areaDoc of areaDocs) {
+      await this.areaModel.findByIdAndDelete(areaDoc._id);
+    }
+
+    // Find all data points belonging to Walkthrough
+    const dataPointDocs = await this.dataPointModel.find({
+      parentWalkthrough: id,
+    });
+    // Delete all data points
+    for (const dataPointDoc of dataPointDocs) {
+      await this.dataPointModel.findByIdAndDelete(dataPointDoc._id);
+    }
+
     const resultWalkthrough = await this.walkthroughModel.findByIdAndDelete(
       walkthroughDoc._id,
     );

@@ -45,9 +45,11 @@ export class DatapointService {
       parentArea: areaDoc,
       parentWalkthrough: createDatapointDto.parentWalkthrough,
     });
-    if (createDatapointDto.min) dataPointDoc.min = createDatapointDto.min;
-    if (createDatapointDto.max) dataPointDoc.max = createDatapointDto.max;
-    if (createDatapointDto.unit) dataPointDoc.unit = createDatapointDto.unit;
+    if (createDatapointDto.type === 'number') {
+      dataPointDoc.min = createDatapointDto.min || 0;
+      dataPointDoc.max = createDatapointDto.max || 100;
+      dataPointDoc.unit = createDatapointDto.unit || '%';
+    }
     if (createDatapointDto.choices && createDatapointDto.choices.length > 0)
       dataPointDoc.choices = createDatapointDto.choices;
 
@@ -99,10 +101,16 @@ export class DatapointService {
     }
     dataPointDoc.text = updateDatapointDto.text || dataPointDoc.text;
     dataPointDoc.type = updateDatapointDto.type || dataPointDoc.type;
-    dataPointDoc.min = updateDatapointDto.min || dataPointDoc.min;
-    dataPointDoc.max = updateDatapointDto.max || dataPointDoc.max;
-    dataPointDoc.unit = updateDatapointDto.unit || dataPointDoc.unit;
-    dataPointDoc.choices = updateDatapointDto.choices || dataPointDoc.choices;
+    dataPointDoc.choices = updateDatapointDto.choices;
+    if (dataPointDoc.type === 'number') {
+      dataPointDoc.min = updateDatapointDto.min || dataPointDoc.min;
+      dataPointDoc.max = updateDatapointDto.max || dataPointDoc.max;
+      dataPointDoc.unit = updateDatapointDto.unit || dataPointDoc.unit;
+    } else {
+      dataPointDoc.min = undefined;
+      dataPointDoc.max = undefined;
+      dataPointDoc.unit = undefined;
+    }
     const result = await dataPointDoc.save();
     if (result.errors) {
       throw new InternalServerErrorException(
