@@ -9,7 +9,7 @@ export type DataPointDocument = HydratedDocument<DataPoint>;
 
 @Schema()
 export class DataPoint extends Document {
-  @Prop({ required: true, index: true, unique: true })
+  @Prop({ required: true, index: true })
   text: string;
 
   @Prop({ required: true, enum: ['string', 'number', 'boolean'] })

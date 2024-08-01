@@ -32,7 +32,7 @@ export class WalkthroughService {
     if (!createWalkthroughDto.name || !createWalkthroughDto.department) {
       throw new BadRequestException('Missing name.');
     } else {
-      this.logger.debug('creating walkthrough from:', createWalkthroughDto);
+      // this.logger.debug('creating walkthrough from:', createWalkthroughDto);
       const DepartmentDocument = await this.departmentModel
         .findOne({
           name: createWalkthroughDto.department,
@@ -50,7 +50,7 @@ export class WalkthroughService {
           department: DepartmentDocument,
           data: [],
         });
-        this.logger.debug(newWalkthrough);
+        // this.logger.debug(newWalkthrough);
         DepartmentDocument.walkthroughs.push(newWalkthrough);
         await DepartmentDocument.save();
         const result = await newWalkthrough.save();

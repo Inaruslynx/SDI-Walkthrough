@@ -14,7 +14,7 @@ export default function SelectWalkthrough({
 }) {
   useEffect(() => {
     if (!Array.isArray(walkthroughs)) return;
-    walkthroughs.forEach(element => {
+    walkthroughs.forEach((element) => {
       if (element.name === selectedWalkthrough) {
         onChange(selectedWalkthrough);
       }
@@ -23,7 +23,7 @@ export default function SelectWalkthrough({
 
   return (
     <select
-      className={`select select-bordered ${className}`}
+      className={`select select-bordered ${className || ""}`}
       // defaultValue="Select a Walkthrough"
       value={selectedWalkthrough}
       onChange={(event) => onChange(event.target.value)}

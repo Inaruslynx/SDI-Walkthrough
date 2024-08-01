@@ -54,14 +54,16 @@ export default function WalkthroughDataCard({
     formState: { errors },
     setValue,
     getValues,
+    reset,
+    trigger,
   } = useForm({
     resolver: zodResolver(dataPointSchema),
     defaultValues: {
       text: dataPoint?.text || "New Data Point",
       type: dataPoint?.type || "number",
       unit: dataPoint?.unit || "%",
-      min: dataPoint?.min || null,
-      max: dataPoint?.max || null,
+      min: dataPoint?.min,
+      max: dataPoint?.max,
       choices: dataPoint?.choices || [],
     },
   });
@@ -69,15 +71,26 @@ export default function WalkthroughDataCard({
   const queryClient = useQueryClient();
   const [canEdit, setCanEdit] = useState<boolean>(false);
   const [newChoice, setNewChoice] = useState<string>("");
+  const [editChoiceIndex, setEditChoiceIndex] = useState<number | null>(null);
+  const [editChoiceValue, setEditChoiceValue] = useState<string>("");
   const [_id, setId] = useState<string>("");
-  const choice = useWatch({
+  const typeChoice = useWatch({
     control,
     name: "type",
     defaultValue: dataPoint?.type || "number",
   });
 
+  const initialFormValues = {
+    text: dataPoint?.text || "New Data Point",
+    type: dataPoint?.type || "number",
+    unit: dataPoint?.unit || "%",
+    min: dataPoint?.min,
+    max: dataPoint?.max,
+    choices: dataPoint?.choices || [],
+  };
+
   useEffect(() => {
-    if (dataPoint && dataPoint._id) {
+    if (dataPoint?._id) {
       setId(dataPoint._id);
     }
   }, [dataPoint]);
@@ -165,7 +178,7 @@ export default function WalkthroughDataCard({
 
   const handleCancelClick = () => {
     setCanEdit(false);
-    setValue("choices", []);
+    reset(initialFormValues);
   };
 
   const handleAddChoice = () => {
@@ -180,7 +193,8 @@ export default function WalkthroughDataCard({
     }
   };
 
-  const handleDeleteChoice = (choiceToDelete: string) => {
+  const handleDeleteChoice = async (choiceToDelete: string) => {
+    console.log("in handleDeleteChoice");
     const currentChoices = getValues("choices");
     const currentChoicesArray = Array.isArray(currentChoices)
       ? currentChoices
@@ -188,34 +202,67 @@ export default function WalkthroughDataCard({
     const updatedChoices = currentChoicesArray.filter(
       (choice) => choice !== choiceToDelete
     );
+    console.log("updatedChoice:", updatedChoices);
     setValue("choices", updatedChoices);
+    await trigger("choices");
+  };
+
+  const handleEditChoice = (index: number, value: string) => {
+    setEditChoiceIndex(index);
+    setEditChoiceValue(value);
+  };
+
+  const handleUpdateChoice = async (index: number) => {
+    const currentChoices = getValues("choices");
+    const updatedChoices = [...currentChoices];
+    updatedChoices[index] = editChoiceValue;
+    setValue("choices", updatedChoices);
+    await trigger("choices");
+    setEditChoiceIndex(null);
+    setEditChoiceValue("");
+  };
+
+  const handleCancelEditChoice = () => {
+    setEditChoiceIndex(null);
+    setEditChoiceValue("");
   };
 
   return (
     <>
       <div
-        className={`card m-4 ${canEdit ? "w-1/4" : "w-96"} bg-base-200 text-base-content shadow-lg shadow-base-300`}
+        className={`card m-4 ${canEdit ? "2xl:w-1/4 lg:w-1/2" : "w-96"} bg-base-200 text-base-content shadow-lg shadow-base-300`}
       >
-        <div className="card-body items-center text-center">
+        <div className="card-body p-4 items-center text-center">
           <div className="card-title">Data Point</div>
           {canEdit ? (
             <>
               <DevTool control={control} />
               <form onSubmit={handleSubmit(handleSaveClick)}>
                 <div>
-                  <label>
-                    Text to display
+                  <label className="form-control">
+                    <div className="label">
+                      <span className="label-text">Text to display</span>
+                    </div>
                     <input
                       type="text"
                       className={`input input-bordered m-2 focus:placeholder-transparent ${errors?.text ? "input-error" : ""}`}
                       placeholder="Enter displayed text"
                       {...register("text", { required: true })}
                     />
+                    {errors?.text && (
+                      <div className="label text-error">
+                        <span>{errors.text.message}</span>
+                      </div>
+                    )}
                   </label>
                 </div>
                 <div>
-                  <label>
-                    What's to be recorded
+                  <label className="form-control">
+                    <div className="label">
+                      <span className="label-text">
+                        What&apos;s to be recorded
+                      </span>
+                    </div>
                     <select
                       className={`select select-bordered m-2 ${errors?.type ? "input-error" : ""}`}
                       {...register("type", { required: true })}
@@ -224,40 +271,78 @@ export default function WalkthroughDataCard({
                       <option value="string">Text</option>
                       <option value="boolean">Yes/No</option>
                     </select>
+                    {errors?.type && (
+                      <div className="label">
+                        <span>{errors.type.message}</span>
+                      </div>
+                    )}
                   </label>
                 </div>
-                {choice === "number" && (
+                {typeChoice === "number" && (
                   <>
                     <div>
-                      <label>
-                        Unit
+                      <label className="form-control">
+                        <div className="label">
+                          <span className="label-text">Unit</span>
+                        </div>
                         <input
                           className={`input input-bordered m-2 focus:placeholder-transparent ${errors?.unit ? "input-error" : ""}`}
                           placeholder="Enter unit"
                           {...register("unit")}
                         />
+                        {errors?.unit && (
+                          <div>
+                            <span className="label-text-alt text-error">
+                              {errors.unit.message}
+                            </span>
+                          </div>
+                        )}
                       </label>
                     </div>
                     <div>
-                      <label>
-                        Minimum value
+                      <label className="form-control">
+                        <div className="label">
+                          <span className="label-text">Minimum value</span>
+                        </div>
                         <input
                           type="number"
                           className={`input input-bordered m-2 focus:placeholder-transparent ${errors?.min ? "input-error" : ""}`}
                           placeholder="Enter minimum value"
-                          {...register("min", {setValueAs: v => v || null, valueAsNumber: true})}
+                          {...register("min", {
+                            setValueAs: (v) => v || null,
+                            valueAsNumber: true,
+                          })}
                         />
+                        {errors?.min && (
+                          <div className="label">
+                            <span className="label-text">
+                              {errors.min.message}
+                            </span>
+                          </div>
+                        )}
                       </label>
                     </div>
                     <div>
-                      <label>
-                        Max Value
+                      <label className="form-control">
+                        <div className="label">
+                          <span className="label-text">Max Value</span>
+                        </div>
                         <input
                           type="number"
                           className={`input input-bordered m-2 focus:placeholder-transparent ${errors?.max ? "input-error" : ""}`}
                           placeholder="Enter max value"
-                          {...register("max", {setValueAs: v => v || null, valueAsNumber: true})}
+                          {...register("max", {
+                            setValueAs: (v) => v || null,
+                            valueAsNumber: true,
+                          })}
                         />
+                        {errors?.max && (
+                          <div className="label">
+                            <span className="label-text">
+                              {errors.max.message}
+                            </span>
+                          </div>
+                        )}
                       </label>
                     </div>
                   </>
@@ -265,35 +350,80 @@ export default function WalkthroughDataCard({
                 <div className="mt-2">
                   <h3 className="font-bold mb-2">Choices</h3>
                   <div className="flex items-center">
-                    <input
-                      type="text"
-                      className="input input-bordered mr-2"
-                      value={newChoice}
-                      onChange={(e) => setNewChoice(e.target.value)}
-                      placeholder="Add new choice"
-                    />
-                    <button
-                      type="button"
-                      className="btn btn-primary"
-                      onClick={handleAddChoice}
-                    >
-                      Add
-                    </button>
+                    <div className="join">
+                      <input
+                        type="text"
+                        className="input input-bordered join-item"
+                        value={newChoice}
+                        onChange={(e) => setNewChoice(e.target.value)}
+                        placeholder="Add new choice"
+                      />
+                      <button
+                        type="button"
+                        className="btn btn-primary join-item"
+                        onClick={handleAddChoice}
+                      >
+                        Add
+                      </button>
+                    </div>
                   </div>
                   {Array.isArray(getValues("choices")) &&
-                    getValues("choices").length > 0 &&
-                    getValues("choices").map((choice, index) => (
-                      <div key={index} className="flex items-center mt-2">
-                        <div className="mr-2">{choice || "Blank"}</div>
-                        <button
-                          type="button"
-                          className="btn btn-error btn-sm"
-                          onClick={() => handleDeleteChoice(choice)}
-                        >
-                          Delete
-                        </button>
+                    getValues("choices").length > 0 && (
+                      <div className="flex flex-col items-center mt-2">
+                        {getValues("choices").map((choice, index) => (
+                          <div key={index} className="join m-1">
+                            {editChoiceIndex === index ? (
+                              <>
+                                <input
+                                  type="text"
+                                  className="input input-bordered input-sm join-item"
+                                  value={editChoiceValue}
+                                  onChange={(e) =>
+                                    setEditChoiceValue(e.target.value)
+                                  }
+                                />
+                                <button
+                                  type="button"
+                                  className="btn btn-success btn-sm join-item"
+                                  onClick={() => handleUpdateChoice(index)}
+                                >
+                                  Update
+                                </button>
+                                <button
+                                  type="button"
+                                  className="btn btn-secondary btn-sm join-item"
+                                  onClick={handleCancelEditChoice}
+                                >
+                                  Cancel
+                                </button>
+                              </>
+                            ) : (
+                              <>
+                                <span className="join-item p-2">
+                                  {choice || "Blank"}
+                                </span>
+                                <button
+                                  type="button"
+                                  className="btn btn-warning btn-sm join-item"
+                                  onClick={() =>
+                                    handleEditChoice(index, choice)
+                                  }
+                                >
+                                  Edit
+                                </button>
+                                <button
+                                  type="button"
+                                  className="btn btn-error btn-sm join-item"
+                                  onClick={() => handleDeleteChoice(choice)}
+                                >
+                                  Delete
+                                </button>
+                              </>
+                            )}
+                          </div>
+                        ))}
                       </div>
-                    ))}
+                    )}
                 </div>
                 <button
                   type="submit"
@@ -335,3 +465,25 @@ export default function WalkthroughDataCard({
     </>
   );
 }
+
+/* 
+{Array.isArray(getValues("choices")) &&
+                    getValues("choices").length > 0 && (
+                      <div className="join flex items-center">
+                        {getValues("choices").map((choice, index) => (
+                          <div key={index} className="mt-2">
+                            <span className="join-item p-2">
+                              {choice || "Blank"}
+                            </span>
+                            <button
+                              type="button"
+                              className="btn btn-error btn-sm join-item"
+                              onClick={() => handleDeleteChoice(choice)}
+                            >
+                              Delete
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                       */

@@ -26,7 +26,7 @@ export default function Home() {
             <li>
               <s>Graph page.</s>
             </li>
-            <li>Ability for admins to configure walkthroughs.</li>
+            <li><s>Ability for admins to configure walkthroughs.</s></li>
             <li>
               <s>
                 Connect to Microsoft identities so users log in with Microsoft

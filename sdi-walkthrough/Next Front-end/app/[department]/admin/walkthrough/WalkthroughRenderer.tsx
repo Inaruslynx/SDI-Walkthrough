@@ -31,21 +31,21 @@ const WalkthroughRenderer: React.FC<WalkthroughRendererProps> = ({
           onAddDataPoint={onAddDataPoint}
         />
         {/* <h3>{index} after new card</h3> */}
-        {area?.dataPoints?.map((dataPoint, index) => (
-          area._id ? (
-            <WalkthroughDataCard
-              key={index}
-              selectedWalkthrough={selectedWalkthrough}
-              dataPoint={dataPoint}
-              parentArea={area._id}
-            />
-          ) : null
-        ))}
+        {/* Wrap dataPoints in a div with className="ml-20" if there are any */}
+        {area?.dataPoints?.length > 0 && (
+          <div className="ml-20">
+            {area.dataPoints.map((dataPoint, index) => (
+              <WalkthroughDataCard
+                key={index}
+                selectedWalkthrough={selectedWalkthrough}
+                dataPoint={dataPoint}
+                parentArea={area._id}
+              />
+            ))}
+          </div>
+        )}
         {/* <h1>Hi</h1> */}
-        {area &&
-          area.areas &&
-          area.areas.length > 0 &&
-          renderAreas(area.areas, true)}
+        {area?.areas?.length > 0 && renderAreas(area.areas, true)}
         {/* <h1>Hi 2</h1> */}
       </div>
     ));

@@ -20,10 +20,9 @@ import SelectWalkthrough from "@/components/ui/selectWalkthrough";
 import {
   useMutation,
   useQuery,
-  useQueries,
   useQueryClient,
 } from "@tanstack/react-query";
-import { Walkthrough, Walkthroughs, Area, DataPoint } from "@/types";
+import { Walkthroughs, Area, DataPoint } from "@/types";
 import { AxiosResponse } from "axios";
 import IconPlus from "@/components/ui/icons/plus";
 
@@ -59,7 +58,7 @@ export default function WalkthroughPage({
   });
 
   // Fetch the selected Walkthrough
-  const selectedWalkthroughQuery = useQuery<AxiosResponse<Walkthrough>, Error>({
+  const selectedWalkthroughQuery = useQuery<Area[]>({
     queryKey: ["walkthrough", { id: selectedWalkthrough }],
     queryFn: () => masterGetWalkthrough(selectedWalkthrough),
     staleTime: 1000 * 60 * 5,
@@ -82,41 +81,25 @@ export default function WalkthroughPage({
     }
   };
 
+  // Recursive function to fetch areas and their sub-areas
   const fetchWalkthroughAreas = async (areas: Area[]): Promise<Area[]> => {
     const allAreas: Area[] = await Promise.all(
       areas.map(async (area: Area) => {
         if (!area._id) return null;
         const response = await findArea(area._id);
         const areaData = response.data;
-  
+
         if (areaData.areas && areaData.areas.length > 0) {
           const subAreas = await fetchWalkthroughAreas(areaData.areas);
           areaData.areas = subAreas;
         }
-  
+
         return areaData;
       })
     );
-  
+
     // Filter out any null values
-    return allAreas.filter(area => area !== null);
-  };
-
-  // Recursive function to fetch areas and their sub-areas
-  const fetchArea = async (areaId: string) => {
-    const response = await findArea(areaId);
-    const area = response.data;
-
-    if (area.areas && area.areas.length > 0) {
-      const subAreas = await Promise.all(
-        area.areas
-          .filter((subArea) => subArea._id)
-          .map((subArea) => fetchArea(subArea._id))
-      );
-      area.areas = subAreas;
-    }
-
-    return area;
+    return allAreas.filter((area) => area !== null);
   };
 
   // Create new walkthrough
@@ -343,25 +326,25 @@ export default function WalkthroughPage({
           )}
       </div>
 
-      <ScrollArea id="scroll-area" className="border min-h-screen">
-        {areas && (
-          <WalkthroughRenderer
-            selectedWalkthrough={selectedWalkthrough}
-            areas={areas}
-            onAddArea={handleAddArea}
-            onAddDataPoint={handleAddDataPoint}
-          />
-        )}
+      {selectedWalkthrough !== "Select a Walkthrough" && (
+        <ScrollArea id="scroll-area" className="border min-h-screen">
+          {areas?.length > 0 && (
+            <WalkthroughRenderer
+              selectedWalkthrough={selectedWalkthrough}
+              areas={areas}
+              onAddArea={handleAddArea}
+              onAddDataPoint={handleAddDataPoint}
+            />
+          )}
 
-        {selectedWalkthrough !== "Select a Walkthrough" && (
           <button
             className="btn btn-primary m-4"
             onClick={() => handleAddArea()}
           >
             <IconPlus /> New Area
           </button>
-        )}
-      </ScrollArea>
+        </ScrollArea>
+      )}
     </div>
   );
 }

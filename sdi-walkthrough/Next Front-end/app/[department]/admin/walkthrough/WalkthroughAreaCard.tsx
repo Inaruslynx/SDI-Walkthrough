@@ -49,6 +49,7 @@ export default function WalkthroughAreaCard({
     control,
     handleSubmit,
     formState: { errors },
+    reset,
   } = useForm({
     resolver: zodResolver(nameSchema),
     defaultValues: {
@@ -59,6 +60,9 @@ export default function WalkthroughAreaCard({
   const [canEdit, setCanEdit] = useState<boolean>(false);
   const name = useWatch({ control, name: "name" });
   const queryClient = useQueryClient();
+  const initialFormValues = {
+    name: area?.name || "",
+  };
 
   const createAreaMutation = useMutation({
     mutationFn: createArea,
@@ -120,6 +124,7 @@ export default function WalkthroughAreaCard({
 
   const handleCancelClick = () => {
     setCanEdit(false);
+    reset(initialFormValues);
   };
 
   const handleSaveClick = async (formData: FormValues) => {
@@ -169,29 +174,30 @@ export default function WalkthroughAreaCard({
           <>
             <DevTool control={control} />
             <form onSubmit={handleSubmit(handleSaveClick)} id="formName">
-              <label className="label m-1" htmlFor="name">
-                Area:
+              <label className="form-control">
+                <div className="label">
+                  <span className="label-text">Area</span>
+                </div>
+                <input
+                  id="name"
+                  className={`input input-bordered focus:placeholder-transparent ${errors?.name ? "input-error" : ""}`}
+                  placeholder="New Area"
+                  {...register("name")}
+                />
+                {errors?.name && (
+                  <div className="label">
+                    <span className="text-error">{errors.name.message}</span>
+                  </div>
+                )}
               </label>
-              <input
-                id="name"
-                className={`input input-bordered focus:placeholder-transparent ${errors?.name ? "input-error" : ""}`}
-                placeholder="New Area"
-                {...register("name")}
-              />
-              {
-                <button
-                  type="submit"
-                  form="formName"
-                  className="btn btn-success btn-circle p-2 m-2"
-                  // onClick={handleButtonClick}
-                  onClick={handleSubmit(handleSaveClick)}
-                >
-                  <IconSave />
-                </button>
-              }
-              {errors.name && (
-                <p className="text-error">{errors.name.message}</p>
-              )}
+              <button
+                type="submit"
+                form="formName"
+                className="btn btn-success btn-circle p-2 m-2"
+                onClick={handleSubmit(handleSaveClick)}
+              >
+                <IconSave />
+              </button>
             </form>
           </>
         ) : (
