@@ -11,6 +11,7 @@ import { toast } from "react-toastify";
 import IconSave from "@/components/ui/icons/save";
 import IconDelete from "@/components/ui/icons/delete";
 import IconEdit from "@/components/ui/icons/edit";
+import { createDataPoint, updateDataPoint, deleteDataPoint } from "@/lib/api";
 
 const dataPointSchema = z.object({
   text: z.string().min(1, "Text is required"),
@@ -29,8 +30,8 @@ interface FromValues {
   text: string;
   type: "number" | "string" | "boolean";
   unit?: string;
-  min?: number;
-  max?: number;
+  min?: number | null;
+  max?: number | null;
   choices: string[] | string;
 }
 
@@ -59,8 +60,8 @@ export default function WalkthroughDataCard({
       text: dataPoint?.text || "New Data Point",
       type: dataPoint?.type || "number",
       unit: dataPoint?.unit || "%",
-      min: dataPoint?.min || 0,
-      max: dataPoint?.max || 100,
+      min: dataPoint?.min || null,
+      max: dataPoint?.max || null,
       choices: dataPoint?.choices || [],
     },
   });
@@ -85,6 +86,45 @@ export default function WalkthroughDataCard({
     setCanEdit(true);
   };
 
+  const createDataPointMutation = useMutation({
+    mutationFn: createDataPoint,
+    onSuccess: () => {
+      toast.success("Successfully created Data Point.");
+      queryClient.invalidateQueries({
+        queryKey: ["walkthrough", { id: selectedWalkthrough }],
+      });
+    },
+    onError: (err) => {
+      toast.error(`Failed to create Data Point: ${err}.`);
+    },
+  });
+
+  const updateDataPointMutation = useMutation({
+    mutationFn: updateDataPoint,
+    onSuccess: () => {
+      toast.success("Successfully updated Data Point.");
+      queryClient.invalidateQueries({
+        queryKey: ["walkthrough", { id: selectedWalkthrough }],
+      });
+    },
+    onError: (err) => {
+      toast.error(`Failed to update Data Point: ${err}`);
+    },
+  });
+
+  const deleteDataPointMutation = useMutation({
+    mutationFn: deleteDataPoint,
+    onSuccess: () => {
+      toast.success("Successfully deleted Data Point.");
+      queryClient.invalidateQueries({
+        queryKey: ["walkthrough", { id: selectedWalkthrough }],
+      });
+    },
+    onError: (err) => {
+      toast.error(`Failed to delete Data Point: ${err}`);
+    },
+  });
+
   const handleSaveClick = async (formData: FromValues) => {
     const dataPointPackage: DataPoint = {
       _id: _id,
@@ -100,39 +140,26 @@ export default function WalkthroughDataCard({
         : [formData.choices],
     };
     try {
-      await updateWalkthroughMutation.mutateAsync({
-        selectedWalkthrough,
-        action: "update",
-        parentArea: parentArea,
-        parentWalkthrough: selectedWalkthrough,
-        dataPoint: dataPointPackage,
-      });
-      setCanEdit(false);
-      toast.success("Successfully updated data point.");
+      if (dataPoint.isNew) {
+        await createDataPointMutation.mutateAsync(dataPointPackage);
+      } else {
+        await updateDataPointMutation.mutateAsync(dataPointPackage);
+      }
     } catch (error) {
       console.error(error);
-      toast.error(`Failed to update data point due to ${error}`);
     }
+    setCanEdit(false);
   };
 
   const handleDeleteClick = async () => {
-    if (dataPoint?.text) {
-      const dataPointPackage: DataPoint = {
-        _id: dataPoint._id,
-        text: dataPoint.text,
-        type: dataPoint?.type || "string",
-      };
-      try {
-        await updateWalkthroughMutation.mutateAsync({
-          selectedWalkthrough,
-          action: "delete",
-          parentArea: parentArea,
-          dataPoint: dataPointPackage,
-        });
-        toast.success("Successfully deleted area.");
-      } catch (e) {
-        toast.error(`Failed to delete data point due to ${e}`);
+    try {
+      if (dataPoint._id) {
+        await deleteDataPointMutation.mutateAsync(dataPoint._id);
+      } else {
+        throw new Error("No id on Data Point");
       }
+    } catch (e) {
+      console.log("Error deleting data point:", e);
     }
   };
 
@@ -215,10 +242,10 @@ export default function WalkthroughDataCard({
                       <label>
                         Minimum value
                         <input
-                          type="text"
+                          type="number"
                           className={`input input-bordered m-2 focus:placeholder-transparent ${errors?.min ? "input-error" : ""}`}
                           placeholder="Enter minimum value"
-                          {...register("min")}
+                          {...register("min", {setValueAs: v => v || null, valueAsNumber: true})}
                         />
                       </label>
                     </div>
@@ -226,10 +253,10 @@ export default function WalkthroughDataCard({
                       <label>
                         Max Value
                         <input
-                          type="text"
+                          type="number"
                           className={`input input-bordered m-2 focus:placeholder-transparent ${errors?.max ? "input-error" : ""}`}
                           placeholder="Enter max value"
-                          {...register("max")}
+                          {...register("max", {setValueAs: v => v || null, valueAsNumber: true})}
                         />
                       </label>
                     </div>

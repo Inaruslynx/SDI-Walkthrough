@@ -20,7 +20,7 @@ export interface DataPoint {
   choices?: string[];
   parentArea: string;
   parentWalkthrough: string;
-  inNew?: boolean;
+  isNew?: boolean;
 }
 
 export interface Area {
