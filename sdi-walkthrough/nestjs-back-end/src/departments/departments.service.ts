@@ -19,21 +19,21 @@ export class DepartmentsService {
   async findAll() {
     const departments = await this.departmentModel
       .find()
-      .select('name walkthroughs -_id')
-      .populate('walkthroughs', 'name -_id')
+      .select('name walkthroughs')
+      .populate('walkthroughs', 'name')
       .exec();
     return departments;
   }
 
-  findOne(id: number) {
+  findOne(id: string) {
     return `This action returns a #${id} department`;
   }
 
-  update(id: number, updateDepartmentDto: UpdateDepartmentDto) {
+  update(id: string, updateDepartmentDto: UpdateDepartmentDto) {
     return `This action updates a #${id} department`;
   }
 
-  remove(id: number) {
+  remove(id: string) {
     return `This action removes a #${id} department`;
   }
 }

@@ -12,8 +12,10 @@ export default function WalkthroughScrollSpy({
   const renderArea = (area: Area) => (
     <>
       <li>
-        <div data-to-scrollspy-id={area._id}>
-          <NavLink href={`#${area._id}`}>{area.name}</NavLink>
+        <div className="" data-to-scrollspy-id={area._id}>
+          <NavLink scrollSpy href={`#${area._id}`}>
+            {area.name}
+          </NavLink>
         </div>
         {area.areas && area.areas.length > 0 && (
           <ul className="ml-4">

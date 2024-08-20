@@ -3,12 +3,12 @@ import mongoose, { HydratedDocument } from 'mongoose';
 import { User } from './users.schema';
 import { Walkthrough } from './walkthroughs.schema';
 import { Department } from './departments.schema';
-// import { DataPoint } from './DataPoints.schema';
+import { DataPoint } from './DataPoints.schema';
 
 export type LogDocument = HydratedDocument<Log>;
 
 export interface LogData {
-  dataPoint: mongoose.Schema.Types.ObjectId;
+  dataPoint: DataPoint;
   value: string | number | boolean;
 }
 
@@ -17,12 +17,12 @@ export class Log {
   @Prop({ required: true, type: mongoose.Schema.Types.ObjectId, ref: 'User' })
   user: User;
 
-  @Prop({
+  /* @Prop({
     required: true,
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Department',
   })
-  department: Department;
+  department: Department; */
 
   @Prop({
     required: true,

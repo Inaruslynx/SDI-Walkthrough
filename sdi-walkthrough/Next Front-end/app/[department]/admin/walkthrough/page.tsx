@@ -1,10 +1,8 @@
 "use client";
 import React, { useEffect, useRef, useState } from "react";
-// import { v4 as uuidv4 } from "uuid";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { ScrollArea } from "@/components/ui/scroll-area";
-// import WalkthroughAreaCard from "./WalkthroughAreaCard";
 import WalkthroughRenderer from "./WalkthroughRenderer";
 import {
   createWalkthrough,
@@ -17,14 +15,22 @@ import {
 import Modal from "./modal";
 import Button from "./button";
 import SelectWalkthrough from "@/components/ui/selectWalkthrough";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
-  useMutation,
-  useQuery,
-  useQueryClient,
-} from "@tanstack/react-query";
-import { Walkthroughs, Area, DataPoint } from "@/types";
+  Walkthroughs,
+  Area,
+  DataPoint,
+  WeeklyOptions,
+  PerSwingOptions,
+} from "@/types";
 import { AxiosResponse } from "axios";
 import IconPlus from "@/components/ui/icons/plus";
+import { PeriodicityOptions } from "@/types";
+import IconSave from "@/components/ui/icons/save";
+
+const periodicityValues = Object.values(PeriodicityOptions);
+const weeklyValues = Object.values(WeeklyOptions);
+const perSwingValues = Object.values(PerSwingOptions);
 
 export default function WalkthroughPage({
   params,
@@ -35,6 +41,9 @@ export default function WalkthroughPage({
   const [selectedWalkthrough, setSelectedWalkthrough] = useState(
     "Select a Walkthrough"
   );
+  const [selectedPeriodicity, setSelectedPeriodicity] = useState("");
+  const [selectedWeekly, setSelectedWeekly] = useState("");
+  const [selectedPerSwing, SetSelectedPerSwing] = useState("");
   const [areas, setAreas] = useState<Area[]>([
     {
       name: "",
@@ -49,6 +58,7 @@ export default function WalkthroughPage({
   const createWalkthroughModalRef = useRef<HTMLDialogElement>(null);
   const deleteWalkthroughModalRef = useRef<HTMLDialogElement>(null);
   const renameWalkthroughModalRef = useRef<HTMLDialogElement>(null);
+  const periodicitySelectRef = useRef<HTMLSelectElement>(null);
 
   // Fetch all walkthroughs for department
   const walkthroughs = useQuery<AxiosResponse<Walkthroughs>, Error>({
@@ -74,6 +84,15 @@ export default function WalkthroughPage({
     // console.log("response:", response.data.data);
     if (response) {
       const results = await fetchWalkthroughAreas(response.data.data);
+      if (response.data.periodicity) {
+        setSelectedPeriodicity(response.data.periodicity);
+      }
+      if (response.data.weekly) {
+        setSelectedWeekly(response.data.weekly);
+      }
+      if (response.data.perSwing) {
+        SetSelectedPerSwing(response.data.perSwing);
+      }
       // console.log("results:", results);
       return results;
     } else {
@@ -131,6 +150,26 @@ export default function WalkthroughPage({
       toast.success("Successfully renamed walkthrough.");
       queryClient.invalidateQueries({ queryKey: ["walkthrough"] });
       setSelectedWalkthrough;
+    },
+    onError: () => {
+      toast.error("Could not change walkthrough name.");
+    },
+  });
+
+  const handleSavePeriodicity = useMutation({
+    mutationFn: () => {
+      if (!selectedPeriodicity) throw new Error();
+      const id = selectedWalkthrough;
+      const periodicity = selectedPeriodicity || undefined;
+      const weekly = selectedWeekly || undefined;
+      const perSwing = selectedPerSwing || undefined;
+      return updateWalkthrough(id, undefined, periodicity, weekly, perSwing);
+    },
+    onSuccess: () => {
+      toast.success("Successfully changed periodicity.");
+    },
+    onError: () => {
+      toast.error("Could not change periodicity.");
     },
   });
 
@@ -256,7 +295,11 @@ export default function WalkthroughPage({
       </div>
       <div className="flex items-center justify-between">
         <div>
-          <Button id="walkthrough-dialog" type="primary">
+          <Button
+            id="walkthrough-dialog"
+            type="primary"
+            className="m-2 px-4 py-2"
+          >
             Create New Walkthrough
           </Button>
           <Modal
@@ -274,7 +317,7 @@ export default function WalkthroughPage({
             Create
           </Modal>
           <SelectWalkthrough
-            className="align-end"
+            className="align-end m-2"
             selectedWalkthrough={selectedWalkthrough}
             walkthroughs={walkthroughs.data?.data?.walkthroughs}
             onChange={setSelectedWalkthrough}
@@ -282,7 +325,11 @@ export default function WalkthroughPage({
           {selectedWalkthrough &&
             selectedWalkthrough !== "Select a Walkthrough" && (
               <>
-                <Button id="rename-walkthrough-dialog" type="primary">
+                <Button
+                  id="rename-walkthrough-dialog"
+                  type="primary"
+                  className="m-2 px-4 py-2"
+                >
                   Rename Walkthrough
                 </Button>
                 <Modal
@@ -299,6 +346,69 @@ export default function WalkthroughPage({
                 >
                   Rename
                 </Modal>
+                <select
+                  ref={periodicitySelectRef}
+                  name="periodicity"
+                  id="periodicity"
+                  className="select select-bordered align-end m-2"
+                  value={selectedPeriodicity}
+                  onChange={(e) => setSelectedPeriodicity(e.target.value)}
+                >
+                  <option disabled value="">
+                    Select a Periodicity
+                  </option>
+                  {periodicityValues.map((option: string) => (
+                    <option key={option} value={option}>
+                      {option}
+                    </option>
+                  ))}
+                </select>
+
+                {selectedPeriodicity && selectedPeriodicity === "Weekly" && (
+                  <select
+                    value={selectedWeekly}
+                    name="weekly"
+                    id="weekly"
+                    className="select select-bordered align-end m-2"
+                    onChange={(e) => setSelectedWeekly(e.target.value)}
+                  >
+                    <option disabled value="">
+                      Select a Day
+                    </option>
+                    {weeklyValues.map((option: string) => (
+                      <option key={option} value={option}>
+                        {option}
+                      </option>
+                    ))}
+                  </select>
+                )}
+
+                {selectedPeriodicity && selectedPeriodicity === "Per Swing" && (
+                  <select
+                    name="perSwing"
+                    id="perSwing"
+                    className="select select-bordered align-end m-2"
+                    onChange={(e) => SetSelectedPerSwing(e.target.value)}
+                  >
+                    <option disabled value="">
+                      Select a Day
+                    </option>
+                    {perSwingValues.map((option: string) => (
+                      <option key={option} value={option}>
+                        {option}
+                      </option>
+                    ))}
+                  </select>
+                )}
+
+                {selectedPeriodicity && selectedPeriodicity !== "" && (
+                  <button
+                    className="btn btn-primary m-2"
+                    onClick={() => handleSavePeriodicity.mutate()}
+                  >
+                    <IconSave /> Periodicity
+                  </button>
+                )}
               </>
             )}
         </div>
@@ -326,16 +436,14 @@ export default function WalkthroughPage({
           )}
       </div>
 
-      {selectedWalkthrough !== "Select a Walkthrough" && (
+      {selectedWalkthrough !== "Select a Walkthrough" && areas?.length > 0 && (
         <ScrollArea id="scroll-area" className="border min-h-screen">
-          {areas?.length > 0 && (
-            <WalkthroughRenderer
-              selectedWalkthrough={selectedWalkthrough}
-              areas={areas}
-              onAddArea={handleAddArea}
-              onAddDataPoint={handleAddDataPoint}
-            />
-          )}
+          <WalkthroughRenderer
+            selectedWalkthrough={selectedWalkthrough}
+            areas={areas}
+            onAddArea={handleAddArea}
+            onAddDataPoint={handleAddDataPoint}
+          />
 
           <button
             className="btn btn-primary m-4"

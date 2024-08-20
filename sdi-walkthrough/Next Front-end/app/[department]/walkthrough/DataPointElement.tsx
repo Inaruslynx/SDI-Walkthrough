@@ -4,6 +4,9 @@ import { min, floor } from "mathjs";
 import { useEffect, useState } from "react";
 import "./styles.css";
 import React from "react";
+import { useFormContext } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
 
@@ -13,6 +16,47 @@ interface DataPointProps {
 
 const DataPointElement: React.FC<DataPointProps> = ({ data }) => {
   const [showText, setShowText] = useState(false);
+  
+  // Dynamically build Zod schema based on data array
+  const dataPointSchema = z.object(
+    data.reduce((schema, dataPoint) => {
+      let zodType;
+
+      switch (dataPoint.type) {
+        case "number":
+          zodType = z.number().optional();
+          if (dataPoint.min !== undefined || dataPoint.max !== undefined) {
+            zodType = zodType.unwrap();
+            if (dataPoint.min !== undefined) {
+              zodType = zodType.min(dataPoint.min);
+            }
+            if (dataPoint.max !== undefined) {
+              zodType = zodType.max(dataPoint.max);
+            }
+          }
+          break;
+
+        case "boolean":
+          zodType = z.boolean().optional();
+          break;
+
+        case "string":
+          zodType = z.string().optional();
+          if (dataPoint.choices) {
+            zodType = z.enum(dataPoint.choices);
+          }
+          break;
+
+        default:
+          zodType = z.any(); // Fallback for unexpected types
+      }
+
+      return { ...schema, [dataPoint._id || dataPoint.text]: zodType };
+    }, {})
+  );
+
+  const { register } = useFormContext();
+  // const { field, fieldState } = useController(hookProps);
 
   const onShowButtonClick = () => {
     setShowText((prevValue) => !prevValue);
@@ -58,9 +102,10 @@ const DataPointElement: React.FC<DataPointProps> = ({ data }) => {
                 <span className="label-text">{dataPoint.text}</span>
               </div>
               <input
-                className="w-11/12 input input-bordered input-primary"
+                className={`w-11/12 input input-bordered input-primary`}
                 type="number"
                 placeholder="Enter value"
+                {...register(`${dataPoint._id}`)}
               />
             </label>
           )}
@@ -69,7 +114,7 @@ const DataPointElement: React.FC<DataPointProps> = ({ data }) => {
               <div className="label">
                 <span className="label-text">{dataPoint.text}</span>
               </div>
-              <input type="checkbox" className="checkbox" />
+              <input type="checkbox" className="checkbox" {...register(`${dataPoint._id}`)} />
             </label>
           )}
           {dataPoint.type === "string" && (
@@ -89,6 +134,7 @@ const DataPointElement: React.FC<DataPointProps> = ({ data }) => {
                 <textarea
                   className="textarea textarea-bordered h-24"
                   placeholder="Log status"
+                  {...register(`${dataPoint._id}`)}
                 ></textarea>
               </label>
             </div>

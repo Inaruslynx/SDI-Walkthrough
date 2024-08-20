@@ -6,6 +6,7 @@ import {
   Area,
   DataPoint,
   type Department,
+  Log,
 } from "@/types";
 
 const api = axios.create({
@@ -65,10 +66,16 @@ export async function getWalkthrough(id: string) {
 }
 
 // Update
-export async function updateWalkthrough(id: string, newName: string) {
+export async function updateWalkthrough(id: string, name?: string, periodicity?: string, weekly?: string, perSwing?: string) {
+  const payload: any = {};
+
+  if (name !== undefined) payload.name = name;
+  if (periodicity !== undefined) payload.periodicity = periodicity;
+  if (weekly !== undefined) payload.weekly = weekly;
+  if (perSwing !== undefined) payload.perSwing = perSwing;
   const response = await api.patch(
     `walkthrough/${id}`,
-    { newName: newName },
+    payload,
     {
       withCredentials: true,
     }
@@ -173,6 +180,63 @@ export async function updateDataPoint(dataPoint: DataPoint) {
 // Delete
 export async function deleteDataPoint(dataPointId: string) {
   const response = await api.delete(`datapoint/${dataPointId}`, {
+    withCredentials: true,
+  });
+  return response;
+}
+
+// Log CRUD
+// Create
+export async function createLog(
+  data: Log
+) {
+  const response = await api.post<Log>(
+    `log`,
+    { data },
+    {
+      withCredentials: true,
+    }
+  );
+  return response;
+}
+
+// Find all
+export async function findAllLogs(
+  walkthrough: string,
+  fromDate?: Date,
+  toDate?: Date
+) {
+  const response = await api.get("log", {
+    params: {
+      walkthrough: walkthrough,
+      fromDate: fromDate,
+      toDate: toDate,
+    },
+  });
+  return response;
+}
+
+// Find one
+export async function findLog(id: string) {
+  const response = await api.get(`log/${id}`);
+  return response;
+}
+
+// Update
+export async function updateLog(id:string, data: { dataPoint: string; value: string | number | boolean }[]) {
+  const response = await api.patch(
+    `log/${id}`,
+    { data },
+    {
+      withCredentials: true,
+    }
+  );
+  return response;
+}
+
+// Delete
+export async function deleteLog(id: string) {
+  const response = await api.delete(`log/${id}`, {
     withCredentials: true,
   });
   return response;

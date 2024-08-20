@@ -11,6 +11,7 @@ import { UpdateWalkthroughDto } from './dto/update-walkthrough.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Department } from 'src/schemas/departments.schema';
 import {
+  PeriodicityOptions,
   Walkthrough,
   WalkthroughDocument,
 } from 'src/schemas/walkthroughs.schema';
@@ -47,8 +48,13 @@ export class WalkthroughService {
       } else {
         const newWalkthrough = new this.walkthroughModel({
           name: createWalkthroughDto.name,
+          periodicity:
+            createWalkthroughDto?.periodicity || PeriodicityOptions.Daily,
           department: DepartmentDocument,
           data: [],
+          ...(createWalkthroughDto.weekly && {
+            weekly: createWalkthroughDto.weekly,
+          }),
         });
         // this.logger.debug(newWalkthrough);
         DepartmentDocument.walkthroughs.push(newWalkthrough);
@@ -117,11 +123,24 @@ export class WalkthroughService {
       });
     }
 
-    // if neither area or data point exist then throw error
-    if (!updateWalkthroughDto.newName) {
-      throw new InternalServerErrorException(
-        'Failed to update walkthrough due to missing new name',
-      );
+    if (
+      updateWalkthroughDto.periodicity === 'Weekly' &&
+      !updateWalkthroughDto.weekly
+    ) {
+      throw new BadRequestException('Request did not include weekly', {
+        cause: new Error(),
+        description: 'Request did not include weekly',
+      });
+    }
+
+    if (
+      updateWalkthroughDto.periodicity === 'Per Swing' &&
+      !updateWalkthroughDto.perSwing
+    ) {
+      throw new BadRequestException('Request did not include perSwing', {
+        cause: new Error(),
+        description: 'Request did not include perSwing',
+      });
     }
 
     // First we find the walkthrough
@@ -133,8 +152,14 @@ export class WalkthroughService {
       );
     }
 
-    // Have walkthrough, just need to change name
-    walkthroughDoc.name = updateWalkthroughDto.newName;
+    // Update document
+    Object.keys(updateWalkthroughDto).forEach((key) => {
+      if (updateWalkthroughDto[key] !== undefined) {
+        walkthroughDoc[key] = updateWalkthroughDto[key];
+      }
+    });
+
+    // Save updated walkthrough
     const result = await walkthroughDoc.save();
     if (!result) {
       throw new InternalServerErrorException('Failed to update walkthrough');

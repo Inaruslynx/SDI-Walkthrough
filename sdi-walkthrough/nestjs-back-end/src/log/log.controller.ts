@@ -6,7 +6,9 @@ import {
   Patch,
   Param,
   Delete,
+  Req,
 } from '@nestjs/common';
+import { Request } from 'express';
 import { LogService } from './log.service';
 import { CreateLogDto } from './dto/create-log.dto';
 import { UpdateLogDto } from './dto/update-log.dto';
@@ -16,8 +18,8 @@ export class LogController {
   constructor(private readonly logService: LogService) {}
 
   @Post()
-  create(@Body() walkthroughId: string, @Body() createLogDto: CreateLogDto) {
-    return this.logService.create(walkthroughId, createLogDto);
+  create(@Body() createLogDto: CreateLogDto, @Req() req: Request) {
+    return this.logService.create(createLogDto, req);
   }
 
   @Get()

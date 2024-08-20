@@ -5,13 +5,14 @@ import IconDelete from "@/components/ui/icons/delete";
 type ButtonProps = {
   children: React.ReactNode;
   id: string;
+  className?: string;
   type: "primary" | "error";
 };
 
-export default function Button({ children, id, type }: ButtonProps) {
+export default function Button({ children, id, type, className = '' }: ButtonProps) {
   return (
     <button
-      className={`btn ${type === "primary" ? "btn-primary" : "btn-error"} m-4 px-4 py-2 rounded-btn`}
+      className={`btn ${type === "primary" ? "btn-primary" : "btn-error"} rounded-btn ${className}`}
       onClick={() => {
         (document.getElementById(id) as HTMLDialogElement)?.showModal();
       }}

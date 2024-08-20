@@ -12,7 +12,7 @@ export default function Home() {
           <h3>TODO List:</h3>
           <ul className="px-6">
             <li>
-              <s>Use Express Back-end for data.</s>
+              <s>Use Nestjs Back-end for data.</s>
             </li>
             <li>
               <s>
@@ -20,13 +20,19 @@ export default function Home() {
                 and Ops. Can get data from Express.
               </s>
             </li>
-            <li>When navigating to walkthrough dynamically generate form.</li>
-            <li><s>Departments can have multiple walkthroughs.</s></li>
+            <li>
+              <s>When navigating to walkthrough dynamically generate form.</s>
+            </li>
+            <li>
+              <s>Departments can have multiple walkthroughs.</s>
+            </li>
             <li>Forms will have form validation and show a small graph.</li>
             <li>
               <s>Graph page.</s>
             </li>
-            <li><s>Ability for admins to configure walkthroughs.</s></li>
+            <li>
+              <s>Ability for admins to configure walkthroughs.</s>
+            </li>
             <li>
               <s>
                 Connect to Microsoft identities so users log in with Microsoft
@@ -38,6 +44,24 @@ export default function Home() {
                 Leverage Microsoft identities to know what department a user is
                 part of and if they are an admin. (maybe)
               </s>
+            </li>
+            <li>
+              Periodicity of walkthroughs:
+              <ul>
+                <li>Per Shift</li>
+                <li>Daily</li>
+                <li>
+                  Weekly
+                  <ul>
+                    <li>1st Day</li>
+                    <li>2nd Day</li>
+                    <li>3rd Day</li>
+                    <li>4th Day</li>
+                  </ul>
+                </li>
+                <li>Bi-weekly</li>
+                <li>Monthly</li>
+              </ul>
             </li>
           </ul>
         </div>

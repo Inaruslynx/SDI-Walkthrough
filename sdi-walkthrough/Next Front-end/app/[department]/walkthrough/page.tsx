@@ -4,10 +4,14 @@ import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Area, Walkthroughs } from "@/types";
 import { AxiosResponse } from "axios";
-import { findArea, getWalkthrough, getWalkthroughs } from "@/lib/api";
+import {
+  findArea,
+  getWalkthrough,
+  getWalkthroughs,
+} from "@/lib/api";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import WalkthroughRenderer from "./WalkthroughRenderer";
-import WalkthroughScrollSpy from '@/components/ui/WalkthroughScrollSpy';
+import WalkthroughScrollSpy from "@/components/ui/WalkthroughScrollSpy";
 
 export default function WalkthroughPage({
   params,
@@ -18,11 +22,12 @@ export default function WalkthroughPage({
     "Select a Walkthrough"
   );
   const [walkthroughData, setWalkthroughData] = useState<Area[]>([]);
+  const [loadedLog, setLoadedLog] = useState(""); // holds log ID if user loaded prev log
 
   const walkthroughs = useQuery<AxiosResponse<Walkthroughs>, Error>({
     queryKey: ["walkthrough", { department: params.department }],
     queryFn: () => getWalkthroughs(params.department),
-    staleTime: 1000 * 60 * 60,
+    staleTime: 1000 * 60 * 60, // ms s min
   });
 
   // Fetch the selected Walkthrough
@@ -75,6 +80,7 @@ export default function WalkthroughPage({
     }
   }, [selectedWalkthroughQuery.isSuccess, selectedWalkthroughQuery.data]);
 
+
   return (
     <div className="px-8 pb-4">
       <div className="row m-4 p-4 relative justify-center prose md:prose-lg max-w-full container">
@@ -96,15 +102,15 @@ export default function WalkthroughPage({
         selectedWalkthroughQuery.isSuccess &&
         walkthroughData && (
           <div className="m-0 w-full grid grid-cols-1 md:grid-cols-12">
-          <div className="col-span-1 md:col-span-2">
-            <WalkthroughScrollSpy Data={walkthroughData} />
-          </div>
+            <div className="col-span-1 md:col-span-2">
+              <WalkthroughScrollSpy Data={walkthroughData} />
+            </div>
             <ScrollArea
               id="scroll-area"
               className="border min-h-screen mt-4 col-span-1 md:col-span-10"
             >
               <>
-                <WalkthroughRenderer data={walkthroughData} />
+                <WalkthroughRenderer data={walkthroughData} loadedLog={loadedLog} />
               </>
             </ScrollArea>
           </div>
