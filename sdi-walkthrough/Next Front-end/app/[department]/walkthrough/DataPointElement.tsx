@@ -59,7 +59,7 @@ const DataPointElement: React.FC<DataPointProps> = ({ data }: DataPointProps) =>
   // const { field, fieldState } = useController(hookProps);
 
   const onShowButtonClick = () => {
-    setShowText((prevValue) => !prevValue);
+    setShowText((prevValue: boolean) => !prevValue);
   };
 
   // useEffect(() => {
