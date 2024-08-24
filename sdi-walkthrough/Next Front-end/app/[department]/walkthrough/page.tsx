@@ -4,11 +4,7 @@ import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Area, Walkthroughs } from "@/types";
 import { AxiosResponse } from "axios";
-import {
-  findArea,
-  getWalkthrough,
-  getWalkthroughs,
-} from "@/lib/api";
+import { findArea, getWalkthrough, getWalkthroughs } from "@/lib/api";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import WalkthroughRenderer from "./WalkthroughRenderer";
 import WalkthroughScrollSpy from "@/components/ui/WalkthroughScrollSpy";
@@ -80,7 +76,6 @@ export default function WalkthroughPage({
     }
   }, [selectedWalkthroughQuery.isSuccess, selectedWalkthroughQuery.data]);
 
-
   return (
     <div className="px-8 pb-4">
       <div className="row m-4 p-4 relative justify-center prose md:prose-lg max-w-full container">
@@ -110,7 +105,11 @@ export default function WalkthroughPage({
               className="border min-h-screen mt-4 col-span-1 md:col-span-10"
             >
               <>
-                <WalkthroughRenderer data={walkthroughData} loadedLog={loadedLog} />
+                <WalkthroughRenderer
+                  data={walkthroughData}
+                  selectedWalkthrough={selectedWalkthrough}
+                  loadedLog={loadedLog}
+                />
               </>
             </ScrollArea>
           </div>

@@ -7,7 +7,7 @@ import DataPointElement from "./DataPointElement";
 import { FormProvider, useForm } from "react-hook-form";
 import { DevTool } from "@hookform/devtools";
 import { toast } from "react-toastify";
-import { createLog } from "@/lib/api";
+import { createLog, updateLog } from "@/lib/api";
 
 interface WalkthroughRendererProps {
   data: Area[];
@@ -19,7 +19,7 @@ const WalkthroughRenderer: React.FC<WalkthroughRendererProps> = ({
   data,
   selectedWalkthrough,
   loadedLog,
-}) => {
+}: WalkthroughRendererProps) => {
   const queryClient = useQueryClient();
   const methods = useForm();
   // console.log("In WalkthroughRenderer");
@@ -32,19 +32,44 @@ const WalkthroughRenderer: React.FC<WalkthroughRendererProps> = ({
       queryClient.invalidateQueries({ queryKey: ["log"] });
       toast.success("Successfully entered Log.");
     },
+    onError: (e) => {
+      toast.error(`Failed to enter Log. ${e}`);
+    }
+  });
+
+  const updateLogMutation = useMutation({
+    mutationFn: ({ id, data }: { id: string; data: Log }) =>
+      updateLog(id, data),
+    onSuccess: () => {
+      toast.success("Successfully updated Log.");
+    },
+    onError: (e) => {
+      toast.error(`Failed to update Log. ${e}`);
+    }
   });
 
   const onSubmit = async (
-    formData: { dataPoint: string; value: string | number | boolean }[]
+    formData: Record<string, string | number | boolean>
   ) => {
+    // Map formData to the expected structure for Log.data
+    const mappedData = Object.entries(formData).map(([dataPoint, value]) => ({
+      dataPoint,
+      value,
+    }));
+
     const logPackage: Log = {
       walkthrough: selectedWalkthrough,
-      data: formData,
+      data: mappedData,
     };
+
     try {
       if (!loadedLog) {
         await createLogMutation.mutateAsync(logPackage);
       } else {
+        await updateLogMutation.mutateAsync({
+          id: loadedLog,
+          data: logPackage,
+        });
       }
     } catch (e) {
       console.error(e);

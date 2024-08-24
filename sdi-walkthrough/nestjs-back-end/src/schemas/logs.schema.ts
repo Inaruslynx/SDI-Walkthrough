@@ -2,14 +2,13 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { HydratedDocument } from 'mongoose';
 import { User } from './users.schema';
 import { Walkthrough } from './walkthroughs.schema';
-import { Department } from './departments.schema';
 import { DataPoint } from './DataPoints.schema';
 
 export type LogDocument = HydratedDocument<Log>;
 
 export interface LogData {
   dataPoint: DataPoint;
-  value: string | number | boolean;
+  value?: string | number | boolean;
 }
 
 @Schema({ timestamps: true })

@@ -223,7 +223,7 @@ export async function findLog(id: string) {
 }
 
 // Update
-export async function updateLog(id:string, data: { dataPoint: string; value: string | number | boolean }[]) {
+export async function updateLog(id: string, data: Log) {
   const response = await api.patch(
     `log/${id}`,
     { data },

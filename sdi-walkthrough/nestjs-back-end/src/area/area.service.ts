@@ -10,7 +10,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Area, AreaDocument } from 'src/schemas/areas.schema';
 import { Walkthrough } from 'src/schemas/walkthroughs.schema';
-import { DataPoint } from 'src/schemas/DataPoints.schema';
+import { DataPoint, DataPointDocument } from 'src/schemas/DataPoints.schema';
 
 @Injectable()
 export class AreaService {
@@ -260,13 +260,17 @@ export class AreaService {
   async findChildAreas(id: string): Promise<Area[]> {
     const result: Area[] = [];
 
-    async function findChildren(parentId: string) {
-      const areaDocs = await this.areaModel.find({ parentArea: parentId });
+    const findChildren = async (parentId: string) => {
+      const areaDocs: AreaDocument[] = await this.areaModel.find({
+        parentArea: parentId,
+      });
       for (const areaDoc of areaDocs) {
         result.push(areaDoc);
-        await findChildren(areaDoc._id);
+        if (areaDoc?._id) {
+          await findChildren(areaDoc._id.toString());
+        }
       }
-    }
+    };
 
     await findChildren(id);
     return result;
@@ -275,15 +279,17 @@ export class AreaService {
   async findChildDataPoints(id: string): Promise<DataPoint[]> {
     const result: DataPoint[] = [];
 
-    async function findChildren(parentId: string) {
-      const dataPointDocs = await this.DatapointModule.find({
-        parentArea: parentId,
-      });
+    const findChildren = async (parentId: string) => {
+      const dataPointDocs: DataPointDocument[] = await this.dataPointModel.find(
+        {
+          parentArea: parentId,
+        },
+      );
       for (const dataPointDoc of dataPointDocs) {
         result.push(dataPointDoc);
-        await findChildren(dataPointDoc._id);
+        await findChildren(dataPointDoc._id.toString());
       }
-    }
+    };
 
     await findChildren(id);
     return result;

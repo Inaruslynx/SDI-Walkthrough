@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   HttpStatus,
   Injectable,
   InternalServerErrorException,
@@ -21,8 +22,9 @@ export class LogService {
   ) {}
 
   async create(createLogDto: CreateLogDto, req: Request) {
+    console.log(createLogDto);
     const walkthroughDoc = await this.walkthroughModel.findById(
-      createLogDto.walkthrough,
+      createLogDto.data.walkthrough,
     );
     if (!walkthroughDoc) {
       throw new NotFoundException('Walkthrough not found', {
@@ -31,23 +33,33 @@ export class LogService {
       });
     }
 
+    console.log('Here in the create log service');
+
     // Get user from clerk
     const result = await clerkClient.verifyToken(req.cookies.__session);
     // no results then not logged in
     if (!result) {
-      throw new InternalServerErrorException('Not logged in', {
+      throw new BadRequestException('Not logged in', {
         cause: new Error(),
         description: 'Not logged in',
       });
     }
 
+    console.log('result:', result);
+
     // Get session
     const sessionId = result.sid;
     const session = await clerkClient.sessions.getSession(sessionId);
 
+    console.log('session:', session);
+
+    const user = await clerkClient.users.getUser(result.sub);
+
+    console.log('user:', user);
+
     // Get user id
-    const userId = session.userId;
-    const logData = { ...createLogDto, user: userId };
+    const userId = result.sub;
+    const logData = { ...createLogDto.data, user: userId };
 
     console.log(logData);
 

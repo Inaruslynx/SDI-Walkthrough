@@ -14,9 +14,9 @@ interface DataPointProps {
   data: DataPoint[];
 }
 
-const DataPointElement: React.FC<DataPointProps> = ({ data }) => {
+const DataPointElement: React.FC<DataPointProps> = ({ data }: DataPointProps) => {
   const [showText, setShowText] = useState(false);
-  
+
   // Dynamically build Zod schema based on data array
   const dataPointSchema = z.object(
     data.reduce((schema, dataPoint) => {
@@ -42,9 +42,9 @@ const DataPointElement: React.FC<DataPointProps> = ({ data }) => {
 
         case "string":
           zodType = z.string().optional();
-          if (dataPoint.choices) {
+          /* if (dataPoint.choices) {
             zodType = z.enum(dataPoint.choices);
-          }
+          } */
           break;
 
         default:
@@ -55,7 +55,7 @@ const DataPointElement: React.FC<DataPointProps> = ({ data }) => {
     }, {})
   );
 
-  const { register } = useFormContext();
+  const { register } = useFormContext({resolver: zodResolver(dataPointSchema)});
   // const { field, fieldState } = useController(hookProps);
 
   const onShowButtonClick = () => {
@@ -114,7 +114,11 @@ const DataPointElement: React.FC<DataPointProps> = ({ data }) => {
               <div className="label">
                 <span className="label-text">{dataPoint.text}</span>
               </div>
-              <input type="checkbox" className="checkbox" {...register(`${dataPoint._id}`)} />
+              <input
+                type="checkbox"
+                className="checkbox"
+                {...register(`${dataPoint._id}`)}
+              />
             </label>
           )}
           {dataPoint.type === "string" && (
