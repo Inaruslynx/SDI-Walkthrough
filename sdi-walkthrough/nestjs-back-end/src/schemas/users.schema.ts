@@ -1,6 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { HydratedDocument } from 'mongoose';
+import mongoose, { HydratedDocument } from 'mongoose';
 import { IsEnum } from 'class-validator';
+import { Walkthrough } from './walkthroughs.schema';
 
 export type UserDocument = HydratedDocument<User>;
 
@@ -43,6 +44,20 @@ export enum Theme {
 export class User {
   @Prop({ required: true, unique: true })
   email: string;
+
+  @Prop({ required: true, unique: true })
+  clerkId: string;
+
+  @Prop()
+  firstName: string;
+
+  @Prop()
+  lastName: string;
+
+  @Prop({
+    type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Walkthrough' }],
+  })
+  assignedWalkthroughs: Walkthrough[];
 
   @Prop({ default: false })
   admin: boolean;

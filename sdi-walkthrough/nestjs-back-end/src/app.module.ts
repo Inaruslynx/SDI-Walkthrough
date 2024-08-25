@@ -13,6 +13,7 @@ import { LogModule } from './log/log.module';
 // import { AuthModule } from './auth/auth.module';
 import { AreaModule } from './area/area.module';
 import { DatapointModule } from './datapoint/datapoint.module';
+import { UserModule } from './user/user.module';
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { DatapointModule } from './datapoint/datapoint.module';
     // AuthModule,
     AreaModule,
     DatapointModule,
+    UserModule,
   ],
   controllers: [AppController, GraphController],
   providers: [AppService, GraphService],
