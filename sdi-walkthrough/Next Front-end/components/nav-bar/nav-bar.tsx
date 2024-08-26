@@ -1,12 +1,5 @@
 "use client";
-import {
-  UserButton,
-  SignedIn,
-  SignedOut,
-  SignInButton,
-  SignUpButton,
-  OrganizationSwitcher,
-} from "@clerk/nextjs";
+import SignIn from "@/components/auth/signin-button";
 import NavLink from "./nav-link";
 import NavDropdown from "./nav-dropdown";
 import ThemeSelector from "./theme-selector/theme-selector";
@@ -101,7 +94,7 @@ export default function NavBar() {
             </div>
           </div>
           <div className="flex-none navbar-end">
-            <SignedIn>
+            {/* <SignedIn>
               <OrganizationSwitcher
                 appearance={{
                   elements: {
@@ -120,9 +113,9 @@ export default function NavBar() {
                     organizationSwitcherPreviewButton: "text-base-content",
                   },
                 }}
-              />
+              /> */}
               <div className="p-2">
-                <UserButton
+                {/* <UserButton
                   appearance={{
                     elements: {
                       userButtonPopoverCard: "bg-base-200 text-base-content",
@@ -133,17 +126,17 @@ export default function NavBar() {
                         "text-base-content stroke-base-content",
                     },
                   }}
-                />
+                /> */}
               </div>
-            </SignedIn>
-            <SignedOut>
+            {/* </SignedIn>
+            <SignedOut> */}
               <div className="px-4 mx-2 btn rounded-btn hover:btn-primary">
-                <SignInButton />
+                <SignIn />
               </div>
               <div className="px-4 mx-2 btn rounded-btn hover:btn-primary">
-                <SignUpButton />
+                {/* <SignUpButton /> */}
               </div>
-            </SignedOut>
+            {/* </SignedOut> */}
             <div className="hidden lg:contents">
               <ThemeSelector />
             </div>

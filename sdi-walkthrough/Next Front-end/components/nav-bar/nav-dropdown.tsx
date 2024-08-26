@@ -1,25 +1,19 @@
 "use client";
 import NavLink from "./nav-link";
 import { usePathname } from "next/navigation";
-import { useAuth, useUser } from "@clerk/nextjs";
 import { useState } from "react";
 
 export default function NavDropdown({ name }: { name: string }) {
   const path: string = usePathname();
-  const { orgSlug } = useAuth();
-  const { user } = useUser();
   const [isDropdownVisible, setIsDropdownVisible] = useState(false);
   // console.log("user:", user?.publicMetadata.role);
-
-  const orgAdmin = orgSlug === `${name.toLowerCase()}-admins`;
-  // console.log("orgAdmin:", orgAdmin);
-  const canFillInWalkthrough =
-    user?.publicMetadata.role === `org:${name.toLowerCase()}` || orgAdmin;
-  // console.log("canFillInWalkthrough:", canFillInWalkthrough);
 
   const toggleDropdown = () => {
     setIsDropdownVisible(!isDropdownVisible);
   };
+
+  const canFillInWalkthrough = true;
+  const orgAdmin = true;
 
   return (
     <div key={name} className="dropdown">
@@ -69,18 +63,3 @@ export default function NavDropdown({ name }: { name: string }) {
   );
 }
 
-{
-  /* <details open>
-            <summary>Admin</summary>
-            <ul>
-              <li>
-                <NavLink href={`/${name}/admin/users`}>Users</NavLink>
-              </li>
-              <li>
-                <NavLink href={`/${name}/admin/walkthrough`}>
-                  Walkthrough
-                </NavLink>
-              </li>
-            </ul>
-          </details> */
-}
