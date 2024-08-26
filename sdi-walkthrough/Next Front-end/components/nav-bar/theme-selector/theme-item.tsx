@@ -6,7 +6,9 @@ function capitalizeFirstLetter(str: string) {
 
 export default function ThemeItem({
   value,
-}: Readonly<{ value: string }>): React.ReactNode {
+}: {
+  value: string;
+}): React.ReactNode {
   return (
     <li>
       <button

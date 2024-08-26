@@ -1,9 +1,13 @@
 import React from "react";
 import ThemeItem from "./theme-item";
 
+interface ThemeListProps {
+  themes: string[];
+}
+
 export default function ThemeList({
-  themes,
-}: Readonly<{ themes: string[] }>): React.ReactNode {
+  themes
+}: ThemeListProps): React.ReactNode {
   return (
     <ul
       tabIndex={0}

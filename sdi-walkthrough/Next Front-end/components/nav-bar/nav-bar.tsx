@@ -14,7 +14,6 @@ import { getDepartmentData } from "@/lib/api";
 import { useQuery } from "@tanstack/react-query";
 import { Department } from "@/types";
 import { AxiosResponse } from "axios";
-// import { useEffect } from "react";
 
 export default function NavBar() {
   // const [departments, setDepartments] = useState<Department[]>([]);

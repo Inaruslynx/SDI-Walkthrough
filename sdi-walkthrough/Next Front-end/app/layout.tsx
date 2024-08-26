@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { ToastContainer } from "react-toastify";
 import { ClerkProvider } from "@clerk/nextjs";
+// import { dark } from '@clerk/themes'
 import ReactQueryProvider from "@/providers/ReactQueryProvider";
 import NavBar from "@/components/nav-bar/nav-bar";
 import "./globals.css";
@@ -17,7 +18,7 @@ export default function RootLayout({
 }>) {
   return (
     <>
-      <ClerkProvider>
+      <ClerkProvider /* appearance={{ baseTheme: dark }} */>
         <html data-theme="dark" lang="en" id="mainHtml">
           <body className="bg-base-100">
             <ReactQueryProvider>
