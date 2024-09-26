@@ -5,7 +5,7 @@ import {
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
-import { clerkClient } from '@clerk/clerk-sdk-node';
+// import { clerkClient } from '@clerk/clerk-sdk-node';
 import { Request } from 'express';
 import { CreateLogDto } from './dto/create-log.dto';
 import { UpdateLogDto } from './dto/update-log.dto';
@@ -36,44 +36,44 @@ export class LogService {
     console.log('Here in the create log service');
 
     // Get user from clerk
-    const result = await clerkClient.verifyToken(req.cookies.__session);
+    // const result = await clerkClient.verifyToken(req.cookies.__session);
     // no results then not logged in
-    if (!result) {
-      throw new BadRequestException('Not logged in', {
-        cause: new Error(),
-        description: 'Not logged in',
-      });
-    }
+    // if (!result) {
+    //   throw new BadRequestException('Not logged in', {
+    //     cause: new Error(),
+    //     description: 'Not logged in',
+    //   });
+    // }
 
-    console.log('result:', result);
+    // console.log('result:', result);
 
     // Get session
-    const sessionId = result.sid;
-    const session = await clerkClient.sessions.getSession(sessionId);
+    // const sessionId = result.sid;
+    // const session = await clerkClient.sessions.getSession(sessionId);
 
-    console.log('session:', session);
+    // console.log('session:', session);
 
-    const user = await clerkClient.users.getUser(result.sub);
+    // const user = await clerkClient.users.getUser(result.sub);
 
-    console.log('user:', user);
+    // console.log('user:', user);
 
     // Get user id
-    const userId = result.sub;
-    const logData = { ...createLogDto.data, user: userId };
+    // const userId = result.sub;
+    // const logData = { ...createLogDto.data, user: userId };
 
-    console.log(logData);
+    // console.log(logData);
 
     const LogModel = getLogModel(walkthroughDoc.name);
-    const newLog = new LogModel(logData);
-    const logResult = await newLog.save();
-    if (!logResult || logResult['acknowledged'] === false) {
-      throw new InternalServerErrorException('Failed to create log', {
-        cause: new Error(),
-        description: 'Failed to create log',
-      });
-    } else {
-      return logResult;
-    }
+    // const newLog = new LogModel(logData);
+    // const logResult = await newLog.save();
+    // if (!logResult || logResult['acknowledged'] === false) {
+    //   throw new InternalServerErrorException('Failed to create log', {
+    //     cause: new Error(),
+    //     description: 'Failed to create log',
+    //   });
+    // } else {
+      // return logResult;
+    // }
   }
 
   findAll() {

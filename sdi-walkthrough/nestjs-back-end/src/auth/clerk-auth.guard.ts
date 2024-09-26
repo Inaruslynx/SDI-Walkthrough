@@ -1,4 +1,4 @@
-import { clerkClient } from '@clerk/clerk-sdk-node';
+// import { clerkClient } from '@clerk/clerk-sdk-node';
 import {
   CanActivate,
   ExecutionContext,
@@ -15,12 +15,13 @@ export class ClerkAuthGuard implements CanActivate {
     const request = context.switchToHttp().getRequest() as Request;
     this.logger.log(request.url);
     try {
-      const result = await clerkClient.verifyToken(request.cookies.__session);
-      if (result.org_role.includes('admin')) {
-        return true;
-      } else {
-        return false;
-      }
+      // const result = await clerkClient.verifyToken(request.cookies.__session);
+      // if (result.org_role.includes('admin')) {
+      //   return true;
+      // } else {
+      //   return false;
+      // }
+      return true; //TODO currently always returns that user is authorized
     } catch (err) {
       this.logger.error(err);
       return false;

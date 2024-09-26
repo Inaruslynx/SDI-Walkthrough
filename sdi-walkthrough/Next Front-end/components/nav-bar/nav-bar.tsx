@@ -1,5 +1,5 @@
 "use client";
-import SignIn from "@/components/auth/signin-button";
+// import SignIn from "@/components/auth/signin-button";
 import NavLink from "./nav-link";
 import NavDropdown from "./nav-dropdown";
 import ThemeSelector from "./theme-selector/theme-selector";
@@ -114,8 +114,8 @@ export default function NavBar() {
                   },
                 }}
               /> */}
-              <div className="p-2">
-                {/* <UserButton
+            <div className="p-2">
+              {/* <UserButton
                   appearance={{
                     elements: {
                       userButtonPopoverCard: "bg-base-200 text-base-content",
@@ -127,15 +127,17 @@ export default function NavBar() {
                     },
                   }}
                 /> */}
-              </div>
+            </div>
             {/* </SignedIn>
             <SignedOut> */}
-              <div className="px-4 mx-2 btn rounded-btn hover:btn-primary">
-                <SignIn />
-              </div>
-              <div className="px-4 mx-2 btn rounded-btn hover:btn-primary">
-                {/* <SignUpButton /> */}
-              </div>
+            <div className="px-4 mx-2 btn rounded-btn hover:btn-primary">
+              <span>sign-in placeholder</span>
+              {/* <SignIn /> */}
+            </div>
+            <div className="px-4 mx-2 btn rounded-btn hover:btn-primary">
+              <span>sign-up placeholder</span>
+              {/* <SignUpButton /> */}
+            </div>
             {/* </SignedOut> */}
             <div className="hidden lg:contents">
               <ThemeSelector />

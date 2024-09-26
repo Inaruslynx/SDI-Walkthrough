@@ -6,7 +6,9 @@ const withBundleAnalyzer = bundleAnalyser({
 });
 
 /** @type {import('next').NextConfig} */
-const nextConfig = {};
+const nextConfig = {
+  basePath: "/SDI_Walkthrough",
+};
 
 // export default nextConfig;
 
