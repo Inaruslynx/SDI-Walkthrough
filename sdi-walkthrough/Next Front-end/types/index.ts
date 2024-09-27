@@ -92,3 +92,48 @@ export interface Log {
     value: string | number | boolean;
   }[];
 }
+
+export interface User {
+  email: string;
+  clerkId: string;
+  firstName: string;
+  lastName: string;
+  assignedWalkthroughs: Walkthrough[];
+  admin: boolean;
+  type: Theme;
+}
+
+export enum Theme {
+  DARK = 'dark',
+  LIGHT = 'light',
+  CUPCAKE = 'cupcake',
+  BUMBLEBEE = 'bumblebee',
+  EMERALD = 'emerald',
+  CORPORATE = 'corporate',
+  SYNTHWAVE = 'synthwave',
+  RETRO = 'retro',
+  CYBERPUNK = 'cyberpunk',
+  VALENTINE = 'valentine',
+  HALLOWEEN = 'halloween',
+  GARDEN = 'garden',
+  FOREST = 'forest',
+  AQUA = 'aqua',
+  LOFI = 'lofi',
+  PASTEL = 'pastel',
+  FANTASY = 'fantasy',
+  WIREFRAME = 'wireframe',
+  BLACK = 'black',
+  LUXURY = 'luxury',
+  DRACULA = 'dracula',
+  CMYK = 'cmyk',
+  AUTUMN = 'autumn',
+  BUSINESS = 'business',
+  ACID = 'acid',
+  LEMONADE = 'lemonade',
+  NIGHT = 'night',
+  COFFEE = 'coffee',
+  WINTER = 'winter',
+  DIM = 'dim',
+  NORD = 'nord',
+  SUNSET = 'sunset',
+}

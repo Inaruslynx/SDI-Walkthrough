@@ -7,6 +7,7 @@ import {
   DataPoint,
   type Department,
   Log,
+  User,
 } from "@/types";
 
 const api = axios.create({
@@ -237,6 +238,55 @@ export async function updateLog(id: string, data: Log) {
 // Delete
 export async function deleteLog(id: string) {
   const response = await api.delete(`log/${id}`, {
+    withCredentials: true,
+  });
+  return response;
+}
+
+// User CRUD
+// Create
+export async function createUser(
+  data: User
+) {
+  const response = await api.post<User>(`user`, { data },
+    {
+      withCredentials: true,
+    }
+  );
+  return response;
+}
+
+// Find all
+export async function findAllUsers() {
+  const response = await api.get<User[]>("user", {
+    withCredentials: true,
+  });
+  return response;
+}
+
+// Find one
+export async function findUser(id: string) {
+  const response = await api.get<User>(`user/${id}`, {
+    withCredentials: true,
+  });
+  return response;
+}
+
+// Update
+export async function updateUser(id: string, data: User) {
+  const response = await api.patch<User>(
+    `log/${id}`,
+    { data },
+    {
+      withCredentials: true,
+    }
+  );
+  return response;
+}
+
+// Delete
+export async function deleteUser(id: string) {
+  const response = await api.delete<User>(`user/${id}`, {
     withCredentials: true,
   });
   return response;
