@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { HydratedDocument } from 'mongoose';
-import { User } from './users.schema';
+import { ClerkUser } from './users.schema';
 import { Walkthrough } from './walkthroughs.schema';
 import { DataPoint } from './DataPoints.schema';
 
@@ -14,7 +14,7 @@ export interface LogData {
 @Schema({ timestamps: true })
 export class Log {
   @Prop({ required: true, type: mongoose.Schema.Types.ObjectId, ref: 'User' })
-  user: User;
+  user: ClerkUser;
 
   /* @Prop({
     required: true,

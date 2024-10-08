@@ -96,11 +96,11 @@ export interface Log {
 export interface User {
   email: string;
   clerkId: string;
-  firstName: string;
-  lastName: string;
-  assignedWalkthroughs: Walkthrough[];
-  admin: boolean;
-  type: Theme;
+  firstName?: string;
+  lastName?: string;
+  assignedWalkthroughs?: Walkthrough[];
+  admin?: boolean;
+  type?: Theme;
 }
 
 export enum Theme {

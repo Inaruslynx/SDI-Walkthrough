@@ -1,30 +1,89 @@
-import { Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectModel } from '@nestjs/mongoose';
-import { User } from '../schemas/users.schema';
+import { ClerkUser } from '../schemas/users.schema';
 import { Model } from 'mongoose';
 
 @Injectable()
 export class UserService {
-  constructor(@InjectModel(User.name) private userModel: Model<User>) {}
-  create(createUserDto: CreateUserDto) {
-    return 'This action adds a new user';
+  constructor(
+    @InjectModel(ClerkUser.name) private userModel: Model<ClerkUser>,
+  ) {}
+  async create(createUserDto: CreateUserDto) {
+    // console.log('createUserDto:', createUserDto);
+    if (!createUserDto.clerkId) {
+      throw new BadRequestException('Missing ClerkId.');
+    }
+    const newUser = new this.userModel(createUserDto);
+    console.log('newUser:', newUser);
+    const result = await newUser.save();
+    console.log('result:', result);
+    if (result.errors) {
+      throw new InternalServerErrorException(
+        'Failed to create user: ' + result.errors,
+      );
+    }
+    return result;
   }
 
-  findAll() {
-    return `This action returns all user`;
+  async findAll() {
+    const result = await this.userModel.find();
+    return result;
   }
 
-  findOne(id: string) {
-    return `This action returns a #${id} user`;
+  async findOne(id: string) {
+    if (!id) {
+      throw new BadRequestException('Missing id.');
+    }
+    const result = await this.userModel.find({ clerkId: id });
+    if (!result) {
+      throw new InternalServerErrorException('Failed to find user');
+    }
+    return result;
   }
 
-  update(id: string, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
+  async update(id: string, updateUserDto: UpdateUserDto) {
+    console.log(updateUserDto);
+    if (!id) {
+      throw new BadRequestException('Missing id.');
+    }
+    const userDoc = await this.userModel.findOne({ clerkId: id });
+    console.log(userDoc);
+    if (userDoc) {
+      console.log('updating an existing user');
+      const userDoc = {
+        ...updateUserDto,
+      };
+      const result = await this.userModel.updateOne({ clerkId: id }, userDoc);
+      return result;
+    } else {
+      console.log('creating a new user');
+      const userData = {
+        ...updateUserDto,
+        admin: false,
+        assignedWalkthroughs: [],
+      };
+      const newUser = new this.userModel(userData);
+      const result = await newUser.save();
+      console.log(result);
+      return result;
+    }
   }
 
-  remove(id: string) {
-    return `This action removes a #${id} user`;
+  async remove(id: string) {
+    if (!id) {
+      throw new BadRequestException('Missing id.');
+    }
+    const getUserDoc = this.userModel.find({ clerkId: id });
+    if (!getUserDoc) {
+      throw new InternalServerErrorException('Failed to find user');
+    }
+    const result = await this.userModel.deleteOne({ clerkId: id });
+    return result;
   }
 }

@@ -135,6 +135,9 @@ importers:
         specifier: ^3.23.8
         version: 3.23.8
     devDependencies:
+      '@clerk/types':
+        specifier: ^4.25.0
+        version: 4.25.0
       '@hookform/devtools':
         specifier: ^4.3.1
         version: 4.3.1(@types/react@18.3.9)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -284,6 +287,10 @@ packages:
 
   '@clerk/types@4.23.0':
     resolution: {integrity: sha512-xCAPeKXOt/qAEzhlv35sdNYm9ewoveRMUwVEoGsFIDaeF9N1agCNdzKtCMcHjGZFH4ESnopLmEq2n46aRxPFkA==}
+    engines: {node: '>=18.17.0'}
+
+  '@clerk/types@4.25.0':
+    resolution: {integrity: sha512-p2IyJ0q5WF1e976L1pS1J6Mb5ducfkUC31DR1EvMjPwJkrlWJdAMCPc+zqRRAePVy/JBVK2gEKbUVtJ6/jrpag==}
     engines: {node: '>=18.17.0'}
 
   '@date-fns/tz@1.1.2':
@@ -3130,6 +3137,10 @@ snapshots:
       tslib: 2.4.1
 
   '@clerk/types@4.23.0':
+    dependencies:
+      csstype: 3.1.1
+
+  '@clerk/types@4.25.0':
     dependencies:
       csstype: 3.1.1
 

@@ -1,5 +1,5 @@
 import mongoose, { Schema, Document } from 'mongoose';
-import { User } from './users.schema';
+import { ClerkUser } from './users.schema';
 import { Walkthrough } from './walkthroughs.schema';
 import { Department } from './departments.schema';
 import { DataPoint } from './DataPoints.schema';
@@ -10,7 +10,7 @@ export interface LogData {
 }
 
 export interface Log extends Document {
-  user: User;
+  user: ClerkUser;
   department: Department;
   walkthrough: Walkthrough;
   data: LogData[];

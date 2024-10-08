@@ -3,7 +3,7 @@ import mongoose, { HydratedDocument } from 'mongoose';
 import { IsEnum } from 'class-validator';
 import { Walkthrough } from './walkthroughs.schema';
 
-export type UserDocument = HydratedDocument<User>;
+export type ClerkUserDocument = HydratedDocument<ClerkUser>;
 
 export enum Theme {
   DARK = 'dark',
@@ -41,7 +41,7 @@ export enum Theme {
 }
 
 @Schema()
-export class User {
+export class ClerkUser {
   @Prop({ required: true, unique: true })
   email: string;
 
@@ -67,4 +67,4 @@ export class User {
   type: Theme;
 }
 
-export const UserSchema = SchemaFactory.createForClass(User);
+export const ClerkUserSchema = SchemaFactory.createForClass(ClerkUser);

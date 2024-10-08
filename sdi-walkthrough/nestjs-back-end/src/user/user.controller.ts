@@ -18,25 +18,26 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Post()
-  @UseGuards(ClerkAuthGuard)
+  // Need a guard that checks if the user is an admin or changing their own account
+  // @UseGuards(ClerkAuthGuard)
   create(@Body() createUserDto: CreateUserDto) {
     return this.userService.create(createUserDto);
   }
 
   @Get()
-  @UseGuards(ClerkAuthGuard)
+  // @UseGuards(ClerkAuthGuard)
   findAll() {
     return this.userService.findAll();
   }
 
   @Get(':id')
-  @UseGuards(ClerkAuthGuard)
+  // @UseGuards(ClerkAuthGuard)
   findOne(@Param('id') id: string) {
     return this.userService.findOne(id);
   }
 
   @Patch(':id')
-  @UseGuards(ClerkAuthGuard)
+  // @UseGuards(ClerkAuthGuard)
   update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
     return this.userService.update(id, updateUserDto);
   }

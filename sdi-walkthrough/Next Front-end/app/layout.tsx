@@ -4,6 +4,7 @@ import { ClerkProvider } from "@clerk/nextjs";
 // import { dark } from '@clerk/themes'
 import ReactQueryProvider from "@/providers/ReactQueryProvider";
 import NavBar from "@/components/nav-bar/nav-bar";
+import UserListener from "@/components/UserListener";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -23,6 +24,7 @@ export default function RootLayout({
           <body className="bg-base-100">
             <ReactQueryProvider>
               <div className="grid grid-rows-2 h-screen">
+                <UserListener />
                 <NavBar />
                 <div className="row mt-32">{children}</div>
                 <div className="row h-0">
