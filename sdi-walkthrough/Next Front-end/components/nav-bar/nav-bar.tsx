@@ -6,22 +6,40 @@ import {
   SignInButton,
   SignUpButton,
   OrganizationSwitcher,
+  useUser,
 } from "@clerk/nextjs";
 import NavLink from "./nav-link";
 import NavDropdown from "./nav-dropdown";
 import ThemeSelector from "./theme-selector/theme-selector";
-import { getDepartmentData } from "@/lib/api";
+import { findUser, getDepartmentData } from "@/lib/api";
 import { useQuery } from "@tanstack/react-query";
 import { Department } from "@/types";
 import { AxiosResponse } from "axios";
+import { useEffect, useState } from "react";
 
 export default function NavBar() {
-  // const [departments, setDepartments] = useState<Department[]>([]);
+  const [Admin, setAdmin] = useState(false);
+  const { user } = useUser();
   const departments = useQuery<AxiosResponse<Department[]>, Error>({
     queryKey: ["departments"],
     queryFn: getDepartmentData,
     staleTime: 1000 * 60 * 5, // ms * s * m
   });
+
+  const userQuery = useQuery({
+    queryKey: ["user"],
+    queryFn: async () => {
+      return findUser(user?.id as string);
+    },
+  });
+
+  useEffect(() => {
+    if (userQuery.isSuccess) {
+      if (userQuery.data.data) {
+        setAdmin(userQuery.data.data.admin);
+      }
+    }
+  }, [userQuery.data]);
 
   return (
     <>
@@ -80,6 +98,11 @@ export default function NavBar() {
                     </div>
                   </details>
                 ))}
+                {userQuery.isSuccess && Admin === true && (
+                  <li>
+                    <NavLink href="/admin/users/">User Control</NavLink>
+                  </li>
+                )}
               </ul>
             </div>
 
@@ -99,6 +122,16 @@ export default function NavBar() {
                 <NavDropdown name={department.name} key={department.name} />
               ))}
             </div>
+            {/* TODO: Need to show or hide based on metadata for admin */}
+            <SignedIn>
+              {userQuery.isSuccess && Admin === true && (
+                <li>
+                  <NavLink button href="/admin/users/">
+                    User Control
+                  </NavLink>
+                </li>
+              )}
+            </SignedIn>
           </div>
           <div className="flex-none navbar-end">
             <SignedIn>

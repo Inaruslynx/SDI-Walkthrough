@@ -5,7 +5,8 @@ export default function Home() {
         <div className="container">
           <h1>Welcome to SDI Walkthrough</h1>
           <p>
-            This app should be pretty fleshed out, but bugs might still exist. Please let me know if you find any issues. I am utilizing new
+            This app should be pretty fleshed out, but bugs might still exist.
+            Please let me know if you find any issues. I am utilizing new
             technology: Next.js and Nest.js.
           </p>
           <h3>TODO List:</h3>
@@ -40,7 +41,7 @@ export default function Home() {
                 <li>Per Shift</li>
                 <li>Daily</li>
                 <li>
-                  Weekly
+                  Weekly (Shift)
                   <ul>
                     <li>1st Day</li>
                     <li>2nd Day</li>
@@ -48,8 +49,21 @@ export default function Home() {
                     <li>4th Day</li>
                   </ul>
                 </li>
+                <li>
+                  Weekly
+                  <ul>
+                    <li>Sunday</li>
+                    <li>Monday</li>
+                    <li>Tuesday</li>
+                    <li>Wednesday</li>
+                    <li>Thursday</li>
+                    <li>Friday</li>
+                    <li>Saturday</li>
+                  </ul>
+                </li>
                 <li>Bi-weekly</li>
                 <li>Monthly</li>
+                <li>As needed</li>
               </ul>
             </li>
           </ul>

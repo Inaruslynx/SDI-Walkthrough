@@ -40,7 +40,7 @@ export class UserService {
     if (!id) {
       throw new BadRequestException('Missing id.');
     }
-    const result = await this.userModel.find({ clerkId: id });
+    const result = await this.userModel.findOne({ clerkId: id });
     if (!result) {
       throw new InternalServerErrorException('Failed to find user');
     }
@@ -75,7 +75,7 @@ export class UserService {
     }
   }
 
-  async remove(id: string) {
+  async remove(id: string): Promise<any> {
     if (!id) {
       throw new BadRequestException('Missing id.');
     }

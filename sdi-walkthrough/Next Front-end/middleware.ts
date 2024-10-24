@@ -1,20 +1,45 @@
-import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
-import { NextResponse } from "next/server";
+import {
+  clerkMiddleware,
+  createRouteMatcher,
+  currentUser,
+} from "@clerk/nextjs/server";
+// import { NextResponse } from "next/server";
+// import type { NextRequest } from "next/server";
+// import { findUser } from "@/lib/api";
+// import { trueDependencies } from "mathjs";
 
 const isProtectedAdminRoute = createRouteMatcher([
   "/(.*)/admin(.*)",
+  "/admin(.*)",
 ]);
 
-const isProtectedRoute = createRouteMatcher([
-  "/(.*)/walkthrough(.*)",
-])
+const isProtectedRoute = createRouteMatcher(["/(.*)/walkthrough(.*)"]);
 
-export default clerkMiddleware((auth, req) => {
-  if (isProtectedAdminRoute(req)) auth().protect((has) => {
-    return (
-      has({role: "org:admin"})
-    )
-  });
+// async function checkAdminStatus(userId: string, request: NextRequest) {
+//   const response = await findUser(userId);
+//   if (response.status === 200) {
+//     return response.data.admin;
+//   } else return false;
+// }
+
+// export function middleware(request: NextRequest) {
+
+// }
+
+// export const config = {
+
+// }
+
+export default clerkMiddleware(async (auth, req) => {
+  // const user = await currentUser();
+  if (isProtectedAdminRoute(req)) {
+    auth().protect((has) => {
+      return has({ role: "org:admin" });
+    });
+    // const isAdmin = await checkAdminStatus(user?.externalId);
+    // if (isAdmin) return true;
+    // else return false;
+  }
   if (isProtectedRoute(req)) auth().protect();
 });
 

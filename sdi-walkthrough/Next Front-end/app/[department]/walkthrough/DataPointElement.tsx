@@ -124,6 +124,7 @@ const DataPointElement: React.FC<DataPointProps> = ({ data }: DataPointProps) =>
           {dataPoint.type === "string" && (
             <button
               className="btn btn-primary"
+              type="button"
               onClick={() => onShowButtonClick()}
             >
               Show log

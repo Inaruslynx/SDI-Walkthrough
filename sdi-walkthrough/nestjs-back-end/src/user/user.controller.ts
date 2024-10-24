@@ -44,7 +44,7 @@ export class UserController {
 
   @Delete(':id')
   @UseGuards(ClerkAuthGuard)
-  remove(@Param('id') id: string) {
+  remove(@Param('id') id: string): Promise<any> {
     return this.userService.remove(id);
   }
 }

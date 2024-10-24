@@ -2,13 +2,11 @@
 import NavLink from "./nav-link";
 import { usePathname } from "next/navigation";
 import { useAuth, useUser } from "@clerk/nextjs";
-import { useState } from "react";
 
 export default function NavDropdown({ name }: { name: string }) {
   const path: string = usePathname();
   const { orgSlug } = useAuth();
   const { user } = useUser();
-  const [isDropdownVisible, setIsDropdownVisible] = useState(false);
   // console.log("user:", user?.publicMetadata.role);
 
   const orgAdmin = orgSlug === `${name.toLowerCase()}-admins`;
@@ -16,10 +14,6 @@ export default function NavDropdown({ name }: { name: string }) {
   const canFillInWalkthrough =
     user?.publicMetadata.role === `org:${name.toLowerCase()}` || orgAdmin;
   // console.log("canFillInWalkthrough:", canFillInWalkthrough);
-
-  const toggleDropdown = () => {
-    setIsDropdownVisible(!isDropdownVisible);
-  };
 
   return (
     <div key={name} className="dropdown">
@@ -47,40 +41,12 @@ export default function NavDropdown({ name }: { name: string }) {
         </li>
         {orgAdmin && (
           <li>
-            <span className="menu-dropdown-toggle" onClick={toggleDropdown}>
-              Admin
-            </span>
-            <ul
-              className={`menu-dropdown ${isDropdownVisible ? "menu-dropdown-show" : ""}`}
-            >
-              <li>
-                <NavLink href={`/${name}/admin/users`}>Users</NavLink>
-              </li>
-              <li>
-                <NavLink href={`/${name}/admin/walkthrough`}>
-                  Walk-through
-                </NavLink>
-              </li>
-            </ul>
+            <NavLink href={`/${name}/admin/walkthrough`}>
+              Walk-through Admin Control
+            </NavLink>
           </li>
         )}
       </ul>
     </div>
   );
-}
-
-{
-  /* <details open>
-            <summary>Admin</summary>
-            <ul>
-              <li>
-                <NavLink href={`/${name}/admin/users`}>Users</NavLink>
-              </li>
-              <li>
-                <NavLink href={`/${name}/admin/walkthrough`}>
-                  Walkthrough
-                </NavLink>
-              </li>
-            </ul>
-          </details> */
 }

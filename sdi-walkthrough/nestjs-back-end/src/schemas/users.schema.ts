@@ -2,6 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { HydratedDocument } from 'mongoose';
 import { IsEnum } from 'class-validator';
 import { Walkthrough } from './walkthroughs.schema';
+import { Department } from './departments.schema';
 
 export type ClerkUserDocument = HydratedDocument<ClerkUser>;
 
@@ -58,6 +59,9 @@ export class ClerkUser {
     type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Walkthrough' }],
   })
   assignedWalkthroughs: Walkthrough[];
+
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Department' })
+  department: Department;
 
   @Prop({ default: false })
   admin: boolean;
