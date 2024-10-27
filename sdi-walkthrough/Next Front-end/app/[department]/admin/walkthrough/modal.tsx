@@ -6,7 +6,7 @@ type ModalProps = {
   type: "primary" | "error";
   onClick: () => void;
   onClose: () => void;
-  targetInput?: React.RefObject<HTMLInputElement>;
+  targetInput?: React.RefObject<HTMLInputElement | null>;
 };
 const Modal = React.forwardRef<HTMLDialogElement, ModalProps>((props, ref) => {
   const { children, id, type, onClick, onClose, targetInput } = props;

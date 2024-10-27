@@ -33,14 +33,14 @@ const isProtectedRoute = createRouteMatcher(["/(.*)/walkthrough(.*)"]);
 export default clerkMiddleware(async (auth, req) => {
   // const user = await currentUser();
   if (isProtectedAdminRoute(req)) {
-    auth().protect((has) => {
+    await auth.protect((has) => {
       return has({ role: "org:admin" });
     });
     // const isAdmin = await checkAdminStatus(user?.externalId);
     // if (isAdmin) return true;
     // else return false;
   }
-  if (isProtectedRoute(req)) auth().protect();
+  if (isProtectedRoute(req)) await auth.protect();
 });
 
 export const config = {

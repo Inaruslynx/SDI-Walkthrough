@@ -1,6 +1,6 @@
 "use client";
 import api from "@/lib/api";
-import { useEffect, useState } from "react";
+import { useEffect, useState, use } from "react";
 import {
   Table,
   TableBody,
@@ -33,11 +33,12 @@ type ReportResponse = AxiosResponse<{
   resultsOfRecentLogs: Log;
 }>;
 
-export default function ReportPage({
-  params,
-}: {
-  params: { department: string };
-}) {
+export default function ReportPage(
+  props: {
+    params: Promise<{ department: string }>;
+  }
+) {
+  const params = use(props.params);
   const [lastLog, setLastLog] = useState<Log>({});
   const [beforeLastLog, setBeforeLastLog] = useState<Log>({});
   const [results, setResults] = useState<MathResults>({});

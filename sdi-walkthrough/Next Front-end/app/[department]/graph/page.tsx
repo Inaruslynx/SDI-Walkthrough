@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, use } from "react";
 import { useQuery } from "@tanstack/react-query";
 import type { ChartData } from "chart.js";
 import Graph from "./graph";
@@ -23,21 +23,22 @@ interface FetchData {
   toDate: string;
 }
 
-export default function GraphPage({
-  params,
-}: {
-  params: { department: string };
-  }) {
-    const [selectedWalkthrough, setSelectedWalkthrough] = useState(
-      "Select a Walkthrough"
-    );
+export default function GraphPage(
+  props: {
+    params: Promise<{ department: string }>;
+    }
+) {
+  const params = use(props.params);
+  const [selectedWalkthrough, setSelectedWalkthrough] = useState(
+    "Select a Walkthrough"
+  );
   const [Results, setResults] = useState<ChartData<"line">>();
   const [ShowGraph, setShowGraph] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [Options, setOptions] = useState<string[]>([]);
   const [FromDate, setFromDate] = useState<string>(new Date().toDateString());
   const [ToDate, setToDate] = useState<string>(new Date().toDateString());
-  
+
   // Fetch all walkthroughs for department
   const walkthroughs = useQuery<AxiosResponse<Walkthroughs>, Error>({
     queryKey: ["walkthrough", { department: params.department }],

@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, use } from "react";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -32,11 +32,12 @@ const periodicityValues = Object.values(PeriodicityOptions);
 const weeklyValues = Object.values(WeeklyOptions);
 const perSwingValues = Object.values(PerSwingOptions);
 
-export default function WalkthroughPage({
-  params,
-}: {
-  params: { department: string };
-}) {
+export default function WalkthroughPage(
+  props: {
+    params: Promise<{ department: string }>;
+  }
+) {
+  const params = use(props.params);
   const queryClient = useQueryClient();
   const [selectedWalkthrough, setSelectedWalkthrough] = useState(
     "Select a Walkthrough"

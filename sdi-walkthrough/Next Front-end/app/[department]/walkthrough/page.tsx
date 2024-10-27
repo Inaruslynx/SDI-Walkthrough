@@ -1,6 +1,6 @@
 "use client";
 import SelectWalkthrough from "@/components/ui/selectWalkthrough";
-import { useEffect, useState } from "react";
+import { useEffect, useState, use } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Area, Walkthroughs } from "@/types";
 import { AxiosResponse } from "axios";
@@ -9,11 +9,12 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import WalkthroughRenderer from "./WalkthroughRenderer";
 import WalkthroughScrollSpy from "@/components/ui/WalkthroughScrollSpy";
 
-export default function WalkthroughPage({
-  params,
-}: {
-  params: { department: string };
-}) {
+export default function WalkthroughPage(
+  props: {
+    params: Promise<{ department: string }>;
+  }
+) {
+  const params = use(props.params);
   const [selectedWalkthrough, setSelectedWalkthrough] = useState(
     "Select a Walkthrough"
   );
