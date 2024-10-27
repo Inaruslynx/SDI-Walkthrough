@@ -4,6 +4,7 @@ import { findAllUsers, getWalkthroughs } from "@/lib/api";
 import { useState, useEffect } from "react";
 import { User } from "@/types";
 import { AxiosResponse } from "axios";
+import UserCard from "./userCard";
 
 export default function UsersPage({
   params,
@@ -22,7 +23,7 @@ export default function UsersPage({
     if (usersQuery.isSuccess && usersQuery.data) {
       // console.log(usersQuery.isSuccess);
       // console.log(usersQuery.data.data);
-      setUsers((prevUsers) => {
+      setUsers((prevUsers: User[]) => {
         const newUsers = usersQuery.data!.data;
         // Merge existing users with new users, ensuring no duplicates by user ID
         const mergedUsers = [...prevUsers];
@@ -45,24 +46,12 @@ export default function UsersPage({
         <h1 className="text-center">Admin - User Control</h1>
       </div>
       {usersQuery.isLoading ? (
-        <div className="skeletion h-32 w-96"></div>
+        <div className="skeleton h-32 w-11/12"></div>
       ) : null}
       {usersQuery.isSuccess ? (
         <div className="m-4">
-          {users.map((user) => (
-            <div
-              key={user.clerkId}
-              className="card bg-neutral text-neutral-content w-11/12 shadow-xl m-4"
-            >
-              <div className="card-body">
-                <div className="grid grid-rows-1 grid-flow-col gap-4">
-                  <input type="checkbox" className="checkbox" name="" id="" />
-                  <h2>
-                    {user.firstName} {user.lastName}
-                  </h2>
-                </div>
-              </div>
-            </div>
+          {users.map((user: User) => (
+            <UserCard key={user.clerkId} user={user} />
           ))}
         </div>
       ) : null}
