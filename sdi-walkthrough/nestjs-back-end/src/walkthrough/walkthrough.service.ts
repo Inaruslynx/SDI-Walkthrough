@@ -158,6 +158,14 @@ export class WalkthroughService {
         walkthroughDoc[key] = updateWalkthroughDto[key];
       }
     });
+    console.log(updateWalkthroughDto.periodicity);
+    if (updateWalkthroughDto.periodicity !== PeriodicityOptions.PerSwing) {
+      walkthroughDoc.perSwing = undefined;
+    }
+
+    if (updateWalkthroughDto.periodicity !== PeriodicityOptions.Weekly) {
+      walkthroughDoc.weekly = undefined;
+    }
 
     // Save updated walkthrough
     const result = await walkthroughDoc.save();

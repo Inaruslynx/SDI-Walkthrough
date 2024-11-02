@@ -39,12 +39,14 @@ interface WalkthroughDataCardProps {
   selectedWalkthrough: string;
   dataPoint: DataPoint;
   parentArea: string;
+  onDeleteClick: () => void;
 }
 
 export default function WalkthroughDataCard({
   selectedWalkthrough,
   dataPoint,
   parentArea,
+  onDeleteClick,
 }: WalkthroughDataCardProps): ReactNode {
   // React Hook Form controller
   const {
@@ -169,7 +171,7 @@ export default function WalkthroughDataCard({
       if (dataPoint._id) {
         await deleteDataPointMutation.mutateAsync(dataPoint._id);
       } else {
-        throw new Error("No id on Data Point");
+       onDeleteClick();
       }
     } catch (e) {
       console.log("Error deleting data point:", e);

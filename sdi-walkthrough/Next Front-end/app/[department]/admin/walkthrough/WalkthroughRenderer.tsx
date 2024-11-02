@@ -8,6 +8,7 @@ interface WalkthroughRendererProps {
   areas: Area[];
   onAddArea: (parentAreaName?: string[]) => void;
   onAddDataPoint: (parentAreaName: string[]) => void;
+  onDeleteUnsavedDatapoint: (index: number, parentArea: string) => void;
 }
 
 const WalkthroughRenderer: React.FC<WalkthroughRendererProps> = ({
@@ -15,15 +16,16 @@ const WalkthroughRenderer: React.FC<WalkthroughRendererProps> = ({
   areas,
   onAddArea,
   onAddDataPoint,
+  onDeleteUnsavedDatapoint,
 }) => {
   if (selectedWalkthrough === "Select a Walkthrough") {
     return null;
   }
-  console.log("areas in renderer:", areas);
+  // console.log("areas in renderer:", areas);
 
   const renderAreas = (areas: Area[], indent = false): React.ReactNode => {
     return areas.map((area, index) => (
-      <div className={indent ? "ml-20" : ""} key={area._id || index}>
+      <div className={indent ? "ml-20" : ""} key={index}>
         <WalkthroughAreaCard
           selectedWalkthrough={selectedWalkthrough}
           area={area}
@@ -39,7 +41,8 @@ const WalkthroughRenderer: React.FC<WalkthroughRendererProps> = ({
                 key={index}
                 selectedWalkthrough={selectedWalkthrough}
                 dataPoint={dataPoint}
-                parentArea={area._id}
+                parentArea={area._id!}
+                onDeleteClick={() => onDeleteUnsavedDatapoint(index, area._id!)}
               />
             ))}
           </div>

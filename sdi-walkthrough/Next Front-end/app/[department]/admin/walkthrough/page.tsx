@@ -4,49 +4,59 @@ import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import WalkthroughRenderer from "./WalkthroughRenderer";
-import {
-  createWalkthrough,
-  deleteWalkthrough,
-  findArea,
-  getWalkthrough,
-  getWalkthroughs,
-  updateWalkthrough,
-} from "@/lib/api";
+import { findArea, getWalkthrough, getWalkthroughs } from "@/lib/api";
 import Modal from "./modal";
 import Button from "./button";
 import SelectWalkthrough from "@/components/ui/selectWalkthrough";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   Walkthroughs,
   Area,
   DataPoint,
   WeeklyOptions,
+  WeeklyOptionsType,
   PerSwingOptions,
+  PerSwingOptionsType,
 } from "@/types";
 import { AxiosResponse } from "axios";
 import IconPlus from "@/components/ui/icons/plus";
 import { PeriodicityOptions } from "@/types";
 import IconSave from "@/components/ui/icons/save";
+import {
+  useCreateWalkthrough,
+  useDeleteWalkthrough,
+  useRenameWalkthrough,
+  useSavePeriodicity,
+} from "./mutation";
 
 const periodicityValues = Object.values(PeriodicityOptions);
 const weeklyValues = Object.values(WeeklyOptions);
 const perSwingValues = Object.values(PerSwingOptions);
 
-export default function WalkthroughPage(
-  props: {
-    params: Promise<{ department: string }>;
-  }
-) {
+function usePeriodicityState() {
+  const [selectedPeriodicity, setSelectedPeriodicity] = useState("");
+  const [selectedWeekly, setSelectedWeekly] = useState<WeeklyOptionsType>();
+  const [selectedPerSwing, setSelectedPerSwing] =
+    useState<PerSwingOptionsType>();
+  return {selectedPerSwing, selectedWeekly, selectedPeriodicity, setSelectedPerSwing, setSelectedWeekly, setSelectedPeriodicity};
+}
+
+export default function WalkthroughPage(props: {
+  params: Promise<{ department: string }>;
+}) {
   const params = use(props.params);
-  const queryClient = useQueryClient();
+  // const queryClient = useQueryClient();
   const [selectedWalkthrough, setSelectedWalkthrough] = useState(
     "Select a Walkthrough"
   );
-  const [selectedPeriodicity, setSelectedPeriodicity] = useState("");
-  const [selectedWeekly, setSelectedWeekly] = useState("");
-  const [selectedPerSwing, SetSelectedPerSwing] = useState("");
+  // const [selectedPeriodicity, setSelectedPeriodicity] = useState("");
+  const {selectedPerSwing, selectedWeekly, selectedPeriodicity, setSelectedPerSwing, setSelectedWeekly, setSelectedPeriodicity} = usePeriodicityState();
+  // const [selectedWeekly, setSelectedWeekly] = useState<WeeklyOptionsType>();
+  // const [selectedPerSwing, setSelectedPerSwing] =
+  //   useState<PerSwingOptionsType>();
   const [areas, setAreas] = useState<Area[]>([
     {
+      index: 0,
       name: "",
       parentType: "walkthrough",
       parentWalkthrough: "",
@@ -92,7 +102,7 @@ export default function WalkthroughPage(
         setSelectedWeekly(response.data.weekly);
       }
       if (response.data.perSwing) {
-        SetSelectedPerSwing(response.data.perSwing);
+        setSelectedPerSwing(response.data.perSwing);
       }
       // console.log("results:", results);
       return results;
@@ -123,72 +133,16 @@ export default function WalkthroughPage(
   };
 
   // Create new walkthrough
-  const handleCreateNewWalkthrough = useMutation({
-    mutationFn: async () => {
-      const name = walkthroughNameRef.current?.value || "";
+  const handleCreateNewWalkthrough = useCreateWalkthrough(
+    setSelectedWalkthrough,
+    setAreas
+  );
 
-      return createWalkthrough(name, params.department);
-    },
-    onSuccess: (data) => {
-      toast.success("Successfully created new walkthrough.");
-      queryClient.invalidateQueries({ queryKey: ["walkthrough"] });
-      setSelectedWalkthrough(data.data.name);
-      // setAreas([{ name: "", areas: [], dataPoints: [] }]);
-    },
-    onError: () => {
-      toast.error("Failed to create walkthrough.");
-    },
-  });
+  const handleRenameWalkthrough = useRenameWalkthrough(setSelectedWalkthrough);
 
-  const handleRenameWalkthrough = useMutation({
-    mutationFn: () => {
-      if (!walkthroughRenameRef.current) throw new Error();
-      const name = walkthroughRenameRef.current.value;
-      const id = selectedWalkthrough;
-      return updateWalkthrough(id, name);
-    },
-    onSuccess: () => {
-      toast.success("Successfully renamed walkthrough.");
-      queryClient.invalidateQueries({ queryKey: ["walkthrough"] });
-      setSelectedWalkthrough;
-    },
-    onError: () => {
-      toast.error("Could not change walkthrough name.");
-    },
-  });
+  const handleSavePeriodicity = useSavePeriodicity();
 
-  const handleSavePeriodicity = useMutation({
-    mutationFn: () => {
-      if (!selectedPeriodicity) throw new Error();
-      const id = selectedWalkthrough;
-      const periodicity = selectedPeriodicity || undefined;
-      const weekly = selectedWeekly || undefined;
-      const perSwing = selectedPerSwing || undefined;
-      return updateWalkthrough(id, undefined, periodicity, weekly, perSwing);
-    },
-    onSuccess: () => {
-      toast.success("Successfully changed periodicity.");
-    },
-    onError: () => {
-      toast.error("Could not change periodicity.");
-    },
-  });
-
-  const handleDeleteWalkthrough = useMutation({
-    mutationFn: () => {
-      return deleteWalkthrough(selectedWalkthrough);
-    },
-    onSuccess: () => {
-      toast.success("Successfully deleted walkthrough.");
-      setSelectedWalkthrough("Select a Walkthrough");
-    },
-    onError: () => {
-      toast.error("Failed to delete walkthrough.");
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ["walkthrough"] });
-    },
-  });
+  const handleDeleteWalkthrough = useDeleteWalkthrough(setSelectedWalkthrough);
 
   // Callback to add a new area
   const handleAddArea = (parentArea?: Area) => {
@@ -197,6 +151,7 @@ export default function WalkthroughPage(
     //   console.log("parentAreaName", parentAreaName);
     // }
     const newArea: Area = {
+      index: parentArea?.areas.length || 0,
       name: `New Area ${areas.length + 1}`,
       parentType: "walkthrough",
       parentWalkthrough: selectedWalkthrough,
@@ -258,6 +213,7 @@ export default function WalkthroughPage(
     if (!parentArea || !parentArea._id) return;
     console.log("Adding new Data Point!");
     const newDataPoint: DataPoint = {
+      index: parentArea.dataPoints.length || 0,
       text: "New Data Point",
       type: "string",
       parentArea: parentArea._id,
@@ -267,6 +223,74 @@ export default function WalkthroughPage(
     console.log("Adding new Data Point to areas:", newDataPoint);
     setAreas((prevAreas) => addDataPoint(prevAreas, newDataPoint));
   };
+
+  function recursiveDeleteUnsavedDataPoint(
+    index: number,
+    parentArea: Area,
+    target: string
+  ): Area[] {
+    const result: Area[] = parentArea.areas.map((area: Area) => {
+      if (area._id === target) {
+        return {
+          ...area,
+          dataPoints: area.dataPoints.filter(
+            (dataPoint: DataPoint, dataIndex: number) => {
+              return dataPoint._id || dataIndex !== index;
+            }
+          ),
+        };
+      }
+      if (area.areas.length > 0) {
+        return {
+          ...area,
+          areas: recursiveDeleteUnsavedDataPoint(index, area, target),
+        };
+      }
+      return area;
+    });
+    return result;
+  }
+
+  const handleDeleteUnsavedDataPoint = (index: number, parentArea: string) => {
+    console.log("in handleDeleteUnsavedDatapoint");
+    console.log("index", index);
+    setAreas((prevAreas) =>
+      prevAreas.map((area) => {
+        console.log("area:", area._id, "parentArea:", parentArea);
+        if (area._id === parentArea) {
+          console.log("in parentArea");
+          return {
+            ...area,
+            dataPoints: area.dataPoints.filter((dataPoint, dataIndex) => {
+              console.log("dataIndex", dataIndex);
+              return dataPoint._id || dataIndex !== index;
+            }),
+          };
+        }
+        if (area.areas.length > 0) {
+          console.log("in subAreas");
+          return {
+            ...area,
+            areas: recursiveDeleteUnsavedDataPoint(index, area, parentArea),
+          };
+        }
+        return area;
+      })
+    );
+  };
+
+  // Function for changing periodicity
+  function onChangePeriodicity(e: React.ChangeEvent<HTMLSelectElement>) {
+    if (e.target.value === PeriodicityOptions.Weekly)
+      setSelectedWeekly(WeeklyOptions.Sunday);
+    else setSelectedWeekly(undefined);
+
+    if (e.target.value === PeriodicityOptions.PerSwing)
+      setSelectedPerSwing(PerSwingOptions.First);
+    else setSelectedPerSwing(undefined);
+
+    setSelectedPeriodicity(e.target.value);
+  }
 
   // is this necessary?
   useEffect(() => {
@@ -309,7 +333,9 @@ export default function WalkthroughPage(
             ref={createWalkthroughModalRef}
             targetInput={walkthroughNameRef}
             onClick={() => {
-              handleCreateNewWalkthrough.mutate();
+              const name = walkthroughNameRef.current?.value || "";
+              const department = params.department;
+              handleCreateNewWalkthrough.mutateAsync({ name, department });
             }}
             onClose={() => {
               createWalkthroughModalRef.current?.close();
@@ -339,7 +365,9 @@ export default function WalkthroughPage(
                   ref={renameWalkthroughModalRef}
                   targetInput={walkthroughRenameRef}
                   onClick={() => {
-                    handleRenameWalkthrough.mutate();
+                    const name = walkthroughRenameRef.current?.value || "";
+                    const id = selectedWalkthrough;
+                    handleRenameWalkthrough.mutateAsync({ id, name });
                   }}
                   onClose={() => {
                     renameWalkthroughModalRef.current?.close();
@@ -353,7 +381,9 @@ export default function WalkthroughPage(
                   id="periodicity"
                   className="select select-bordered align-end m-2"
                   value={selectedPeriodicity}
-                  onChange={(e) => setSelectedPeriodicity(e.target.value)}
+                  onChange={(e) => {
+                    onChangePeriodicity(e);
+                  }}
                 >
                   <option disabled value="">
                     Select a Periodicity
@@ -371,7 +401,9 @@ export default function WalkthroughPage(
                     name="weekly"
                     id="weekly"
                     className="select select-bordered align-end m-2"
-                    onChange={(e) => setSelectedWeekly(e.target.value)}
+                    onChange={(e) => {
+                      setSelectedWeekly(e.target.value);
+                    }}
                   >
                     <option disabled value="">
                       Select a Day
@@ -389,7 +421,9 @@ export default function WalkthroughPage(
                     name="perSwing"
                     id="perSwing"
                     className="select select-bordered align-end m-2"
-                    onChange={(e) => SetSelectedPerSwing(e.target.value)}
+                    onChange={(e) => {
+                      setSelectedPerSwing(e.target.value);
+                    }}
                   >
                     <option disabled value="">
                       Select a Day
@@ -405,7 +439,18 @@ export default function WalkthroughPage(
                 {selectedPeriodicity && selectedPeriodicity !== "" && (
                   <button
                     className="btn btn-primary m-2"
-                    onClick={() => handleSavePeriodicity.mutate()}
+                    onClick={() => {
+                      const id = selectedWalkthrough;
+                      const periodicity = selectedPeriodicity || undefined;
+                      const weekly = selectedWeekly || undefined;
+                      const perSwing = selectedPerSwing || undefined;
+                      handleSavePeriodicity.mutate({
+                        id,
+                        periodicity,
+                        weekly,
+                        perSwing,
+                      });
+                    }}
                   >
                     <IconSave /> Periodicity
                   </button>
@@ -425,7 +470,8 @@ export default function WalkthroughPage(
                 type="error"
                 ref={deleteWalkthroughModalRef}
                 onClick={() => {
-                  handleDeleteWalkthrough.mutate();
+                  const id = selectedWalkthrough;
+                  handleDeleteWalkthrough.mutate({ id });
                 }}
                 onClose={() => {
                   deleteWalkthroughModalRef.current?.close();
@@ -437,14 +483,17 @@ export default function WalkthroughPage(
           )}
       </div>
 
-      {selectedWalkthrough !== "Select a Walkthrough" && areas?.length > 0 && (
+      {selectedWalkthrough !== "Select a Walkthrough" && (
         <ScrollArea id="scroll-area" className="border min-h-screen">
-          <WalkthroughRenderer
-            selectedWalkthrough={selectedWalkthrough}
-            areas={areas}
-            onAddArea={handleAddArea}
-            onAddDataPoint={handleAddDataPoint}
-          />
+          {areas?.length > 0 && (
+            <WalkthroughRenderer
+              selectedWalkthrough={selectedWalkthrough}
+              areas={areas}
+              onAddArea={handleAddArea}
+              onAddDataPoint={handleAddDataPoint}
+              onDeleteUnsavedDatapoint={handleDeleteUnsavedDataPoint}
+            />
+          )}
 
           <button
             className="btn btn-primary m-4"

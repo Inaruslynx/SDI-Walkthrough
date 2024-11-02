@@ -8,6 +8,7 @@ export interface GraphData {
 }
 
 export interface DataPoint {
+  index?: number;
   _id?: string;
   text: string;
   type: "number" | "string" | "boolean";
@@ -22,6 +23,7 @@ export interface DataPoint {
 }
 
 export interface Area {
+  index?: number;
   _id?: string;
   name: string;
   parentType: "area" | "walkthrough";
@@ -39,32 +41,6 @@ export interface WalkthroughData {
 
 export interface Walkthroughs {
   walkthroughs: WalkthroughData[];
-}
-
-export enum PeriodicityOptions {
-  PerShift = "Per Shift",
-  Daily = "Daily",
-  PerSwing = "Per Swing",
-  Weekly = "Weekly",
-  BiWeekly = "Bi-Weekly",
-  Monthly = "Monthly",
-}
-
-export enum WeeklyOptions {
-  Sunday = "Sunday",
-  Monday = "Monday",
-  Tuesday = "Tuesday",
-  Wednesday = "Wednesday",
-  Thursday = "Thursday",
-  Friday = "Friday",
-  Saturday = "Saturday",
-}
-
-export enum PerSwingOptions {
-  First = "First Day",
-  Second = "Second Day",
-  Third = "Third Day",
-  Fourth = "Fourth Day",
 }
 
 export interface Walkthrough {
@@ -138,3 +114,33 @@ export enum Theme {
   NORD = "nord",
   SUNSET = "sunset",
 }
+
+export enum PeriodicityOptions {
+  PerShift = "Per Shift",
+  Daily = "Daily",
+  PerSwing = "Per Swing",
+  Weekly = "Weekly",
+  BiWeekly = "Bi-Weekly",
+  Monthly = "Monthly",
+}
+
+export enum WeeklyOptions {
+  Sunday = "Sunday",
+  Monday = "Monday",
+  Tuesday = "Tuesday",
+  Wednesday = "Wednesday",
+  Thursday = "Thursday",
+  Friday = "Friday",
+  Saturday = "Saturday",
+}
+
+export type WeeklyOptionsType = WeeklyOptions | undefined;
+
+export enum PerSwingOptions {
+  First = "First Day",
+  Second = "Second Day",
+  Third = "Third Day",
+  Fourth = "Fourth Day",
+}
+
+export type PerSwingOptionsType = PerSwingOptions | undefined;

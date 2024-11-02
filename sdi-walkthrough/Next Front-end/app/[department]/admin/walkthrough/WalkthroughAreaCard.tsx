@@ -32,6 +32,7 @@ interface WalkthroughAreaCardProps {
 export default function WalkthroughAreaCard({
   selectedWalkthrough,
   area = {
+    index: 0,
     _id: "",
     name: "",
     parentType: "walkthrough",
