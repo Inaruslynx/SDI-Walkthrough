@@ -43,17 +43,22 @@ export async function createWalkthrough(name: string, department: string) {
 }
 
 // Read All
-export async function getWalkthroughs(department: string) {
+export async function getWalkthroughs(department?: string) {
   // console.log("Fetching walkthroughs.");
   // if (!department) {
   //   return null;
   // }
-  const response = await api.get<Walkthroughs>(`walkthrough`, {
-    params: {
-      department: department,
-    },
-  });
-  return response;
+  if (!department) {
+    const response = await api.get<Walkthrough[]>(`walkthrough`);
+    return response;
+  } else {
+    const response = await api.get<Walkthrough[]>(`walkthrough`, {
+      params: {
+        department: department,
+      },
+    });
+    return response;
+  }
 }
 
 // Read One

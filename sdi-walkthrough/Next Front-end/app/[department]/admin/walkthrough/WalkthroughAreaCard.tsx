@@ -165,6 +165,10 @@ export default function WalkthroughAreaCard({
     }
   };
 
+  useEffect(() => {
+    reset(initialFormValues);
+  }, [area]);
+
   return (
     <div
       className={`card m-4 w-96 bg-base-200 text-base-content shadow-lg shadow-base-300`}

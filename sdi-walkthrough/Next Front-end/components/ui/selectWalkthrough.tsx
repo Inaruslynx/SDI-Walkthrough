@@ -1,31 +1,39 @@
-import { WalkthroughData } from "@/types";
+import { Walkthrough } from "@/types";
 import { useEffect } from "react";
 
 export default function SelectWalkthrough({
   walkthroughs,
-  selectedWalkthrough,
+  selectedWalkthrough = "",
   onChange,
   className,
 }: {
-  walkthroughs?: WalkthroughData[];
+  walkthroughs?: Walkthrough[];
   selectedWalkthrough: string;
   onChange: (walkthrough: string) => void;
   className?: string;
 }) {
+  // useEffect(() => {
+  //   if (!Array.isArray(walkthroughs)) return;
+  //   if (
+  //     selectedWalkthrough === "Select a Walkthrough" ||
+  //     selectedWalkthrough === ""
+  //   )
+  //     return;
+  //   walkthroughs.forEach((element) => {
+  //     if (element.name === selectedWalkthrough) {
+  //       onChange(selectedWalkthrough);
+  //     }
+  //   });
+  // }, [selectedWalkthrough, onChange, walkthroughs]);
+
   useEffect(() => {
-    if (!Array.isArray(walkthroughs)) return;
-    walkthroughs.forEach((element) => {
-      if (element.name === selectedWalkthrough) {
-        onChange(selectedWalkthrough);
-      }
-    });
-  }, [selectedWalkthrough, onChange, walkthroughs]);
+    console.log("walkthroughs:", walkthroughs);
+  }, [walkthroughs]);
 
   return (
     <select
       className={`select select-bordered ${className || ""}`}
-      // defaultValue="Select a Walkthrough"
-      value={selectedWalkthrough}
+      defaultValue="Select a Walkthrough"
       onChange={(event) => onChange(event.target.value)}
     >
       <option disabled value="Select a Walkthrough">
@@ -33,7 +41,7 @@ export default function SelectWalkthrough({
       </option>
       {Array.isArray(walkthroughs)
         ? walkthroughs.map((item) => (
-            <option key={item.id} value={item.id}>
+            <option key={item._id} value={item._id}>
               {item.name}
             </option>
           ))

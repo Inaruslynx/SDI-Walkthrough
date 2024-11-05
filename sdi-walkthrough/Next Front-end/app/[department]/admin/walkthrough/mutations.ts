@@ -68,7 +68,6 @@ export function useDeleteWalkthrough(
 }
 
 export function useSavePeriodicity() {
-  // const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async ({ id, periodicity, weekly, perSwing }) =>
       await updateWalkthrough(id, undefined, periodicity, weekly, perSwing),

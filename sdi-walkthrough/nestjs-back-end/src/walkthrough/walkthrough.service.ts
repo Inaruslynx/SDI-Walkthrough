@@ -70,34 +70,42 @@ export class WalkthroughService {
     }
   }
 
-  async findAll(department) {
+  async findAll(department?: string) {
+    let deptDoc: Department[];
     if (!department) {
-      throw new BadRequestException('Request is empty', {
-        cause: new Error(),
-        description: 'Request is empty',
-      });
+      deptDoc = await this.departmentModel.find();
+      // throw new BadRequestException('Request is empty', {
+      //   cause: new Error(),
+      //   description: 'Request is empty',
+      // });
+    } else {
+      deptDoc = await this.departmentModel.find({ name: department });
     }
-    const deptDoc = await this.departmentModel
-      .findOne({ name: department })
-      .select('walkthroughs _id')
-      .populate('walkthroughs _id', '', this.walkthroughModel)
-      .exec();
+
     // this.logger.log(department, deptDoc);
-    if (!deptDoc) {
+    if (!deptDoc || deptDoc.length === 0) {
       throw new NotFoundException('Department not found', {
         cause: new Error(),
         description: 'Department not found',
       });
     }
+    // console.log('deptDoc:', deptDoc);
+
     // console.log(deptDoc);
-    const result = deptDoc.walkthroughs.map(
-      (walkthrough: WalkthroughDocument) => {
-        // console.log(walkthrough);
-        const data = { name: walkthrough.name, id: walkthrough._id };
-        return data;
-      },
-    );
-    return { walkthroughs: result };
+    const result: Walkthrough[] = (
+      await Promise.all(
+        deptDoc.map(async (dept) => {
+          const walkthroughs: Walkthrough[] = await this.walkthroughModel
+            .find({ department: dept._id })
+            .populate('department', '', this.departmentModel);
+          console.log('1 walkthrough:', walkthroughs);
+          return walkthroughs;
+        }),
+      )
+    ).flat();
+    
+    // console.log('result:', result);
+    return result;
   }
 
   async findOne(id: string) {

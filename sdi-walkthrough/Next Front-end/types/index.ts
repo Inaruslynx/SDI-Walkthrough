@@ -44,6 +44,7 @@ export interface Walkthroughs {
 }
 
 export interface Walkthrough {
+  _id?: string;
   name: string;
   periodicity?: PeriodicityOptions;
   weekly?: WeeklyOptions;
@@ -57,11 +58,13 @@ export interface createWalkthroughResponse {
 }
 
 export interface Department {
+  _id?: string;
   name: string;
   walkthroughs: Walkthrough[];
 }
 
 export interface Log {
+  _id?: string;
   walkthrough: string;
   data: {
     dataPoint: string;
@@ -70,11 +73,12 @@ export interface Log {
 }
 
 export interface User {
+  _id?: string;
   email: string;
   clerkId: string;
   firstName?: string;
   lastName?: string;
-  assignedWalkthroughs?: Walkthrough[];
+  assignedWalkthroughs: Walkthrough[];
   department: Department;
   admin?: boolean;
   type?: Theme;

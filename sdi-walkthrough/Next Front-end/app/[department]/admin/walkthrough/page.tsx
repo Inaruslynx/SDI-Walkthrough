@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useRef, useState, use } from "react";
-import { toast } from "react-toastify";
+// import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import WalkthroughRenderer from "./WalkthroughRenderer";
@@ -8,7 +8,7 @@ import { findArea, getWalkthrough, getWalkthroughs } from "@/lib/api";
 import Modal from "./modal";
 import Button from "./button";
 import SelectWalkthrough from "@/components/ui/selectWalkthrough";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import {
   Walkthroughs,
   Area,
@@ -27,7 +27,7 @@ import {
   useDeleteWalkthrough,
   useRenameWalkthrough,
   useSavePeriodicity,
-} from "./mutation";
+} from "./mutations";
 
 const periodicityValues = Object.values(PeriodicityOptions);
 const weeklyValues = Object.values(WeeklyOptions);
@@ -72,7 +72,7 @@ export default function WalkthroughPage(props: {
   const periodicitySelectRef = useRef<HTMLSelectElement>(null);
 
   // Fetch all walkthroughs for department
-  const walkthroughs = useQuery<AxiosResponse<Walkthroughs>, Error>({
+  const walkthroughs = useQuery<AxiosResponse<Walkthroughs[]>, Error>({
     queryKey: ["walkthrough", { department: params.department }],
     queryFn: () => getWalkthroughs(params.department),
     staleTime: 1000 * 60 * 5,
@@ -346,7 +346,7 @@ export default function WalkthroughPage(props: {
           <SelectWalkthrough
             className="align-end m-2"
             selectedWalkthrough={selectedWalkthrough}
-            walkthroughs={walkthroughs.data?.data?.walkthroughs}
+            walkthroughs={walkthroughs.data?.data}
             onChange={setSelectedWalkthrough}
           />
           {selectedWalkthrough &&

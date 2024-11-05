@@ -1,17 +1,31 @@
 import { User } from "@/types";
 
-export default function UserCard({ user }: { user: User }) {
+type UserCardProps = {
+  user: User;
+  isSelected: boolean;
+  onSelectUser: (user: User, isChecked: boolean) => void;
+}
+
+export default function UserCard({ user, isSelected, onSelectUser }: UserCardProps) {
   return (
     <div
       key={user.clerkId}
-      className="card bg-neutral text-neutral-content w-11/12 shadow-xl m-4"
+      className="card bg-neutral text-neutral-content w-full shadow-xl m-4"
     >
-      <div className="card-body !flex-grow !w-full">
-        <div className="grid grid-rows-1 grid-flow-col gap-4 items-baseline">
-          <input type="checkbox" className="checkbox" name="" id="" />
+      <div className="card-body w-full">
+        <div className="grid grid-cols-6 gap-x-4 justify-between items-baseline">
+          <input
+            type="checkbox"
+            className="checkbox"
+            name=""
+            id={user.clerkId}
+            checked={isSelected}
+            onChange={(e) => onSelectUser(user, e.target.checked)}
+          />
           <h3 className="whitespace-nowrap">
-            {user.firstName} {user.lastName}
+            {user.firstName}
           </h3>
+          <h3 className="whitespace-nowrap">{user.lastName}</h3>
           <h3 className="whitespace-nowrap">
             {user.department?.name || "No department"}
           </h3>
