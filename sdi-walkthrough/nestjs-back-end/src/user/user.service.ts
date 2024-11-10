@@ -20,9 +20,9 @@ export class UserService {
       throw new BadRequestException('Missing ClerkId.');
     }
     const newUser = new this.userModel(createUserDto);
-    console.log('newUser:', newUser);
+    // console.log('newUser:', newUser);
     const result = await newUser.save();
-    console.log('result:', result);
+    // console.log('result:', result);
     if (result.errors) {
       throw new InternalServerErrorException(
         'Failed to create user: ' + result.errors,
@@ -32,7 +32,9 @@ export class UserService {
   }
 
   async findAll() {
-    const result = await this.userModel.find();
+    const result = await this.userModel
+      .find()
+      .populate('assignedWalkthroughs department');
     return result;
   }
 
@@ -48,21 +50,28 @@ export class UserService {
   }
 
   async update(id: string, updateUserDto: UpdateUserDto) {
-    console.log(updateUserDto);
+    // console.log(updateUserDto);
     if (!id) {
       throw new BadRequestException('Missing id.');
     }
-    const userDoc = await this.userModel.findOne({ clerkId: id });
-    console.log(userDoc);
+    const userDoc = await this.userModel.findOne({
+      clerkId: updateUserDto.clerkId,
+    });
+    // console.log('userDoc:', userDoc);
     if (userDoc) {
-      console.log('updating an existing user');
+      // console.log('updating an existing user');
+
       const userDoc = {
         ...updateUserDto,
       };
-      const result = await this.userModel.updateOne({ clerkId: id }, userDoc);
+      // console.log('updated userDoc:', userDoc);
+      const result = await this.userModel.updateOne(
+        { clerkId: updateUserDto.clerkId },
+        userDoc,
+      );
       return result;
     } else {
-      console.log('creating a new user');
+      // console.log('creating a new user');
       const userData = {
         ...updateUserDto,
         admin: false,
@@ -70,7 +79,7 @@ export class UserService {
       };
       const newUser = new this.userModel(userData);
       const result = await newUser.save();
-      console.log(result);
+      // console.log(result);
       return result;
     }
   }

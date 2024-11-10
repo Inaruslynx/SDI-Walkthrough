@@ -9,21 +9,17 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import WalkthroughRenderer from "./WalkthroughRenderer";
 import WalkthroughScrollSpy from "@/components/ui/WalkthroughScrollSpy";
 
-export default function WalkthroughPage(
-  props: {
-    params: Promise<{ department: string }>;
-  }
-) {
-  const params = use(props.params);
-  const [selectedWalkthrough, setSelectedWalkthrough] = useState(
-    "Select a Walkthrough"
-  );
+export default function WalkthroughPage(props: {
+  params: Promise<{ department: string }>;
+}) {
+  const { department } = use(props.params);
+  const [selectedWalkthrough, setSelectedWalkthrough] = useState("");
   const [walkthroughData, setWalkthroughData] = useState<Area[]>([]);
   const [loadedLog, setLoadedLog] = useState(""); // holds log ID if user loaded prev log
 
   const walkthroughs = useQuery<AxiosResponse<Walkthroughs>, Error>({
-    queryKey: ["walkthrough", { department: params.department }],
-    queryFn: () => getWalkthroughs(params.department),
+    queryKey: ["walkthrough", { department: department }],
+    queryFn: () => getWalkthroughs(department),
     staleTime: 1000 * 60 * 60, // ms s min
   });
 
@@ -38,7 +34,7 @@ export default function WalkthroughPage(
   });
 
   const masterGetWalkthrough = async (
-    walkthroughId: string
+    walkthroughId: string,
   ): Promise<Area[]> => {
     const response = await getWalkthrough(walkthroughId);
     // console.log("response:", response.data.data);
@@ -64,7 +60,7 @@ export default function WalkthroughPage(
         }
 
         return areaData;
-      })
+      }),
     );
 
     // Filter out any null values
@@ -80,12 +76,14 @@ export default function WalkthroughPage(
   return (
     <div className="px-8 pb-4">
       <div className="row m-4 p-4 relative justify-center prose md:prose-lg max-w-full container">
-        <h1 className="text-center">{params.department} Walkthrough</h1>
+        <h1 className="text-center">{department} Walkthrough</h1>
       </div>
       <SelectWalkthrough
-        selectedWalkthrough={selectedWalkthrough}
-        walkthroughs={walkthroughs.data?.data?.walkthroughs}
+        text={"Select a Walkthrough"}
+        department={department}
+        value={selectedWalkthrough}
         onChange={setSelectedWalkthrough}
+        className={"select-bordered"}
       />
       {/* 
       TODO 

@@ -12,13 +12,13 @@ export default function WalkthroughScrollSpy({
   const renderArea = (area: Area) => (
     <>
       <li>
-        <div className="" data-to-scrollspy-id={area._id}>
-          <NavLink scrollSpy href={`#${area._id}`}>
+        <div key={area._id} className="">
+          <NavLink scrollSpy id={area._id} href={`#${area._id}`}>
             {area.name}
           </NavLink>
         </div>
         {area.areas && area.areas.length > 0 && (
-          <ul className="ml-4">
+          <ul key={area._id} className="ml-4">
             {area.areas.map((subArea) => renderArea(subArea))}
           </ul>
         )}

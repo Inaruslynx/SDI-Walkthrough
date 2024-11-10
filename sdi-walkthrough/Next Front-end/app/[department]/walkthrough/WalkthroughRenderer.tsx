@@ -34,7 +34,7 @@ const WalkthroughRenderer: React.FC<WalkthroughRendererProps> = ({
     },
     onError: (e) => {
       toast.error(`Failed to enter Log. ${e}`);
-    }
+    },
   });
 
   const updateLogMutation = useMutation({
@@ -45,11 +45,11 @@ const WalkthroughRenderer: React.FC<WalkthroughRendererProps> = ({
     },
     onError: (e) => {
       toast.error(`Failed to update Log. ${e}`);
-    }
+    },
   });
 
   const onSubmit = async (
-    formData: Record<string, string | number | boolean>
+    formData: Record<string, string | number | boolean>,
   ) => {
     // Map formData to the expected structure for Log.data
     const mappedData = Object.entries(formData).map(([dataPoint, value]) => ({
@@ -92,15 +92,15 @@ const WalkthroughRenderer: React.FC<WalkthroughRendererProps> = ({
                   key={index}
                   className="p-2 mt-4 text-center scroll-m-32 prose md:prose-lg"
                 >
-                  <h1>{area.name}</h1>
+                  <h1 data-to-scrollspy-id={area._id}>{area.name}</h1>
                 </div>
                 <div className="flex flex-col container w-full m-4 items-center text-center">
                   {area.areas && area.areas.length > 0 && (
-                    <SubArea data={area.areas} border />
+                    <SubArea key={area._id} data={area.areas} border />
                   )}
                 </div>
                 {area.dataPoints && area.dataPoints.length > 0 && (
-                  <DataPointElement data={area.dataPoints} />
+                  <DataPointElement key={area._id} data={area.dataPoints} />
                 )}
               </React.Fragment>
             ))}

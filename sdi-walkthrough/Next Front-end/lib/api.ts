@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios, { AxiosResponse } from "axios";
 import {
   Walkthrough,
   Walkthroughs,
@@ -15,12 +15,32 @@ const api = axios.create({
   timeout: 5000,
 });
 
-export async function getDepartmentData() {
+// Department CRUD
+
+// Find all
+export async function getAllDepartments() {
   // console.log("Fetching departments.");
   const response = await api.get<Department[]>(`departments`);
   // console.log("received data:", response.data);
   // console.log("Finished fetching departments data.");
   return response;
+}
+
+// Find one
+export async function getOneDepartment(id?: string, name?: string) {
+  let response: AxiosResponse<Department, any>;
+  if (id) {
+    response = await api.get<Department>(`departments/`, {
+      params: id,
+    });
+    return response;
+  }
+  if (name) {
+    response = await api.get<Department>(`departments/`, {
+      params: name,
+    });
+    return response;
+  }
 }
 
 // Walkthrough CRUD
@@ -37,7 +57,7 @@ export async function createWalkthrough(name: string, department: string) {
     },
     {
       withCredentials: true,
-    }
+    },
   );
   return response;
 }
@@ -66,6 +86,11 @@ export async function getWalkthrough(id: string) {
   // if (!name || name === "Select a Walkthrough") {
   //   return null;
   // }
+  // const response = await api.get<Walkthrough>("walkthrough", {
+  //   params: {
+  //     id: id,
+  //   },
+  // });
   const response = await api.get<Walkthrough>(`walkthrough/${id}`);
   // console.log(response.data);
   return response;
@@ -77,7 +102,7 @@ export async function updateWalkthrough(
   name?: string,
   periodicity?: string,
   weekly?: string,
-  perSwing?: string
+  perSwing?: string,
 ) {
   const payload: any = {};
 
@@ -135,7 +160,7 @@ export async function updateArea(areaPackage: Area) {
     areaPackage,
     {
       withCredentials: true,
-    }
+    },
   );
   return response;
 }
@@ -180,7 +205,7 @@ export async function updateDataPoint(dataPoint: DataPoint) {
     dataPoint,
     {
       withCredentials: true,
-    }
+    },
   );
   return response;
 }
@@ -201,7 +226,7 @@ export async function createLog(data: Log) {
     { data },
     {
       withCredentials: true,
-    }
+    },
   );
   return response;
 }
@@ -210,7 +235,7 @@ export async function createLog(data: Log) {
 export async function findAllLogs(
   walkthrough: string,
   fromDate?: Date,
-  toDate?: Date
+  toDate?: Date,
 ) {
   const response = await api.get("log", {
     params: {
@@ -235,7 +260,7 @@ export async function updateLog(id: string, data: Log) {
     { data },
     {
       withCredentials: true,
-    }
+    },
   );
   return response;
 }
@@ -275,13 +300,9 @@ export async function findUser(id: string) {
 
 // Update
 export async function updateUser(id: string, data: User) {
-  const response = await api.patch<User>(
-    `user/${id}`,
-    data,
-    {
-      withCredentials: true,
-    }
-  );
+  const response = await api.patch<User>(`user/${id}`, data, {
+    withCredentials: true,
+  });
   return response;
 }
 

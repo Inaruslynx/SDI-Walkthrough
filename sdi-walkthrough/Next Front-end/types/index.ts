@@ -49,7 +49,7 @@ export interface Walkthrough {
   periodicity?: PeriodicityOptions;
   weekly?: WeeklyOptions;
   perSwing?: PerSwingOptions;
-  department: string;
+  department: string | Department;
   data: Array<Area>;
 }
 
@@ -78,8 +78,8 @@ export interface User {
   clerkId: string;
   firstName?: string;
   lastName?: string;
-  assignedWalkthroughs: Walkthrough[];
-  department: Department;
+  assignedWalkthroughs: Walkthrough[] | string[];
+  department: Department | string;
   admin?: boolean;
   type?: Theme;
 }

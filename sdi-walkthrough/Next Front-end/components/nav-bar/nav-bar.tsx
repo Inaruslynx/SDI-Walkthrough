@@ -11,7 +11,7 @@ import {
 import NavLink from "./nav-link";
 import NavDropdown from "./nav-dropdown";
 import ThemeSelector from "./theme-selector/theme-selector";
-import { findUser, getDepartmentData } from "@/lib/api";
+import { findUser, getAllDepartments } from "@/lib/api";
 import { useQuery } from "@tanstack/react-query";
 import { Department } from "@/types";
 import { AxiosResponse } from "axios";
@@ -22,7 +22,7 @@ export default function NavBar() {
   const { user } = useUser();
   const departments = useQuery<AxiosResponse<Department[]>, Error>({
     queryKey: ["departments"],
-    queryFn: getDepartmentData,
+    queryFn: getAllDepartments,
     staleTime: 1000 * 60 * 5, // ms * s * m
   });
 

@@ -27,7 +27,14 @@ export class DepartmentsController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.departmentsService.findOne(id);
+    const isId = /^[0-9a-fA-F-]+$/.test(id);
+
+    if (isId) {
+      return this.departmentsService.findById(id); // Implement findById in your service
+    } else {
+      return this.departmentsService.findByName(id); // Implement findByName in your service
+    }
+    // return this.departmentsService.findOne(id);
   }
 
   @Patch(':id')

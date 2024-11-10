@@ -1,14 +1,69 @@
 import React, { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { User, Department, Walkthrough } from "@/types";
-import { updateUserMutation } from "./mutations";
-import { getDepartmentData, getWalkthroughs } from "@/lib/api";
+import { Department, User } from "@/types";
+import { useUpdateUserMutation } from "./mutations";
+import { getAllDepartments } from "@/lib/api";
 import { AxiosResponse } from "axios";
+import SelectWalkthrough from "@/components/ui/selectWalkthrough";
 
 type UserActionsProps = {
   selectedUsers: User[];
   onClearSelection: () => void;
 };
+
+type WalkthroughCount = {
+  walkthrough: string;
+  count: number;
+  name: string;
+};
+
+function allHaveSameProperty<T>(
+  array: T[],
+  keyPath: (keyof T | string)[],
+): boolean {
+  if (array.length === 0) return true;
+
+  // Helper function to get the nested property value
+  const getValue = (obj: any, path: (keyof T | string)[]) => {
+    return path.reduce((value, key) => (value ? value[key] : undefined), obj);
+  };
+
+  const firstValue = getValue(array[0], keyPath);
+
+  return array.every((item) => getValue(item, keyPath) === firstValue);
+}
+
+function getDepartment(users: User[]): string {
+  if (!users[0].department) return "";
+  return typeof users[0].department === "string"
+    ? users[0].department
+    : users[0].department._id;
+}
+
+function countWalkthroughs(users: User[]): WalkthroughCount[] {
+  const countMap: Record<string, { name: string; count: number }> = {};
+
+  users.forEach((user) => {
+    user.assignedWalkthroughs?.forEach((walkthrough) => {
+      const id =
+        typeof walkthrough === "string" ? walkthrough : walkthrough._id;
+      const name = typeof walkthrough === "string" ? "" : walkthrough.name;
+      if (id) {
+        if (!countMap[id]) {
+          countMap[id] = { name, count: 1 };
+        } else {
+          countMap[id].count += 1;
+        }
+      }
+    });
+  });
+
+  return Object.entries(countMap).map(([walkthrough, { name, count }]) => ({
+    walkthrough,
+    name,
+    count,
+  }));
+}
 
 export default function UserActions({
   selectedUsers,
@@ -17,47 +72,91 @@ export default function UserActions({
   const [assignDepartment, setAssignDepartment] = useState("");
   const [assignWalkthrough, setAssignWalkthrough] = useState("");
   const [removeWalkthrough, setRemoveWalkthrough] = useState("");
+  const [usersDepartment, setUsersDepartment] = useState("");
   const [isAssignWalkthroughValid, setIsAssignWalkthroughValid] =
     useState(true);
-  const [isRemoveWalkthroughValid, setIsRemoveWalkthroughValid] =
-    useState(true);
+  const [validRemoveWalkthroughs, setValidRemoveWalkthroughs] =
+    useState<{ _id: string; name: string }[]>();
 
   const departments = useQuery<AxiosResponse<Department[]>, Error>({
     queryKey: ["departments"],
-    queryFn: getDepartmentData,
+    queryFn: getAllDepartments,
     staleTime: 1000 * 60 * 5, // ms * s * m
   });
 
-  const walkthroughs = useQuery<AxiosResponse<Walkthrough[]>, Error>({
-    queryKey: ["walkthrough"],
-    queryFn: () => getWalkthroughs(),
-    staleTime: 1000 * 60 * 60, // ms s min
-  });
-
-  const useUpdateUserMutation = updateUserMutation;
+  const handleUpdateUserMutation = useUpdateUserMutation();
 
   const handleUpdateUsers = () => {
-    const updatedUsers: User[] = selectedUsers;
+    if (selectedUsers.length === 0) return;
+    let updatedUsers: User[] = [];
+
     if (assignDepartment !== "") {
       // Modify users by forEach
+      selectedUsers.forEach((user) => {
+        user.department = assignDepartment;
+        // console.log(user);
+        updatedUsers.push(user);
+      });
+      setAssignDepartment("");
     }
+
     if (assignWalkthrough !== "") {
       // Modify users by forEach
+
+      selectedUsers.forEach((user) => {
+        console.log("user:", user);
+        if (!user.assignedWalkthroughs.includes(assignWalkthrough)) {
+          user.assignedWalkthroughs.push(assignWalkthrough);
+        }
+        updatedUsers.push(user);
+      });
+      setAssignWalkthrough("");
     }
+
     if (removeWalkthrough !== "") {
       // Modify users by forEach
+      selectedUsers.forEach((user) => {
+        user.assignedWalkthroughs = user.assignedWalkthroughs.filter(
+          (walkthrough) => walkthrough._id !== removeWalkthrough,
+        );
+        updatedUsers.push(user);
+      });
+      setRemoveWalkthrough("");
     }
     // send updated users
+    if (updatedUsers.length === 0) return;
+    console.log("updateUsers:", updatedUsers);
     updatedUsers.forEach((user) => {
-      useUpdateUserMutation.mutate(user);
+      handleUpdateUserMutation.mutateAsync(user);
     });
   };
 
+  // useEffect(() => {
+  //   if (walkthroughs.isSuccess) {
+  //     console.log(walkthroughs.data.data);
+  //   }
+  // }, [walkthroughs.data]);
+
   useEffect(() => {
-    if (walkthroughs.isSuccess) {
-      console.log(walkthroughs.data.data);
+    if (selectedUsers.length === 0) return;
+    console.log("selectedUsers:", selectedUsers);
+    const walkthroughs = countWalkthroughs(selectedUsers);
+
+    // Filter walkthroughs where count matches the number of selectedUsers and keep name
+    const validWalkthroughs = walkthroughs
+      .filter((w) => w.count === selectedUsers.length)
+      .map((w) => ({ _id: w.walkthrough, name: w.name }));
+
+    setValidRemoveWalkthroughs(validWalkthroughs);
+
+    if (allHaveSameProperty(selectedUsers, ["department", "name"])) {
+      setIsAssignWalkthroughValid(true);
+      setUsersDepartment(getDepartment(selectedUsers));
+    } else {
+      setIsAssignWalkthroughValid(false);
+      setUsersDepartment("");
     }
-  }, [walkthroughs.data]);
+  }, [selectedUsers]);
 
   return (
     <>
@@ -83,19 +182,19 @@ export default function UserActions({
                 ))}
             </select>
             <label className="form-control text-accent-content m-2">
-              <select
-                name="assignWalkthroughSelector"
-                id="assignWalkthroughSelector"
-                className={`select select-ghost text-accent-content ${!isAssignWalkthroughValid ? "select-error" : ""}`}
-              >
-                <option value="" disabled hidden>
-                  Assign Walkthrough
-                </option>
-              </select>
+              <SelectWalkthrough
+                text={"Assign Walkthrough"}
+                department={
+                  usersDepartment !== "" ? usersDepartment : undefined
+                }
+                value={assignWalkthrough}
+                onChange={setAssignWalkthrough}
+                className={`select-ghost text-accent-content ${!isAssignWalkthroughValid ? "select-error" : ""}`}
+              />
               {!isAssignWalkthroughValid ? (
                 <div className="label">
                   <span className="label-text-alt text-accent-content">
-                    Not all of the users are in the same Department
+                    Not all the users are in the same Department
                   </span>
                 </div>
               ) : null}
@@ -104,15 +203,29 @@ export default function UserActions({
               <select
                 name="removeWalkthroughSelector"
                 id="removeWalkthroughSelector"
+                value={removeWalkthrough}
+                onChange={(e) => setRemoveWalkthrough(e.target.value)}
                 className={`select select-ghost text-accent-content ${
-                  !isRemoveWalkthroughValid ? "select-error" : ""
+                  selectedUsers.length > 0 &&
+                  validRemoveWalkthroughs?.length === 0
+                    ? "select-error"
+                    : ""
                 }`}
               >
                 <option value="" disabled hidden>
                   Remove Walkthrough
                 </option>
+                {selectedUsers.length > 0 &&
+                  validRemoveWalkthroughs &&
+                  validRemoveWalkthroughs?.length !== 0 &&
+                  validRemoveWalkthroughs.map((walkthrough) => (
+                    <option key={walkthrough._id} value={walkthrough._id}>
+                      {walkthrough.name}
+                    </option>
+                  ))}
               </select>
-              {!isRemoveWalkthroughValid ? (
+              {selectedUsers.length > 0 &&
+              validRemoveWalkthroughs?.length === 0 ? (
                 <div className="label">
                   <span className="label-text-alt text-accent-content">
                     Not all the users have the selected Walkthrough

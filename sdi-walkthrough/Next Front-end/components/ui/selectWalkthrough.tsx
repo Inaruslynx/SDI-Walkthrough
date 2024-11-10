@@ -1,51 +1,94 @@
-import { Walkthrough } from "@/types";
-import { useEffect } from "react";
+import { Walkthrough, Department } from "@/types";
+import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { AxiosResponse } from "axios";
+import { getWalkthroughs, getAllDepartments } from "@/lib/api";
+import React from "react";
 
 export default function SelectWalkthrough({
-  walkthroughs,
-  selectedWalkthrough = "",
+  text,
+  department,
+  value,
   onChange,
   className,
 }: {
-  walkthroughs?: Walkthrough[];
-  selectedWalkthrough: string;
+  text: string;
+  department?: string;
+  value: string;
   onChange: (walkthrough: string) => void;
   className?: string;
 }) {
-  // useEffect(() => {
-  //   if (!Array.isArray(walkthroughs)) return;
-  //   if (
-  //     selectedWalkthrough === "Select a Walkthrough" ||
-  //     selectedWalkthrough === ""
-  //   )
-  //     return;
-  //   walkthroughs.forEach((element) => {
-  //     if (element.name === selectedWalkthrough) {
-  //       onChange(selectedWalkthrough);
-  //     }
-  //   });
-  // }, [selectedWalkthrough, onChange, walkthroughs]);
+  const [departmentUsed, setDepartmentUsed] = useState(false);
 
   useEffect(() => {
-    console.log("walkthroughs:", walkthroughs);
+    if (department) {
+      console.log("department:", department);
+      setDepartmentUsed(true);
+    } else {
+      console.log("No department");
+      setDepartmentUsed(false);
+    }
+  }, [department]);
+
+  // Fetch all walkthroughs
+  const walkthroughs = useQuery<AxiosResponse<Walkthrough[]>, Error>({
+    queryKey: ["walkthrough", { department }],
+    queryFn: () => getWalkthroughs(department),
+    staleTime: 1000 * 60 * 5,
+    enabled: departmentUsed,
+  });
+
+  // Get walkthroughs via departments
+  const departments = useQuery<AxiosResponse<Department[]>, Error>({
+    queryKey: ["departments"],
+    queryFn: () => getAllDepartments(),
+    staleTime: 1000 * 60 * 5,
+    enabled: !departmentUsed,
+  });
+
+  useEffect(() => {
+    if (walkthroughs.isSuccess) {
+      console.log("walkthroughs:", walkthroughs.data?.data);
+    }
   }, [walkthroughs]);
+
+  // useEffect(() => {
+  //   if (departments.isSuccess) {
+  //     console.log(departments.data.data);
+  //   }
+  // }, [departments]);
 
   return (
     <select
-      className={`select select-bordered ${className || ""}`}
-      defaultValue="Select a Walkthrough"
+      className={`select ${className || ""}`}
+      value={value}
       onChange={(event) => onChange(event.target.value)}
     >
-      <option disabled value="Select a Walkthrough">
-        Select a Walkthrough
+      <option disabled value="">
+        {text}
       </option>
-      {Array.isArray(walkthroughs)
-        ? walkthroughs.map((item) => (
+      {departmentUsed
+        ? walkthroughs.isSuccess &&
+          Array.isArray(walkthroughs.data?.data) &&
+          walkthroughs.data.data.map((item) => (
             <option key={item._id} value={item._id}>
               {item.name}
             </option>
           ))
-        : null}
+        : departments.isSuccess &&
+          Array.isArray(departments.data?.data) &&
+          departments.data.data.map((department) => (
+            <React.Fragment key={department._id}>
+              <option disabled key={department._id} value={department._id}>
+                ----{department.name}----
+              </option>
+              {department.walkthroughs.map((walkthrough) => (
+                <option key={walkthrough._id} value={walkthrough._id}>
+                  {walkthrough.name}
+                </option>
+              ))}
+            </React.Fragment>
+          ))}
     </select>
   );
 }

@@ -11,6 +11,7 @@ export default function Home() {
           </p>
           <h3>TODO List:</h3>
           <ul className="px-6">
+            <li>Fix all of the Walkthrough requests.</li>
             <li>
               <s>Use Nest.js Back-end for data.</s>
             </li>

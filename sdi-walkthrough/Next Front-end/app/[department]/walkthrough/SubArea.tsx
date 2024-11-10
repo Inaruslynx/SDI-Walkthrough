@@ -17,7 +17,11 @@ const SubArea: React.FC<SubAreaProps> = ({ data, border }) => {
           <div
             className={`text-2xl font-bold m-4 ${!border ? "underline" : ""}`}
           >
-            <div id={area._id} className="m-4 scroll-m-32">
+            <div
+              data-to-scrollspy-id={area._id}
+              id={area._id}
+              className="m-4 scroll-m-32"
+            >
               {area.name}
             </div>
           </div>

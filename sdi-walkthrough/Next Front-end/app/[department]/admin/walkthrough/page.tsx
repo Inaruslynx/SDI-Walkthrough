@@ -4,7 +4,13 @@ import React, { useEffect, useRef, useState, use } from "react";
 import "react-toastify/dist/ReactToastify.css";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import WalkthroughRenderer from "./WalkthroughRenderer";
-import { findArea, getWalkthrough, getWalkthroughs } from "@/lib/api";
+import {
+  findArea,
+  getAllDepartments,
+  getOneDepartment,
+  getWalkthrough,
+  getWalkthroughs,
+} from "@/lib/api";
 import Modal from "./modal";
 import Button from "./button";
 import SelectWalkthrough from "@/components/ui/selectWalkthrough";
@@ -38,7 +44,14 @@ function usePeriodicityState() {
   const [selectedWeekly, setSelectedWeekly] = useState<WeeklyOptionsType>();
   const [selectedPerSwing, setSelectedPerSwing] =
     useState<PerSwingOptionsType>();
-  return {selectedPerSwing, selectedWeekly, selectedPeriodicity, setSelectedPerSwing, setSelectedWeekly, setSelectedPeriodicity};
+  return {
+    selectedPerSwing,
+    selectedWeekly,
+    selectedPeriodicity,
+    setSelectedPerSwing,
+    setSelectedWeekly,
+    setSelectedPeriodicity,
+  };
 }
 
 export default function WalkthroughPage(props: {
@@ -46,11 +59,16 @@ export default function WalkthroughPage(props: {
 }) {
   const params = use(props.params);
   // const queryClient = useQueryClient();
-  const [selectedWalkthrough, setSelectedWalkthrough] = useState(
-    "Select a Walkthrough"
-  );
+  const [selectedWalkthrough, setSelectedWalkthrough] = useState("");
   // const [selectedPeriodicity, setSelectedPeriodicity] = useState("");
-  const {selectedPerSwing, selectedWeekly, selectedPeriodicity, setSelectedPerSwing, setSelectedWeekly, setSelectedPeriodicity} = usePeriodicityState();
+  const {
+    selectedPerSwing,
+    selectedWeekly,
+    selectedPeriodicity,
+    setSelectedPerSwing,
+    setSelectedWeekly,
+    setSelectedPeriodicity,
+  } = usePeriodicityState();
   // const [selectedWeekly, setSelectedWeekly] = useState<WeeklyOptionsType>();
   // const [selectedPerSwing, setSelectedPerSwing] =
   //   useState<PerSwingOptionsType>();
@@ -71,11 +89,17 @@ export default function WalkthroughPage(props: {
   const renameWalkthroughModalRef = useRef<HTMLDialogElement>(null);
   const periodicitySelectRef = useRef<HTMLSelectElement>(null);
 
-  // Fetch all walkthroughs for department
-  const walkthroughs = useQuery<AxiosResponse<Walkthroughs[]>, Error>({
-    queryKey: ["walkthrough", { department: params.department }],
-    queryFn: () => getWalkthroughs(params.department),
-    staleTime: 1000 * 60 * 5,
+  // // Fetch all walkthroughs for department
+  // const walkthroughs = useQuery<AxiosResponse<Walkthroughs[]>, Error>({
+  //   queryKey: ["walkthrough", { department: params.department }],
+  //   queryFn: () => getWalkthroughs(params.department),
+  //   staleTime: 1000 * 60 * 5,
+  // });
+
+  // Fetch department info
+  const department = useQuery({
+    queryKey: ["departments", { name: params.department }],
+    queryFn: () => getOneDepartment(params.department),
   });
 
   // Fetch the selected Walkthrough
@@ -89,7 +113,7 @@ export default function WalkthroughPage(props: {
   });
 
   const masterGetWalkthrough = async (
-    walkthroughId: string
+    walkthroughId: string,
   ): Promise<Area[]> => {
     const response = await getWalkthrough(walkthroughId);
     // console.log("response:", response.data.data);
@@ -125,7 +149,7 @@ export default function WalkthroughPage(props: {
         }
 
         return areaData;
-      })
+      }),
     );
 
     // Filter out any null values
@@ -135,7 +159,7 @@ export default function WalkthroughPage(props: {
   // Create new walkthrough
   const handleCreateNewWalkthrough = useCreateWalkthrough(
     setSelectedWalkthrough,
-    setAreas
+    setAreas,
   );
 
   const handleRenameWalkthrough = useRenameWalkthrough(setSelectedWalkthrough);
@@ -227,7 +251,7 @@ export default function WalkthroughPage(props: {
   function recursiveDeleteUnsavedDataPoint(
     index: number,
     parentArea: Area,
-    target: string
+    target: string,
   ): Area[] {
     const result: Area[] = parentArea.areas.map((area: Area) => {
       if (area._id === target) {
@@ -236,7 +260,7 @@ export default function WalkthroughPage(props: {
           dataPoints: area.dataPoints.filter(
             (dataPoint: DataPoint, dataIndex: number) => {
               return dataPoint._id || dataIndex !== index;
-            }
+            },
           ),
         };
       }
@@ -275,7 +299,7 @@ export default function WalkthroughPage(props: {
           };
         }
         return area;
-      })
+      }),
     );
   };
 
@@ -344,9 +368,10 @@ export default function WalkthroughPage(props: {
             Create
           </Modal>
           <SelectWalkthrough
-            className="align-end m-2"
-            selectedWalkthrough={selectedWalkthrough}
-            walkthroughs={walkthroughs.data?.data}
+            text={"Select a Walkthrough"}
+            className="select-bordered align-end m-2"
+            value={selectedWalkthrough}
+            department={params.department}
             onChange={setSelectedWalkthrough}
           />
           {selectedWalkthrough &&

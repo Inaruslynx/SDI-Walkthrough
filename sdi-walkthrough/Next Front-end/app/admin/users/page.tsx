@@ -66,7 +66,9 @@ export default function UsersPage({
       if (isChecked) {
         return [...prev, user];
       } else {
-        return prev.filter((selectedUser) => selectedUser.clerkId !== user.clerkId);
+        return prev.filter(
+          (selectedUser) => selectedUser.clerkId !== user.clerkId,
+        );
       }
     });
   };
@@ -84,7 +86,7 @@ export default function UsersPage({
               : "none";
           return acc;
         },
-        {} as SortStatus
+        {} as SortStatus,
       );
       // console.log("prevStatus:", prevStatus);
       // console.log("newStatus:", newStatus);
@@ -130,31 +132,19 @@ export default function UsersPage({
   };
 
   useEffect(() => {
-    if (usersQuery.isSuccess && usersQuery.data) {
+    if (usersQuery.isSuccess && usersQuery.data && usersQuery.data.data) {
       // console.log(usersQuery.isSuccess);
       // console.log(usersQuery.data.data);
-      setUsers((prevUsers: User[]) => {
-        const newUsers = usersQuery.data!.data;
-        // Merge existing users with new users, ensuring no duplicates by user ID
-        const mergedUsers = [...prevUsers];
-        newUsers.forEach((newUser) => {
-          const existingUser = mergedUsers.find(
-            (user) => user.clerkId === newUser.clerkId
-          );
-          if (!existingUser) {
-            mergedUsers.push(newUser);
-          }
-        });
-        return mergedUsers;
-      });
+      // Directly set the users from the query data
+      setUsers(usersQuery.data.data);
     }
   }, [usersQuery.isSuccess, usersQuery.data]);
 
-  useEffect(() => {
-    if (users.length > 0) {
-      setFilteredUsers(users);
-    }
-  }, [users]);
+  // useEffect(() => {
+  //   if (users.length > 0) {
+  //     setFilteredUsers(users);
+  //   }
+  // }, [users]);
 
   return (
     <div className="mx-8 mb-4 p-8">
@@ -172,7 +162,10 @@ export default function UsersPage({
       </div>
 
       {selectedUsers.length > 0 && (
-        <UserActions selectedUsers={selectedUsers} onClearSelection={handleClearSelection} />
+        <UserActions
+          selectedUsers={selectedUsers}
+          onClearSelection={handleClearSelection}
+        />
       )}
 
       <SortBar
@@ -193,7 +186,7 @@ export default function UsersPage({
               key={user.clerkId}
               user={user}
               isSelected={selectedUsers.some(
-                (selectedUser) => selectedUser.clerkId === user.clerkId
+                (selectedUser) => selectedUser.clerkId === user.clerkId,
               )}
               onSelectUser={handleSelectUser}
             />

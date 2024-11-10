@@ -10,6 +10,7 @@ interface NavLinkProps {
   children: React.ReactNode;
   button?: boolean;
   scrollSpy?: boolean;
+  id?: string;
 }
 
 export default function NavLink({
@@ -17,13 +18,14 @@ export default function NavLink({
   children,
   button,
   scrollSpy,
+  id,
 }: NavLinkProps) {
   const path = usePathname();
 
   const onPress = (e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
     e.preventDefault();
     const target = window.document.getElementById(
-      e.currentTarget.href.split("#")[1]
+      e.currentTarget.href.split("#")[1],
     );
     if (target) {
       var headerOffset = 120;
@@ -51,7 +53,13 @@ export default function NavLink({
   }
   if (scrollSpy) {
     return (
-      <Link onClick={(e) => onPress(e)} href={href}>
+      <Link
+        className={""}
+        key={id + "1"}
+        data-to-scrollspy-id={id}
+        onClick={(e) => onPress(e)}
+        href={href}
+      >
         {children}
       </Link>
     );

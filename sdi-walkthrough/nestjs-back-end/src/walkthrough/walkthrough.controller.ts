@@ -29,7 +29,12 @@ export class WalkthroughController {
 
   @Get()
   find(@Query('department') department?: string) {
-    return this.walkthroughService.findAll(department);
+    const isId = /^[0-9a-fA-F-]+$/.test(department);
+    if (isId) {
+      return this.walkthroughService.findAllById(department);
+    } else {
+      return this.walkthroughService.findAllByName(department);
+    }
   }
 
   @Get(':id')
