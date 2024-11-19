@@ -12,14 +12,14 @@ import {
 import { AreaService } from './area.service';
 import { CreateAreaDto } from './dto/create-area.dto';
 import { UpdateAreaDto } from './dto/update-area.dto';
-import { ClerkAuthGuard } from 'src/auth/clerk-auth.guard';
+import { AdminOrgAuthGuard } from 'src/auth/admin-org-auth-guard.service';
 
 @Controller('area')
 export class AreaController {
   constructor(private readonly areaService: AreaService) {}
 
   @Post()
-  @UseGuards(ClerkAuthGuard)
+  @UseGuards(AdminOrgAuthGuard)
   create(@Body() createAreaDto: CreateAreaDto) {
     return this.areaService.create(createAreaDto);
   }
@@ -35,13 +35,13 @@ export class AreaController {
   }
 
   @Patch(':id')
-  @UseGuards(ClerkAuthGuard)
+  @UseGuards(AdminOrgAuthGuard)
   update(@Param('id') id: string, @Body() updateAreaDto: UpdateAreaDto) {
     return this.areaService.update(id, updateAreaDto);
   }
 
   @Delete(':id')
-  @UseGuards(ClerkAuthGuard)
+  @UseGuards(AdminOrgAuthGuard)
   remove(@Param('id') id: string) {
     return this.areaService.remove(id);
   }

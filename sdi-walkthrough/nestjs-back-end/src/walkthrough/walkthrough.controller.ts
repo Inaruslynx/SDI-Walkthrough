@@ -14,14 +14,14 @@ import {
 import { WalkthroughService } from './walkthrough.service';
 import { CreateWalkthroughDto } from './dto/create-walkthrough.dto';
 import { UpdateWalkthroughDto } from './dto/update-walkthrough.dto';
-import { ClerkAuthGuard } from 'src/auth/clerk-auth.guard';
+import { AdminOrgAuthGuard } from 'src/auth/admin-org-auth-guard.service';
 
 @Controller('walkthrough')
 export class WalkthroughController {
   constructor(private readonly walkthroughService: WalkthroughService) {}
 
   @Post()
-  @UseGuards(ClerkAuthGuard)
+  @UseGuards(AdminOrgAuthGuard)
   @HttpCode(HttpStatus.CREATED)
   create(@Body() createWalkthroughDto: CreateWalkthroughDto) {
     return this.walkthroughService.create(createWalkthroughDto);
@@ -43,7 +43,7 @@ export class WalkthroughController {
   }
 
   @Patch(':id')
-  @UseGuards(ClerkAuthGuard)
+  @UseGuards(AdminOrgAuthGuard)
   update(
     @Param('id') id: string,
     @Body() updateWalkthroughDto: UpdateWalkthroughDto,
@@ -52,7 +52,7 @@ export class WalkthroughController {
   }
 
   @Delete(':id')
-  @UseGuards(ClerkAuthGuard)
+  @UseGuards(AdminOrgAuthGuard)
   remove(@Param('id') id: string) {
     return this.walkthroughService.remove(id);
   }

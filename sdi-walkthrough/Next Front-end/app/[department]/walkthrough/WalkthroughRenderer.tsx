@@ -94,13 +94,29 @@ const WalkthroughRenderer: React.FC<WalkthroughRendererProps> = ({
                 >
                   <h1 data-to-scrollspy-id={area._id}>{area.name}</h1>
                 </div>
-                <div className="flex flex-col container w-full m-4 items-center text-center">
-                  {area.areas && area.areas.length > 0 && (
-                    <SubArea key={area._id} data={area.areas} border />
-                  )}
-                </div>
-                {area.dataPoints && area.dataPoints.length > 0 && (
-                  <DataPointElement key={area._id} data={area.dataPoints} />
+                {area.areas && area.areas.length > 0 ? (
+                  <React.Fragment key={area._id + "f"}>
+                    <div className="flex flex-col container w-full m-4 items-center text-center">
+                      <SubArea key={area._id + "a"} data={area.areas} border />
+                    </div>
+                    {area.dataPoints && area.dataPoints.length > 0 && (
+                      <DataPointElement
+                        key={area._id + "1"}
+                        data={area.dataPoints}
+                      />
+                    )}
+                  </React.Fragment>
+                ) : (
+                  <React.Fragment>
+                    {area.dataPoints && area.dataPoints.length > 0 && (
+                      <div className="flex flex-col container w-full m-4 items-center text-center">
+                        <DataPointElement
+                          key={area._id + "1"}
+                          data={area.dataPoints}
+                        />
+                      </div>
+                    )}
+                  </React.Fragment>
                 )}
               </React.Fragment>
             ))}

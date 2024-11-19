@@ -1,6 +1,5 @@
 "use client";
 import type { DataPoint } from "@/types";
-// import { max } from "date-fns";
 import { ReactNode, useEffect, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { DevTool } from "@hookform/devtools";
@@ -12,6 +11,7 @@ import IconSave from "@/components/ui/icons/save";
 import IconDelete from "@/components/ui/icons/delete";
 import IconEdit from "@/components/ui/icons/edit";
 import { createDataPoint, updateDataPoint, deleteDataPoint } from "@/lib/api";
+import { useOrganization } from "@clerk/nextjs";
 
 const dataPointSchema = z.object({
   text: z.string().min(1, "Text is required"),
@@ -19,6 +19,7 @@ const dataPointSchema = z.object({
     z.literal("number"),
     z.literal("string"),
     z.literal("boolean"),
+    z.literal("choice"),
   ]),
   unit: z.string().optional(),
   min: z.number().optional(),
@@ -26,12 +27,12 @@ const dataPointSchema = z.object({
   choices: z.string().array().optional(),
 });
 
-interface FromValues {
+interface FormValues {
   text: string;
-  type: "number" | "string" | "boolean";
+  type: "number" | "string" | "boolean" | "choice";
   unit?: string;
-  min?: number | null;
-  max?: number | null;
+  min?: number;
+  max?: number;
   choices: string[] | string;
 }
 
@@ -81,6 +82,7 @@ export default function WalkthroughDataCard({
     name: "type",
     defaultValue: dataPoint?.type || "number",
   });
+  const { organization } = useOrganization();
 
   const initialFormValues = {
     text: dataPoint?.text || "New Data Point",
@@ -102,7 +104,7 @@ export default function WalkthroughDataCard({
   };
 
   const createDataPointMutation = useMutation({
-    mutationFn: createDataPoint,
+    mutationFn: (data: DataPoint) => createDataPoint(data, organization!.id),
     onSuccess: () => {
       toast.success("Successfully created Data Point.");
       queryClient.invalidateQueries({
@@ -115,7 +117,7 @@ export default function WalkthroughDataCard({
   });
 
   const updateDataPointMutation = useMutation({
-    mutationFn: updateDataPoint,
+    mutationFn: (data: DataPoint) => updateDataPoint(data, organization!.id),
     onSuccess: () => {
       toast.success("Successfully updated Data Point.");
       queryClient.invalidateQueries({
@@ -128,7 +130,7 @@ export default function WalkthroughDataCard({
   });
 
   const deleteDataPointMutation = useMutation({
-    mutationFn: deleteDataPoint,
+    mutationFn: (id: string) => deleteDataPoint(id, organization!.id),
     onSuccess: () => {
       toast.success("Successfully deleted Data Point.");
       queryClient.invalidateQueries({
@@ -140,7 +142,7 @@ export default function WalkthroughDataCard({
     },
   });
 
-  const handleSaveClick = async (formData: FromValues) => {
+  const handleSaveClick = async (formData: FormValues) => {
     const dataPointPackage: DataPoint = {
       _id: _id,
       text: formData.text,
@@ -154,6 +156,7 @@ export default function WalkthroughDataCard({
         ? formData.choices
         : [formData.choices],
     };
+
     try {
       if (dataPoint.isNew) {
         await createDataPointMutation.mutateAsync(dataPointPackage);
@@ -171,7 +174,7 @@ export default function WalkthroughDataCard({
       if (dataPoint._id) {
         await deleteDataPointMutation.mutateAsync(dataPoint._id);
       } else {
-       onDeleteClick();
+        onDeleteClick();
       }
     } catch (e) {
       console.log("Error deleting data point:", e);
@@ -202,7 +205,7 @@ export default function WalkthroughDataCard({
       ? currentChoices
       : [currentChoices];
     const updatedChoices = currentChoicesArray.filter(
-      (choice) => choice !== choiceToDelete
+      (choice) => choice !== choiceToDelete,
     );
     console.log("updatedChoice:", updatedChoices);
     setValue("choices", updatedChoices);
@@ -270,8 +273,9 @@ export default function WalkthroughDataCard({
                       {...register("type", { required: true })}
                     >
                       <option value="number">Number</option>
-                      <option value="string">Text</option>
                       <option value="boolean">Yes/No</option>
+                      <option value="choice">Choice</option>
+                      <option value="string">Log</option>
                     </select>
                     {errors?.type && (
                       <div className="label">
@@ -349,84 +353,86 @@ export default function WalkthroughDataCard({
                     </div>
                   </>
                 )}
-                <div className="mt-2">
-                  <h3 className="font-bold mb-2">Choices</h3>
-                  <div className="flex items-center">
-                    <div className="join">
-                      <input
-                        type="text"
-                        className="input input-bordered join-item"
-                        value={newChoice}
-                        onChange={(e) => setNewChoice(e.target.value)}
-                        placeholder="Add new choice"
-                      />
-                      <button
-                        type="button"
-                        className="btn btn-primary join-item"
-                        onClick={handleAddChoice}
-                      >
-                        Add
-                      </button>
-                    </div>
-                  </div>
-                  {Array.isArray(getValues("choices")) &&
-                    getValues("choices").length > 0 && (
-                      <div className="flex flex-col items-center mt-2">
-                        {getValues("choices").map((choice, index) => (
-                          <div key={index} className="join m-1">
-                            {editChoiceIndex === index ? (
-                              <>
-                                <input
-                                  type="text"
-                                  className="input input-bordered input-sm join-item"
-                                  value={editChoiceValue}
-                                  onChange={(e) =>
-                                    setEditChoiceValue(e.target.value)
-                                  }
-                                />
-                                <button
-                                  type="button"
-                                  className="btn btn-success btn-sm join-item"
-                                  onClick={() => handleUpdateChoice(index)}
-                                >
-                                  Update
-                                </button>
-                                <button
-                                  type="button"
-                                  className="btn btn-secondary btn-sm join-item"
-                                  onClick={handleCancelEditChoice}
-                                >
-                                  Cancel
-                                </button>
-                              </>
-                            ) : (
-                              <>
-                                <span className="join-item p-2">
-                                  {choice || "Blank"}
-                                </span>
-                                <button
-                                  type="button"
-                                  className="btn btn-warning btn-sm join-item"
-                                  onClick={() =>
-                                    handleEditChoice(index, choice)
-                                  }
-                                >
-                                  Edit
-                                </button>
-                                <button
-                                  type="button"
-                                  className="btn btn-error btn-sm join-item"
-                                  onClick={() => handleDeleteChoice(choice)}
-                                >
-                                  Delete
-                                </button>
-                              </>
-                            )}
-                          </div>
-                        ))}
+                {typeChoice === "choice" && (
+                  <div className="mt-2">
+                    <h3 className="font-bold mb-2">Choices</h3>
+                    <div className="flex items-center">
+                      <div className="join">
+                        <input
+                          type="text"
+                          className="input input-bordered join-item"
+                          value={newChoice}
+                          onChange={(e) => setNewChoice(e.target.value)}
+                          placeholder="Add new choice"
+                        />
+                        <button
+                          type="button"
+                          className="btn btn-primary join-item"
+                          onClick={handleAddChoice}
+                        >
+                          Add
+                        </button>
                       </div>
-                    )}
-                </div>
+                    </div>
+                    {Array.isArray(getValues("choices")) &&
+                      getValues("choices").length > 0 && (
+                        <div className="flex flex-col items-center mt-2">
+                          {getValues("choices").map((choice, index) => (
+                            <div key={index} className="join m-1">
+                              {editChoiceIndex === index ? (
+                                <>
+                                  <input
+                                    type="text"
+                                    className="input input-bordered input-sm join-item"
+                                    value={editChoiceValue}
+                                    onChange={(e) =>
+                                      setEditChoiceValue(e.target.value)
+                                    }
+                                  />
+                                  <button
+                                    type="button"
+                                    className="btn btn-success btn-sm join-item"
+                                    onClick={() => handleUpdateChoice(index)}
+                                  >
+                                    Update
+                                  </button>
+                                  <button
+                                    type="button"
+                                    className="btn btn-secondary btn-sm join-item"
+                                    onClick={handleCancelEditChoice}
+                                  >
+                                    Cancel
+                                  </button>
+                                </>
+                              ) : (
+                                <>
+                                  <span className="join-item p-2">
+                                    {choice || "Blank"}
+                                  </span>
+                                  <button
+                                    type="button"
+                                    className="btn btn-warning btn-sm join-item"
+                                    onClick={() =>
+                                      handleEditChoice(index, choice)
+                                    }
+                                  >
+                                    Edit
+                                  </button>
+                                  <button
+                                    type="button"
+                                    className="btn btn-error btn-sm join-item"
+                                    onClick={() => handleDeleteChoice(choice)}
+                                  >
+                                    Delete
+                                  </button>
+                                </>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                  </div>
+                )}
                 <button
                   type="submit"
                   className="btn btn-success btn-circle p-2 mt-4"
@@ -443,7 +449,7 @@ export default function WalkthroughDataCard({
           {!canEdit ? (
             <>
               <button
-                className="btn btn-primary btn-circle p-2 m-1 mr-2 mb-2"
+                className="btn btn-accent btn-circle p-2 m-1 mr-2 mb-2"
                 onClick={handleEditClick}
               >
                 <IconEdit />

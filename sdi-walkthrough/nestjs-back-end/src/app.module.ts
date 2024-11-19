@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
@@ -14,6 +14,7 @@ import { LogModule } from './log/log.module';
 import { AreaModule } from './area/area.module';
 import { DatapointModule } from './datapoint/datapoint.module';
 import { UserModule } from './user/user.module';
+import { clerkMiddleware } from '@clerk/express';
 
 @Module({
   imports: [
@@ -39,4 +40,8 @@ import { UserModule } from './user/user.module';
   controllers: [AppController, GraphController],
   providers: [AppService, GraphService],
 })
-export class AppModule {}
+export class AppModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(clerkMiddleware()).forRoutes('*');
+  }
+}

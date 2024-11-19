@@ -374,141 +374,139 @@ export default function WalkthroughPage(props: {
             department={params.department}
             onChange={setSelectedWalkthrough}
           />
-          {selectedWalkthrough &&
-            selectedWalkthrough !== "Select a Walkthrough" && (
-              <>
-                <Button
-                  id="rename-walkthrough-dialog"
-                  type="primary"
-                  className="m-2 px-4 py-2"
-                >
-                  Rename Walkthrough
-                </Button>
-                <Modal
-                  id="rename-walkthrough-dialog"
-                  type="primary"
-                  ref={renameWalkthroughModalRef}
-                  targetInput={walkthroughRenameRef}
-                  onClick={() => {
-                    const name = walkthroughRenameRef.current?.value || "";
-                    const id = selectedWalkthrough;
-                    handleRenameWalkthrough.mutateAsync({ id, name });
-                  }}
-                  onClose={() => {
-                    renameWalkthroughModalRef.current?.close();
-                  }}
-                >
-                  Rename
-                </Modal>
+          {selectedWalkthrough && selectedWalkthrough !== "" && (
+            <>
+              <Button
+                id="rename-walkthrough-dialog"
+                type="primary"
+                className="m-2 px-4 py-2"
+              >
+                Rename Walkthrough
+              </Button>
+              <Modal
+                id="rename-walkthrough-dialog"
+                type="primary"
+                ref={renameWalkthroughModalRef}
+                targetInput={walkthroughRenameRef}
+                onClick={() => {
+                  const name = walkthroughRenameRef.current?.value || "";
+                  const id = selectedWalkthrough;
+                  handleRenameWalkthrough.mutateAsync({ id, name });
+                }}
+                onClose={() => {
+                  renameWalkthroughModalRef.current?.close();
+                }}
+              >
+                Rename
+              </Modal>
+              <select
+                ref={periodicitySelectRef}
+                name="periodicity"
+                id="periodicity"
+                className="select select-bordered align-end m-2"
+                value={selectedPeriodicity}
+                onChange={(e) => {
+                  onChangePeriodicity(e);
+                }}
+              >
+                <option disabled value="">
+                  Select a Periodicity
+                </option>
+                {periodicityValues.map((option: string) => (
+                  <option key={option} value={option}>
+                    {option}
+                  </option>
+                ))}
+              </select>
+
+              {selectedPeriodicity && selectedPeriodicity === "Weekly" && (
                 <select
-                  ref={periodicitySelectRef}
-                  name="periodicity"
-                  id="periodicity"
+                  value={selectedWeekly}
+                  name="weekly"
+                  id="weekly"
                   className="select select-bordered align-end m-2"
-                  value={selectedPeriodicity}
                   onChange={(e) => {
-                    onChangePeriodicity(e);
+                    setSelectedWeekly(e.target.value);
                   }}
                 >
                   <option disabled value="">
-                    Select a Periodicity
+                    Select a Day
                   </option>
-                  {periodicityValues.map((option: string) => (
+                  {weeklyValues.map((option: string) => (
                     <option key={option} value={option}>
                       {option}
                     </option>
                   ))}
                 </select>
+              )}
 
-                {selectedPeriodicity && selectedPeriodicity === "Weekly" && (
-                  <select
-                    value={selectedWeekly}
-                    name="weekly"
-                    id="weekly"
-                    className="select select-bordered align-end m-2"
-                    onChange={(e) => {
-                      setSelectedWeekly(e.target.value);
-                    }}
-                  >
-                    <option disabled value="">
-                      Select a Day
+              {selectedPeriodicity && selectedPeriodicity === "Per Swing" && (
+                <select
+                  name="perSwing"
+                  id="perSwing"
+                  className="select select-bordered align-end m-2"
+                  onChange={(e) => {
+                    setSelectedPerSwing(e.target.value);
+                  }}
+                >
+                  <option disabled value="">
+                    Select a Day
+                  </option>
+                  {perSwingValues.map((option: string) => (
+                    <option key={option} value={option}>
+                      {option}
                     </option>
-                    {weeklyValues.map((option: string) => (
-                      <option key={option} value={option}>
-                        {option}
-                      </option>
-                    ))}
-                  </select>
-                )}
+                  ))}
+                </select>
+              )}
 
-                {selectedPeriodicity && selectedPeriodicity === "Per Swing" && (
-                  <select
-                    name="perSwing"
-                    id="perSwing"
-                    className="select select-bordered align-end m-2"
-                    onChange={(e) => {
-                      setSelectedPerSwing(e.target.value);
-                    }}
-                  >
-                    <option disabled value="">
-                      Select a Day
-                    </option>
-                    {perSwingValues.map((option: string) => (
-                      <option key={option} value={option}>
-                        {option}
-                      </option>
-                    ))}
-                  </select>
-                )}
-
-                {selectedPeriodicity && selectedPeriodicity !== "" && (
-                  <button
-                    className="btn btn-primary m-2"
-                    onClick={() => {
-                      const id = selectedWalkthrough;
-                      const periodicity = selectedPeriodicity || undefined;
-                      const weekly = selectedWeekly || undefined;
-                      const perSwing = selectedPerSwing || undefined;
-                      handleSavePeriodicity.mutate({
-                        id,
-                        periodicity,
-                        weekly,
-                        perSwing,
-                      });
-                    }}
-                  >
-                    <IconSave /> Periodicity
-                  </button>
-                )}
-              </>
-            )}
+              {selectedPeriodicity && selectedPeriodicity !== "" && (
+                <button
+                  className="btn btn-primary m-2"
+                  onClick={() => {
+                    const id = selectedWalkthrough;
+                    const periodicity = selectedPeriodicity || undefined;
+                    const weekly = selectedWeekly || undefined;
+                    const perSwing = selectedPerSwing || undefined;
+                    handleSavePeriodicity.mutate({
+                      id,
+                      periodicity,
+                      weekly,
+                      perSwing,
+                    });
+                  }}
+                >
+                  <IconSave /> Periodicity
+                </button>
+              )}
+            </>
+          )}
         </div>
 
-        {selectedWalkthrough &&
-          selectedWalkthrough !== "Select a Walkthrough" && (
-            <div className="justify-end">
-              <Button id="delete-walkthrough-dialog" type="error">
-                Delete Walkthrough
-              </Button>
-              <Modal
-                id="delete-walkthrough-dialog"
-                type="error"
-                ref={deleteWalkthroughModalRef}
-                onClick={() => {
-                  const id = selectedWalkthrough;
-                  handleDeleteWalkthrough.mutate({ id });
-                }}
-                onClose={() => {
-                  deleteWalkthroughModalRef.current?.close();
-                }}
-              >
-                Delete
-              </Modal>
-            </div>
-          )}
+        {selectedWalkthrough && selectedWalkthrough !== "" && (
+          <div className="justify-end">
+            <Button id="delete-walkthrough-dialog" type="error">
+              Delete Walkthrough
+            </Button>
+            <Modal
+              id="delete-walkthrough-dialog"
+              type="error"
+              ref={deleteWalkthroughModalRef}
+              onClick={() => {
+                const id = selectedWalkthrough;
+                handleDeleteWalkthrough.mutate({ id });
+              }}
+              onClose={() => {
+                deleteWalkthroughModalRef.current?.close();
+              }}
+            >
+              Delete
+            </Modal>
+          </div>
+        )}
       </div>
 
-      {selectedWalkthrough !== "Select a Walkthrough" && (
+      {selectedWalkthrough !== "" && (
         <ScrollArea id="scroll-area" className="border min-h-screen">
           {areas?.length > 0 && (
             <WalkthroughRenderer

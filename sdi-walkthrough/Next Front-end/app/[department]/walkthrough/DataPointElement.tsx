@@ -1,11 +1,10 @@
 import { DataPoint } from "@/types";
 import { Responsive, WidthProvider } from "react-grid-layout";
 import { min, floor } from "mathjs";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import "./styles.css";
 import React from "react";
 import { useFormContext } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
@@ -14,7 +13,9 @@ interface DataPointProps {
   data: DataPoint[];
 }
 
-const DataPointElement: React.FC<DataPointProps> = ({ data }: DataPointProps) => {
+const DataPointElement: React.FC<DataPointProps> = ({
+  data,
+}: DataPointProps) => {
   const [showText, setShowText] = useState(false);
 
   // Dynamically build Zod schema based on data array
@@ -47,15 +48,19 @@ const DataPointElement: React.FC<DataPointProps> = ({ data }: DataPointProps) =>
           } */
           break;
 
+        case "choice":
+          zodType = z.string().optional();
+          break;
+
         default:
           zodType = z.any(); // Fallback for unexpected types
       }
 
       return { ...schema, [dataPoint._id || dataPoint.text]: zodType };
-    }, {})
+    }, {}),
   );
 
-  const { register } = useFormContext({resolver: zodResolver(dataPointSchema)});
+  const { register } = useFormContext();
   // const { field, fieldState } = useController(hookProps);
 
   const onShowButtonClick = () => {
@@ -69,7 +74,7 @@ const DataPointElement: React.FC<DataPointProps> = ({ data }: DataPointProps) =>
   return (
     <ResponsiveGridLayout
       className="border"
-      items={data.length}
+      // items={data.length}
       breakpoints={{ lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0 }}
       cols={{
         lg: min([6, data.length]),
@@ -119,6 +124,26 @@ const DataPointElement: React.FC<DataPointProps> = ({ data }: DataPointProps) =>
                 className="checkbox"
                 {...register(`${dataPoint._id}`)}
               />
+            </label>
+          )}
+          {dataPoint.type === "choice" && (
+            <label className="form-control cursor-pointer">
+              <div className="label">
+                <label className="label-text">{dataPoint.text}</label>
+              </div>
+              <select
+                className="select select-primary"
+                {...register(`${dataPoint._id}`, { value: "" })}
+              >
+                <option disabled value={""}>
+                  Please select one
+                </option>
+                {dataPoint.choices?.map((item, index) => (
+                  <option key={index} value={item}>
+                    {item}
+                  </option>
+                ))}
+              </select>
             </label>
           )}
           {dataPoint.type === "string" && (

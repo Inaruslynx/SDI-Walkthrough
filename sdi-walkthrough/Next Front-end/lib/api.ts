@@ -45,7 +45,11 @@ export async function getOneDepartment(id?: string, name?: string) {
 
 // Walkthrough CRUD
 // Create
-export async function createWalkthrough(name: string, department: string) {
+export async function createWalkthrough(
+  name: string,
+  department: string,
+  orgId: string,
+) {
   // if (!name || !department || name === "Select a Walkthrough") {
   //   return null;
   // }
@@ -54,6 +58,7 @@ export async function createWalkthrough(name: string, department: string) {
     {
       name: name,
       department: department,
+      orgId,
     },
     {
       withCredentials: true,
@@ -99,6 +104,7 @@ export async function getWalkthrough(id: string) {
 // Update
 export async function updateWalkthrough(
   id: string,
+  orgId: string,
   name?: string,
   periodicity?: string,
   weekly?: string,
@@ -110,19 +116,24 @@ export async function updateWalkthrough(
   if (periodicity !== undefined) payload.periodicity = periodicity;
   if (weekly !== undefined) payload.weekly = weekly;
   if (perSwing !== undefined) payload.perSwing = perSwing;
-  const response = await api.patch(`walkthrough/${id}`, payload, {
-    withCredentials: true,
-  });
+  const response = await api.patch(
+    `walkthrough/${id}`,
+    { ...payload, orgId },
+    {
+      withCredentials: true,
+    },
+  );
   return response;
 }
 
 // Delete
-export async function deleteWalkthrough(id: string) {
+export async function deleteWalkthrough(id: string, orgId: string) {
   // console.log('Now deleting walkthrough:', name)
   // if (!name || name === "Select a Walkthrough") {
   //   return null;
   // }
   const response = await api.delete(`walkthrough/${id}`, {
+    params: { orgId },
     withCredentials: true,
   });
   return response;
@@ -130,10 +141,14 @@ export async function deleteWalkthrough(id: string) {
 
 // Area CRUD
 // Create
-export async function createArea(areaPackage: Area) {
-  const response = await api.post<Area>(`area`, areaPackage, {
-    withCredentials: true,
-  });
+export async function createArea(areaPackage: Area, orgId: string) {
+  const response = await api.post<Area>(
+    `area`,
+    { ...areaPackage, orgId },
+    {
+      withCredentials: true,
+    },
+  );
   return response;
 }
 
@@ -154,10 +169,10 @@ export async function findArea(areaId: string) {
 }
 
 // Update
-export async function updateArea(areaPackage: Area) {
+export async function updateArea(areaPackage: Area, orgId: string) {
   const response = await api.patch<Area>(
     `area/${areaPackage._id}`,
-    areaPackage,
+    { ...areaPackage, orgId },
     {
       withCredentials: true,
     },
@@ -166,8 +181,9 @@ export async function updateArea(areaPackage: Area) {
 }
 
 // Delete
-export async function deleteArea(areaId: string) {
+export async function deleteArea(areaId: string, orgId: string) {
   const response = await api.delete(`area/${areaId}`, {
+    params: { orgId },
     withCredentials: true,
   });
   return response;
@@ -175,10 +191,14 @@ export async function deleteArea(areaId: string) {
 
 // DataPoint CRUD
 // Create
-export async function createDataPoint(dataPoint: DataPoint) {
-  const response = await api.post<DataPoint>(`datapoint`, dataPoint, {
-    withCredentials: true,
-  });
+export async function createDataPoint(dataPoint: DataPoint, orgId: string) {
+  const response = await api.post<DataPoint>(
+    `datapoint`,
+    { ...dataPoint, orgId },
+    {
+      withCredentials: true,
+    },
+  );
   return response;
 }
 
@@ -199,10 +219,10 @@ export async function findDataPoint(dataPointId: string) {
 }
 
 // Update
-export async function updateDataPoint(dataPoint: DataPoint) {
+export async function updateDataPoint(dataPoint: DataPoint, orgId: string) {
   const response = await api.patch<DataPoint>(
     `datapoint/${dataPoint._id}`,
-    dataPoint,
+    { ...dataPoint, orgId },
     {
       withCredentials: true,
     },
@@ -211,8 +231,9 @@ export async function updateDataPoint(dataPoint: DataPoint) {
 }
 
 // Delete
-export async function deleteDataPoint(dataPointId: string) {
+export async function deleteDataPoint(dataPointId: string, orgId: string) {
   const response = await api.delete(`datapoint/${dataPointId}`, {
+    params: { orgId },
     withCredentials: true,
   });
   return response;

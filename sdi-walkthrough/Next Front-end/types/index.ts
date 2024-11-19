@@ -11,7 +11,7 @@ export interface DataPoint {
   index?: number;
   _id?: string;
   text: string;
-  type: "number" | "string" | "boolean";
+  type: "number" | "string" | "boolean" | "choice";
   value?: number | string | boolean;
   unit?: string;
   min?: number;

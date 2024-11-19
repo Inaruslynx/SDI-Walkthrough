@@ -9,7 +9,6 @@ import { UpdateDatapointDto } from './dto/update-datapoint.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Area } from 'src/schemas/areas.schema';
-// import { Walkthrough } from 'src/schemas/walkthroughs.schema';
 import { DataPoint, DataPointDocument } from 'src/schemas/DataPoints.schema';
 
 @Injectable()

@@ -11,7 +11,9 @@ import {
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { ClerkAuthGuard } from '../auth/clerk-auth.guard';
+import { AdminOrgAuthGuard } from '../auth/admin-org-auth-guard.service';
+import { LoggedInAuthGuard } from '../auth/logged-in-auth-guard.service';
+import { GeneralAdminAuthGuard } from '../auth/general-admin-auth-guard.service';
 
 @Controller('user')
 export class UserController {
@@ -19,31 +21,31 @@ export class UserController {
 
   @Post()
   // Need a guard that checks if the user is an admin or changing their own account
-  // @UseGuards(ClerkAuthGuard)
+  @UseGuards(LoggedInAuthGuard)
   create(@Body() createUserDto: CreateUserDto) {
     return this.userService.create(createUserDto);
   }
 
   @Get()
-  // @UseGuards(ClerkAuthGuard)
+  @UseGuards(GeneralAdminAuthGuard)
   findAll() {
     return this.userService.findAll();
   }
 
   @Get(':id')
-  // @UseGuards(ClerkAuthGuard)
+  @UseGuards(GeneralAdminAuthGuard)
   findOne(@Param('id') id: string) {
     return this.userService.findOne(id);
   }
 
   @Patch(':id')
-  // @UseGuards(ClerkAuthGuard)
+  @UseGuards(LoggedInAuthGuard)
   update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
     return this.userService.update(id, updateUserDto);
   }
 
   @Delete(':id')
-  @UseGuards(ClerkAuthGuard)
+  @UseGuards(AdminOrgAuthGuard)
   remove(@Param('id') id: string): Promise<any> {
     return this.userService.remove(id);
   }

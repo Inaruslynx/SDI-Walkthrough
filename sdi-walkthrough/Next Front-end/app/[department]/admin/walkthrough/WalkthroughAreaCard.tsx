@@ -12,6 +12,7 @@ import { toast } from "react-toastify";
 import { DevTool } from "@hookform/devtools";
 import type { Area } from "@/types";
 import { createArea, updateArea, deleteArea } from "@/lib/api";
+import { useOrganization } from "@clerk/nextjs";
 
 const nameSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -27,6 +28,8 @@ interface WalkthroughAreaCardProps {
   onAreaSave?: () => void;
   onAddArea: (parentArea: Area) => void;
   onAddDataPoint: (parentArea: Area) => void;
+  onToggleVisibility: () => void;
+  isVisible: boolean;
 }
 
 export default function WalkthroughAreaCard({
@@ -43,6 +46,8 @@ export default function WalkthroughAreaCard({
   onAreaSave,
   onAddArea,
   onAddDataPoint,
+  onToggleVisibility,
+  isVisible,
 }: WalkthroughAreaCardProps): ReactNode {
   // React Hook Form controller
   const {
@@ -64,9 +69,10 @@ export default function WalkthroughAreaCard({
   const initialFormValues = {
     name: area?.name || "",
   };
+  const { organization } = useOrganization();
 
   const createAreaMutation = useMutation({
-    mutationFn: createArea,
+    mutationFn: (data: Area) => createArea(data, organization!.id),
     onSuccess: () => {
       toast.success("Successfully created Area.");
       queryClient.invalidateQueries({
@@ -83,7 +89,7 @@ export default function WalkthroughAreaCard({
   });
 
   const updateAreaMutation = useMutation({
-    mutationFn: updateArea,
+    mutationFn: (data: Area) => updateArea(data, organization!.id),
     onSuccess: () => {
       toast.success("Successfully updated Area.");
       queryClient.invalidateQueries({
@@ -100,7 +106,7 @@ export default function WalkthroughAreaCard({
   });
 
   const deleteAreaMutation = useMutation({
-    mutationFn: deleteArea,
+    mutationFn: (id: string) => deleteArea(id, organization!.id),
     onSuccess: () => {
       toast.success("Deleted Area.");
       queryClient.invalidateQueries({
@@ -171,7 +177,7 @@ export default function WalkthroughAreaCard({
 
   return (
     <div
-      className={`card m-4 w-96 bg-base-200 text-base-content shadow-lg shadow-base-300`}
+      className={`card m-4 px-2 w-fit bg-base-200 text-base-content shadow-lg shadow-base-300`}
     >
       <div className="card-body items-center text-center">
         <div className="card-title">Area</div>
@@ -244,7 +250,13 @@ export default function WalkthroughAreaCard({
               </>
             )}
             <button
-              className="btn btn-primary btn-circle p-2 m-1 mr-2 mb-2"
+              className="btn btn-warning p-2 m-1 mr-2 mb-2"
+              onClick={onToggleVisibility}
+            >
+              {isVisible ? "Hide" : "Show"} Sub-Areas
+            </button>
+            <button
+              className="btn btn-accent btn-circle p-2 m-1 mr-2 mb-2"
               onClick={handleEditClick}
             >
               <IconEdit />

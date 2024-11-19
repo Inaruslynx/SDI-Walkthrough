@@ -13,15 +13,12 @@ export interface LogData {
 
 @Schema({ timestamps: true })
 export class Log {
-  @Prop({ required: true, type: mongoose.Schema.Types.ObjectId, ref: 'User' })
-  user: ClerkUser;
-
-  /* @Prop({
+  @Prop({
     required: true,
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Department',
+    ref: 'ClerkUser',
   })
-  department: Department; */
+  user: ClerkUser;
 
   @Prop({
     required: true,
@@ -36,6 +33,7 @@ export class Log {
       {
         dataPoint: { type: mongoose.Schema.Types.ObjectId, ref: 'DataPoint' },
         value: { type: mongoose.Schema.Types.Mixed },
+        _id: false,
       },
     ],
   })

@@ -7,4 +7,5 @@ export class CreateDatapointDto {
   choices?: string[];
   parentArea: string;
   parentWalkthrough: string;
+  orgId: string;
 }
