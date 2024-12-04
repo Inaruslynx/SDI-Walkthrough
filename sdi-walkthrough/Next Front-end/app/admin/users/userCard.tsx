@@ -4,9 +4,13 @@ type UserCardProps = {
   user: User;
   isSelected: boolean;
   onSelectUser: (user: User, isChecked: boolean) => void;
-}
+};
 
-export default function UserCard({ user, isSelected, onSelectUser }: UserCardProps) {
+export default function UserCard({
+  user,
+  isSelected,
+  onSelectUser,
+}: UserCardProps) {
   return (
     <div
       key={user.clerkId}
@@ -22,18 +26,22 @@ export default function UserCard({ user, isSelected, onSelectUser }: UserCardPro
             checked={isSelected}
             onChange={(e) => onSelectUser(user, e.target.checked)}
           />
-          <h3 className="whitespace-nowrap">
-            {user.firstName}
-          </h3>
+          <h3 className="whitespace-nowrap">{user.firstName}</h3>
           <h3 className="whitespace-nowrap">{user.lastName}</h3>
           <h3 className="whitespace-nowrap">
-            {user.department?.name || "No department"}
+            {typeof user.department === "object"
+              ? user.department.name
+              : "No department"}
           </h3>
           {user.assignedWalkthroughs && user.assignedWalkthroughs.length > 0 ? (
             <div className="grid grid-cols-1">
-              {user.assignedWalkthroughs.map((walkthrough, index) => (
-                <h4 key={index}>{walkthrough.name}</h4>
-              ))}
+              {user.assignedWalkthroughs.map((walkthrough, index) => {
+                if (typeof walkthrough === "object" && walkthrough !== null) {
+                  return <h4 key={index}>{walkthrough.name}</h4>;
+                } else {
+                  return <h4 key={index}>{walkthrough}</h4>;
+                }
+              })}
             </div>
           ) : (
             <h3 className="whitespace-nowrap">No walkthroughs</h3>

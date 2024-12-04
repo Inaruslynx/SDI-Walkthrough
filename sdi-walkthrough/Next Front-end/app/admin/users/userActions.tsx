@@ -19,7 +19,7 @@ type WalkthroughCount = {
 
 function allHaveSameProperty<T>(
   array: T[],
-  keyPath: (keyof T | string)[],
+  keyPath: (keyof T | string)[]
 ): boolean {
   if (array.length === 0) return true;
 
@@ -37,7 +37,7 @@ function getDepartment(users: User[]): string {
   if (!users[0].department) return "";
   return typeof users[0].department === "string"
     ? users[0].department
-    : users[0].department._id;
+    : (users[0].department._id ?? "");
 }
 
 function countWalkthroughs(users: User[]): WalkthroughCount[] {
@@ -101,24 +101,39 @@ export default function UserActions({
     }
 
     if (assignWalkthrough !== "") {
-      // Modify users by forEach
-
       selectedUsers.forEach((user) => {
         console.log("user:", user);
-        if (!user.assignedWalkthroughs.includes(assignWalkthrough)) {
-          user.assignedWalkthroughs.push(assignWalkthrough);
+
+        // Normalize assignedWalkthroughs to an array of strings for comparison
+        const walkthroughIds = Array.isArray(user.assignedWalkthroughs)
+          ? user.assignedWalkthroughs.map((w) =>
+              typeof w === "string" ? w : w._id
+            )
+          : [];
+
+        if (!walkthroughIds.includes(assignWalkthrough)) {
+          // Add the new walkthrough
+          (user.assignedWalkthroughs as string[]).push(assignWalkthrough);
         }
+
         updatedUsers.push(user);
       });
       setAssignWalkthrough("");
     }
 
     if (removeWalkthrough !== "") {
-      // Modify users by forEach
       selectedUsers.forEach((user) => {
-        user.assignedWalkthroughs = user.assignedWalkthroughs.filter(
-          (walkthrough) => walkthrough._id !== removeWalkthrough,
-        );
+        if (Array.isArray(user.assignedWalkthroughs)) {
+          user.assignedWalkthroughs = user.assignedWalkthroughs
+            .map((walkthrough) =>
+              typeof walkthrough === "string" ? walkthrough : walkthrough._id
+            )
+            .filter(
+              (walkthroughId): walkthroughId is string =>
+                walkthroughId !== undefined &&
+                walkthroughId !== removeWalkthrough
+            );
+        }
         updatedUsers.push(user);
       });
       setRemoveWalkthrough("");

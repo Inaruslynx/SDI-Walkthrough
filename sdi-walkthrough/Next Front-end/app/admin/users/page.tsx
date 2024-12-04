@@ -9,9 +9,10 @@ import IconUsers from "@/components/ui/icons/users";
 import SortBar from "./sortBar";
 import FilterBar from "./filterBar";
 import UserActions from "./userActions";
+import React from "react";
 
 // Define an array of sort categories
-export const SortCategoryArray = [
+const SortCategoryArray = [
   { value: "firstName", label: "First Name" },
   { value: "lastName", label: "Last Name" },
   { value: "department", label: "Department" },
@@ -23,15 +24,11 @@ export const SortCategoryArray = [
 export type SortCategory = (typeof SortCategoryArray)[number]["value"];
 
 // Define the sort status type based on SortCategory
-export interface SortStatus {
-  [key: SortCategory]: "asc" | "desc" | "none";
-}
+export type SortStatus = {
+  [K in SortCategory]: "asc" | "desc" | "none";
+};
 
-export default function UsersPage({
-  params,
-}: {
-  params: { department: string };
-}) {
+export default function UsersPage() {
   const [users, setUsers] = useState<User[]>([]);
   const [sortStatus, setSortStatus] = useState<SortStatus>({
     firstName: "none",
@@ -67,7 +64,7 @@ export default function UsersPage({
         return [...prev, user];
       } else {
         return prev.filter(
-          (selectedUser) => selectedUser.clerkId !== user.clerkId,
+          (selectedUser) => selectedUser.clerkId !== user.clerkId
         );
       }
     });
@@ -78,15 +75,15 @@ export default function UsersPage({
     setSortStatus((prevStatus) => {
       const newStatus: SortStatus = Object.keys(prevStatus).reduce(
         (acc, key) => {
-          acc[key] =
+          acc[key as keyof SortStatus] =
             key === category
-              ? prevStatus[key] === "asc"
+              ? prevStatus[key as keyof SortStatus] === "asc"
                 ? "desc"
                 : "asc"
               : "none";
           return acc;
         },
-        {} as SortStatus,
+        {} as SortStatus
       );
       // console.log("prevStatus:", prevStatus);
       // console.log("newStatus:", newStatus);
@@ -105,8 +102,15 @@ export default function UsersPage({
             compareB = b.lastName?.toLowerCase() || "";
             break;
           case "department":
-            compareA = a.department?.name.toLowerCase() || "";
-            compareB = b.department?.name.toLowerCase() || "";
+            const getDepartmentName = (
+              dept: string | { name: string } | undefined
+            ) =>
+              typeof dept === "string"
+                ? dept.toLowerCase()
+                : dept?.name.toLowerCase() || "";
+
+            compareA = getDepartmentName(a.department);
+            compareB = getDepartmentName(b.department);
             break;
           case "walkthroughs":
             compareA = a.assignedWalkthroughs?.length || 0;
@@ -186,7 +190,7 @@ export default function UsersPage({
               key={user.clerkId}
               user={user}
               isSelected={selectedUsers.some(
-                (selectedUser) => selectedUser.clerkId === user.clerkId,
+                (selectedUser) => selectedUser.clerkId === user.clerkId
               )}
               onSelectUser={handleSelectUser}
             />

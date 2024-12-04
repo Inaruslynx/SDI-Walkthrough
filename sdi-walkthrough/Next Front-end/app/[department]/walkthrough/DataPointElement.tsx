@@ -11,10 +11,12 @@ const ResponsiveGridLayout = WidthProvider(Responsive);
 
 interface DataPointProps {
   data: DataPoint[];
+  draggable: boolean;
 }
 
 const DataPointElement: React.FC<DataPointProps> = ({
   data,
+  draggable,
 }: DataPointProps) => {
   const [showText, setShowText] = useState(false);
 
@@ -57,7 +59,7 @@ const DataPointElement: React.FC<DataPointProps> = ({
       }
 
       return { ...schema, [dataPoint._id || dataPoint.text]: zodType };
-    }, {}),
+    }, {})
   );
 
   const { register } = useFormContext();
@@ -89,6 +91,8 @@ const DataPointElement: React.FC<DataPointProps> = ({
       autoSize={true}
       measureBeforeMount={false}
       isResizable={false}
+      // isDraggable={draggable}
+      isDraggable={false}
     >
       {data.map((dataPoint, index) => (
         <div
@@ -109,6 +113,7 @@ const DataPointElement: React.FC<DataPointProps> = ({
               <input
                 className={`w-11/12 input input-bordered input-primary`}
                 type="number"
+                step="any"
                 placeholder="Enter value"
                 {...register(`${dataPoint._id}`)}
               />

@@ -12,6 +12,9 @@ export class DataPoint extends Document {
   @Prop({ required: true, index: true })
   text: string;
 
+  @Prop()
+  name: string;
+
   @Prop({ required: true, enum: ['string', 'number', 'boolean', 'choice'] })
   @IsEnum(['string', 'number', 'boolean', 'choice'])
   type: string;

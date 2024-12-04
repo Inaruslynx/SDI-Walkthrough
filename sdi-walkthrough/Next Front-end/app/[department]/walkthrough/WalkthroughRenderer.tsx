@@ -13,12 +13,14 @@ interface WalkthroughRendererProps {
   data: Area[];
   selectedWalkthrough: string;
   loadedLog: string;
+  edit: boolean;
 }
 
 const WalkthroughRenderer: React.FC<WalkthroughRendererProps> = ({
   data,
   selectedWalkthrough,
   loadedLog,
+  edit,
 }: WalkthroughRendererProps) => {
   const queryClient = useQueryClient();
   const methods = useForm();
@@ -49,7 +51,7 @@ const WalkthroughRenderer: React.FC<WalkthroughRendererProps> = ({
   });
 
   const onSubmit = async (
-    formData: Record<string, string | number | boolean>,
+    formData: Record<string, string>
   ) => {
     // Map formData to the expected structure for Log.data
     const mappedData = Object.entries(formData).map(([dataPoint, value]) => ({
@@ -97,12 +99,18 @@ const WalkthroughRenderer: React.FC<WalkthroughRendererProps> = ({
                 {area.areas && area.areas.length > 0 ? (
                   <React.Fragment key={area._id + "f"}>
                     <div className="flex flex-col container w-full m-4 items-center text-center">
-                      <SubArea key={area._id + "a"} data={area.areas} border />
+                      <SubArea
+                        key={area._id + "a"}
+                        data={area.areas}
+                        edit={edit}
+                        border
+                      />
                     </div>
                     {area.dataPoints && area.dataPoints.length > 0 && (
                       <DataPointElement
                         key={area._id + "1"}
                         data={area.dataPoints}
+                        draggable={edit}
                       />
                     )}
                   </React.Fragment>
@@ -113,6 +121,7 @@ const WalkthroughRenderer: React.FC<WalkthroughRendererProps> = ({
                         <DataPointElement
                           key={area._id + "1"}
                           data={area.dataPoints}
+                          draggable={edit}
                         />
                       </div>
                     )}

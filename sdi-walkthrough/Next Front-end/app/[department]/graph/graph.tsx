@@ -12,7 +12,7 @@ import { Line } from "react-chartjs-2";
 import { useState, useEffect, useRef } from "react";
 
 import type { ChartData, ChartOptions } from "chart.js";
-import type { ChartJSOrUndefined } from "react-chartjs-2/dist/types";
+// import type { ChartJSOrUndefined } from "react-chartjs-2/dist/types";
 
 ChartJS.register(
   CategoryScale,
@@ -28,7 +28,7 @@ export default function Graph({
 }: {
   data: ChartData<"line">;
 }) {
-  const chartRef = useRef<ChartJSOrUndefined<"line">>(null);
+  const chartRef = useRef(null);
   const [color, setColor] = useState<string>("dark");
   const [options, setOptions] = useState<ChartOptions<"line">>({
     responsive: true,

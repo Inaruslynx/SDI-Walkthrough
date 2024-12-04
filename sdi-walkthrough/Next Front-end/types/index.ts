@@ -11,8 +11,9 @@ export interface DataPoint {
   index?: number;
   _id?: string;
   text: string;
+  name?: string;
   type: "number" | "string" | "boolean" | "choice";
-  value?: number | string | boolean;
+  value?: string;
   unit?: string;
   min?: number;
   max?: number;
@@ -66,10 +67,12 @@ export interface Department {
 export interface Log {
   _id?: string;
   walkthrough: string;
-  data: {
-    dataPoint: string;
-    value: string | number | boolean;
-  }[];
+  data: LogItem[];
+}
+
+export interface LogItem {
+  dataPoint: DataPoint;
+  value: string;
 }
 
 export interface User {
@@ -79,10 +82,18 @@ export interface User {
   firstName?: string;
   lastName?: string;
   assignedWalkthroughs: Walkthrough[] | string[];
-  department: Department | string;
+  department?: Department | string;
   admin?: boolean;
   type?: Theme;
 }
+
+export type ReportItem = {
+  lastLog: LogItem[];
+  beforeLastLog?: LogItem[];
+  results;
+  differenceOfRecentLogs?: ;
+  itemsOfConcern?: ;
+};
 
 export enum Theme {
   DARK = "dark",

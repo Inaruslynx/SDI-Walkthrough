@@ -6,7 +6,7 @@ export class ReportController {
   constructor(private readonly reportService: ReportService) {}
 
   @Get()
-  find(@Query('walkthrough') walkthrough: string) {
-    return this.reportService.find(walkthrough);
+  getReport(@Query('walkthrough') walkthrough: string) {
+    return this.reportService.getReport(walkthrough);
   }
 }

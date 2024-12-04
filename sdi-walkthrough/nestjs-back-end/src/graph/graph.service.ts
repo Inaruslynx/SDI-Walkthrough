@@ -1,91 +1,94 @@
 import { Injectable } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
-import { Log } from 'src/schemas/logs.schema';
-import { Department } from 'src/schemas/departments.schema';
-import { Walkthrough } from 'src/schemas/walkthroughs.schema';
+import { Log, LogDocument } from 'src/schemas/logs.schema';
 import { format, subDays, set, isToday, isBefore } from 'date-fns';
 
 @Injectable()
 export class GraphService {
-  constructor(
-    @InjectModel(Log.name) private logModel: Model<Log>,
-    @InjectModel(Department.name) private departmentModel: Model<Department>,
-    @InjectModel(Walkthrough.name) private walkthroughModel: Model<Walkthrough>,
-  ) {}
+  constructor(@InjectModel(Log.name) private logModel: Model<Log>) {}
 
-  async getGraphData(walkthrough: string) {
-    const toDate = new Date();
-    const fromDate = subDays(new Date(), 30);
-    const walkthroughResults = await await this.walkthroughModel.findOne(
-      { name: walkthrough },
-      'areas -_id',
-    );
-    const result = walkthroughResults;
-
-    return { result, toDate, fromDate };
-  }
-
-  async processGraphFetch(
+  async getGraphData(
     walkthrough: string,
-    fromDate: string,
+    selectedDataPoint: string,
     toDate: string,
-    dataSelection: string,
+    fromDate: string,
   ) {
-    // TODO use Log schema and find data in range of fromDate and toDate possibly walkthrough
-    // const fromDateObject = new Date(fromDate);
-    // const toDateObject = new Date(toDate);
-    // fromDateObject.setUTCHours(14, 0, 0, 0);
-    // if (!isToday(toDateObject)) {
-    //   toDateObject.setUTCHours(14, 0, 0, 0);
-    // } else {
-    //   toDateObject.setTime(new Date().getTime());
-    // }
+    let logs: LogDocument[] = [];
+    const fromDateObject = new Date(fromDate);
+    const toDateObject = new Date(toDate);
+    fromDateObject.setUTCHours(14, 0, 0, 0);
+    if (!isToday(toDateObject)) {
+      toDateObject.setUTCHours(14, 0, 0, 0);
+    } else {
+      toDateObject.setTime(new Date().getTime());
+    }
+    if (!toDate && !fromDate) {
+      logs = await this.logModel
+        .find({ _id: walkthrough })
+        .select('data -_id')
+        .exec();
+    } else if (!toDate) {
+      logs = await this.logModel
+        .find({ _id: walkthrough, date: { $gte: fromDateObject } })
+        .select('data date -_id')
+        .exec();
+    } else if (!fromDate) {
+      logs = await this.logModel
+        .find({ _id: walkthrough, date: { $lte: toDateObject } })
+        .select('data date -_id')
+        .exec();
+    } else {
+      logs = await this.logModel
+        .find({
+          _id: walkthrough,
+          date: { $gte: fromDateObject, $lte: toDateObject },
+        })
+        .select('data date -_id')
+        .exec();
+    }
 
-    // const result = await this.logModel.find(
-    //   {
-    //     name: walkthrough,
-    //     date: { $gte: fromDateObject, $lte: toDateObject },
-    //     [`data.${dataSelection}`]: { $exists: true },
-    //   },
-    //   'data date -_id',
-    // );
+    const data = logs.flatMap((log) => {
+      return log.data.map((data) => {
+        if (data.dataPoint._id === selectedDataPoint) {
+          let itemDate = new Date(log.date);
+          const sameDateAtFourteen = set(itemDate, {
+            hours: 7,
+            minutes: 0,
+            seconds: 0,
+            milliseconds: 0,
+          });
+          // console.log("before if statement");
+          // console.log(itemDate, " : ", sameDateAtFourteen);
+          if (isBefore(itemDate, sameDateAtFourteen)) {
+            // console.log("adjusting time");
+            // If before UTC 14:00, set the time to 14:01 the day before
+            itemDate = subDays(
+              set(itemDate, {
+                hours: 7,
+                minutes: 1,
+                seconds: 0,
+                milliseconds: 0,
+              }),
+              1,
+            );
+            // console.log("New time:", itemDate)
+          }
+          // console.log(format(itemDate, "PPP"));
+          return {
+            value:
+              data.value === 'true'
+                ? 1
+                : data.value === 'false'
+                  ? 0
+                  : data.value,
+            date: format(itemDate, 'PPP'),
+          };
+          // return { date: log.date.toDateString(), value: data.value };
+        }
+      });
+    });
 
-    // // console.log(result);
-    // /*
-    //  * justSelectedData should send [{date: Date, value: number}]
-    //  */
-    // const justSelectedData = result.map((item) => {
-    //   let itemDate = new Date(item.date);
-    //   const sameDateAtFourteen = set(itemDate, {
-    //     hours: 7,
-    //     minutes: 0,
-    //     seconds: 0,
-    //     milliseconds: 0,
-    //   });
-    //   // console.log("before if statement");
-    //   // console.log(itemDate, " : ", sameDateAtFourteen);
-    //   if (isBefore(itemDate, sameDateAtFourteen)) {
-    //     // console.log("adjusting time");
-    //     // If before UTC 14:00, set the time to 14:01 the day before
-    //     itemDate = subDays(
-    //       set(itemDate, { hours: 7, minutes: 1, seconds: 0, milliseconds: 0 }),
-    //       1,
-    //     );
-    //     // console.log("New time:", itemDate)
-    //   }
-    //   // console.log(format(itemDate, "PPP"));
-    //   return {
-    //     value:
-    //       item.data[dataSelection] === 'true'
-    //         ? 1
-    //         : item.data[dataSelection] === 'false'
-    //           ? 0
-    //           : item.data[dataSelection],
-    //     date: format(itemDate, 'PPP'),
-    //   };
-    // });
-    // return justSelectedData;
-    return 'Still in Development';
+    return data;
   }
 }

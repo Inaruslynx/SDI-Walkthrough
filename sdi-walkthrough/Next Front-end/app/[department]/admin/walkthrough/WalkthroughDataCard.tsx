@@ -40,6 +40,7 @@ interface WalkthroughDataCardProps {
   selectedWalkthrough: string;
   dataPoint: DataPoint;
   parentArea: string;
+  namePassDown: string;
   onDeleteClick: () => void;
 }
 
@@ -47,6 +48,7 @@ export default function WalkthroughDataCard({
   selectedWalkthrough,
   dataPoint,
   parentArea,
+  namePassDown,
   onDeleteClick,
 }: WalkthroughDataCardProps): ReactNode {
   // React Hook Form controller
@@ -146,6 +148,7 @@ export default function WalkthroughDataCard({
     const dataPointPackage: DataPoint = {
       _id: _id,
       text: formData.text,
+      name: namePassDown + " - " + formData.text,
       type: formData.type,
       unit: formData.unit,
       min: formData.min,

@@ -40,6 +40,7 @@ export class DatapointService {
 
     const dataPointDoc = new this.dataPointModel({
       text: createDatapointDto.text,
+      name: createDatapointDto.name || "",
       type: createDatapointDto.type,
       parentArea: areaDoc,
       parentWalkthrough: createDatapointDto.parentWalkthrough,

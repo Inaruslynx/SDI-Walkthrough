@@ -8,7 +8,7 @@ export type LogDocument = HydratedDocument<Log>;
 
 export interface LogData {
   dataPoint: DataPoint;
-  value?: string | number | boolean;
+  value: string;
 }
 
 @Schema({ timestamps: true })
@@ -32,7 +32,7 @@ export class Log {
     type: [
       {
         dataPoint: { type: mongoose.Schema.Types.ObjectId, ref: 'DataPoint' },
-        value: { type: mongoose.Schema.Types.Mixed },
+        value: { type: mongoose.Schema.Types.String },
         _id: false,
       },
     ],

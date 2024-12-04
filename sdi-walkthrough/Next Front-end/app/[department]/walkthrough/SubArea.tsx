@@ -3,10 +3,11 @@ import DataPointElement from "./DataPointElement";
 
 interface SubAreaProps {
   data: Area[];
+  edit: boolean;
   border?: boolean;
 }
 
-const SubArea: React.FC<SubAreaProps> = ({ data, border }) => {
+const SubArea: React.FC<SubAreaProps> = ({ data, edit, border }) => {
   return (
     <>
       {data.map((area, index) => (
@@ -27,11 +28,11 @@ const SubArea: React.FC<SubAreaProps> = ({ data, border }) => {
           </div>
           {area.areas && area.areas.length > 0 && (
             <div className={`w-full ${border ? "border" : ""}`}>
-              <SubArea data={area.areas} />
+              <SubArea data={area.areas} edit={edit} />
             </div>
           )}
           {area.dataPoints && area.dataPoints.length > 0 && (
-            <DataPointElement data={area.dataPoints} />
+            <DataPointElement data={area.dataPoints} draggable={edit} />
           )}
         </div>
       ))}

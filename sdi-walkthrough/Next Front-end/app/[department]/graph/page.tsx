@@ -4,10 +4,15 @@ import { useQuery } from "@tanstack/react-query";
 import type { ChartData } from "chart.js";
 import Graph from "./graph";
 import GraphForm from "./form";
-import api, { findAllLogs, getWalkthroughs } from "@/lib/api";
+import {
+  findAllLogs,
+  findArea,
+  getWalkthrough,
+  getWalkthroughs,
+} from "@/lib/api";
 import SelectWalkthrough from "@/components/ui/selectWalkthrough";
 import { AxiosResponse } from "axios";
-import { Walkthroughs } from "@/types";
+import { Area, DataPoint, Walkthrough } from "@/types";
 
 interface Response {
   data: {
@@ -23,34 +28,111 @@ interface FetchData {
   toDate: string;
 }
 
-export default function GraphPage(
-  props: {
-    params: Promise<{ department: string }>;
-    }
-) {
-  const params = use(props.params);
-  const [selectedWalkthrough, setSelectedWalkthrough] = useState(
-    "Select a Walkthrough"
-  );
+export default function GraphPage(props: {
+  params: Promise<{ department: string }>;
+}) {
+  const { department } = use(props.params);
+  const [selectedWalkthrough, setSelectedWalkthrough] = useState("");
+  const [walkthroughData, setWalkthroughData] = useState<Area[]>([]);
   const [Results, setResults] = useState<ChartData<"line">>();
   const [ShowGraph, setShowGraph] = useState(false);
   const [showForm, setShowForm] = useState(false);
-  const [Options, setOptions] = useState<string[]>([]);
-  const [FromDate, setFromDate] = useState<string>(new Date().toDateString());
-  const [ToDate, setToDate] = useState<string>(new Date().toDateString());
+  const [Options, setOptions] = useState<{ _id: string; text: string }[]>([]);
 
   // Fetch all walkthroughs for department
-  const walkthroughs = useQuery<AxiosResponse<Walkthroughs>, Error>({
-    queryKey: ["walkthrough", { department: params.department }],
-    queryFn: () => getWalkthroughs(params.department),
+  // const walkthroughs = useQuery<AxiosResponse<Walkthrough[]>, Error>({
+  //   queryKey: ["walkthrough", { department }],
+  //   queryFn: () => getWalkthroughs(department),
+  //   staleTime: 1000 * 60 * 5,
+  // });
+
+  // Fetch the selected Walkthrough
+  const selectedWalkthroughQuery = useQuery<Area[]>({
+    queryKey: ["walkthrough", { id: selectedWalkthrough }],
+    queryFn: () => masterGetWalkthrough(selectedWalkthrough),
     staleTime: 1000 * 60 * 5,
+    enabled: selectedWalkthrough !== "",
   });
 
-  const graphDataQuery = useQuery({
-    queryKey: ["logs"],
-    queryFn: () => findAllLogs(selectedWalkthrough),
-    enable: selectedWalkthrough !== "Select a Walkthrough",
-  })
+  const masterGetWalkthrough = async (
+    walkthroughId: string
+  ): Promise<Area[]> => {
+    const response = await getWalkthrough(walkthroughId);
+    // console.log("response:", response.data.data);
+    if (response?.data?.data) {
+      const results = await fetchWalkthroughAreas(response.data.data as Area[]);
+      console.log("results:", results);
+      return results;
+    } else {
+      return [];
+    }
+  };
+
+  const fetchWalkthroughAreas = async (areas: Area[]): Promise<Area[]> => {
+    const allAreas: Area[] = (
+      await Promise.all(
+        areas.map(async (area: Area) => {
+          if (!area._id) return null;
+          const response = await findArea(area._id);
+          const areaData = response.data;
+
+          if (areaData.areas && areaData.areas.length > 0) {
+            const subAreas = await fetchWalkthroughAreas(areaData.areas);
+            areaData.areas = subAreas;
+          }
+
+          return areaData;
+        })
+      )
+    ).filter((area) => area !== null);
+    return allAreas;
+  };
+
+  useEffect(() => {
+    setShowForm(false);
+    if (selectedWalkthroughQuery.isSuccess && selectedWalkthroughQuery.data) {
+      setWalkthroughData(selectedWalkthroughQuery.data);
+    }
+  }, [selectedWalkthroughQuery.isSuccess, selectedWalkthroughQuery.data]);
+
+  function collectAllDataPoints(areas: Area[]): DataPoint[] {
+    const allDataPoints: DataPoint[] = [];
+
+    function traverse(area: Area) {
+      // Collect dataPoints from the current area
+      allDataPoints.push(...area.dataPoints);
+
+      // Recursively process sub-areas if they exist
+      if (area.areas) {
+        area.areas.forEach(traverse);
+      }
+    }
+
+    // Start traversal for all top-level areas
+    areas.forEach(traverse);
+
+    return allDataPoints;
+  }
+
+  function extractOptions(
+    dataPoints: DataPoint[]
+  ): { _id: string; text: string }[] {
+    return dataPoints.map((dp) => ({ _id: dp._id ?? "", text: dp.text }));
+  }
+
+  useEffect(() => {
+    if (walkthroughData) {
+      const dataPointsInWalkthrough = collectAllDataPoints(walkthroughData);
+      setOptions(extractOptions(dataPointsInWalkthrough));
+      setShowForm(true);
+    }
+  }, [walkthroughData]);
+
+  // const graphDataQuery = useQuery({
+  //   queryKey: ["logs"],
+  //   queryFn: () => findAllLogs(selectedWalkthrough),
+  //   enabled: selectedWalkthrough !== "",
+  // });
 
   // useEffect(() => {
   //   const fetchData = async () => {
@@ -86,26 +168,33 @@ export default function GraphPage(
       <div className="grid prose md:prose-lg max-w-full container items-center justify-center justify-items-center content-center place-content-center">
         <div className="row">
           <h1 className="justify-self-center self-center place-self-center">
-            {params.department} Graph
+            {department} Graph
           </h1>
         </div>
-        <SelectWalkthrough
-            className="align-end m-2"
-            selectedWalkthrough={selectedWalkthrough}
-            walkthroughs={walkthroughs.data?.data?.walkthroughs}
-            onChange={setSelectedWalkthrough}
-          />
-
-        {showForm && (
-          <div className="mb-8 pb-4 row">
-            <GraphForm
-              onDataFromChild={handleDataFromChild}
-              options={Options}
-              fromDate={FromDate}
-              toDate={ToDate}
+        <div className="inline-flex items-baseline">
+          <label className="form-control">
+            <div className="label">
+              <span className="label-text">Walkthrough</span>
+            </div>
+            <SelectWalkthrough
+              className="select-bordered align-end m-2"
+              text="Select a Walkthrough"
+              value={selectedWalkthrough}
+              department={department}
+              onChange={setSelectedWalkthrough}
             />
-          </div>
-        )}
+          </label>
+
+          {showForm && selectedWalkthrough !== "" && (
+            <div className="mb-8 pb-4 row">
+              <GraphForm
+                onDataFromChild={handleDataFromChild}
+                walkthroughId={selectedWalkthrough}
+                options={Options}
+              />
+            </div>
+          )}
+        </div>
       </div>
       {ShowGraph && Results && (
         <div className="container w-full lg:mt-4 lg:pt-2 relative z-0">

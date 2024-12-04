@@ -36,7 +36,7 @@ export default function NavBar() {
   useEffect(() => {
     if (userQuery.isSuccess) {
       if (userQuery.data.data) {
-        setAdmin(userQuery.data.data.admin);
+        setAdmin(userQuery.data.data.admin || false);
       }
     }
   }, [userQuery.data]);

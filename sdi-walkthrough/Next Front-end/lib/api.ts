@@ -1,13 +1,13 @@
 import axios, { AxiosResponse } from "axios";
 import {
-  Walkthrough,
-  Walkthroughs,
-  createWalkthroughResponse,
-  Area,
-  DataPoint,
+  type Walkthrough,
+  type createWalkthroughResponse,
+  type Area,
+  type DataPoint,
   type Department,
-  Log,
-  User,
+  type Log,
+  type User,
+  type ReportItem,
 } from "@/types";
 
 const api = axios.create({
@@ -333,6 +333,35 @@ export async function deleteUser(id: string) {
     withCredentials: true,
   });
   return response;
+}
+
+// Report CRUD
+// Get Report
+export async function getReport(walkthrough: string) {
+  const response = await api.get<ReportItem[]>(`report`, {
+    params: walkthrough,
+  });
+  return response.data;
+}
+
+// Graph CRUD
+// Get Graph
+export async function getGraph(
+  walkthrough: string,
+  dataPoint: string,
+  toDate?: string,
+  fromDate?: string,
+) {
+  const paramPackage = {
+    walkthrough: walkthrough,
+    dataPoint: dataPoint,
+    toDate: toDate || undefined,
+    fromDate: fromDate || undefined,
+  };
+  const response = await api.get(`graph`, {
+    params: paramPackage,
+  });
+  return response.data;
 }
 
 export default api;
