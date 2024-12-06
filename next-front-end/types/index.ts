@@ -64,17 +64,6 @@ export interface Department {
   walkthroughs: Walkthrough[];
 }
 
-export interface Log {
-  _id?: string;
-  walkthrough: string;
-  data: LogItem[];
-}
-
-export interface LogItem {
-  dataPoint: DataPoint;
-  value: string;
-}
-
 export interface User {
   _id?: string;
   email: string;
@@ -87,12 +76,44 @@ export interface User {
   type?: Theme;
 }
 
-export type ReportItem = {
-  lastLog: LogItem[];
+export interface Log {
+  _id?: string;
+  walkthrough: string;
+  data: LogItem[];
+}
+
+export interface LogItem {
+  dataPoint: DataPoint;
+  value: string;
+}
+
+export type Result = Record<
+  string,
+  {
+    name: string;
+    values: { mean: number; stdDev: number; min: number; max: number };
+  }[]
+>;
+
+export type ItemOfConcern = Record<
+  string,
+  {
+    dataPoint: DataPoint;
+    issues: {
+      type: string;
+      value: number;
+      range?: { Min: number; Max: number };
+      threshold?: number;
+    }[];
+  }
+>;
+
+export type Report = {
+  lastLog?: LogItem[];
   beforeLastLog?: LogItem[];
-  results;
-  differenceOfRecentLogs?: ;
-  itemsOfConcern?: ;
+  results?: Result[];
+  differenceOfRecentLogs?: Record<string, number>[];
+  itemsOfConcern?: ItemOfConcern[];
 };
 
 export enum Theme {

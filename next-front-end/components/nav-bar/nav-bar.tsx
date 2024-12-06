@@ -31,6 +31,7 @@ export default function NavBar() {
     queryFn: async () => {
       return findUser(user?.id as string);
     },
+    enabled: !!user,
   });
 
   useEffect(() => {

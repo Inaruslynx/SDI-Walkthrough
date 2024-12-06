@@ -7,7 +7,7 @@ import api, { getReport } from "@/lib/api";
 import type { AxiosResponse } from "axios";
 import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
-import { ReportItem } from "@/types";
+import { Report } from "@/types";
 
 // const FormSchema = z.object({
 //   dataSelection: z.string().min(1, { message: "Please select a data point." }),
@@ -56,9 +56,9 @@ export default function GraphForm({
         walkthroughId,
         selectedDataPoint,
         selectedToDate,
-        selectedFromDate,
+        selectedFromDate
       ),
-    onSuccess: (data: ReportItem[]) => {
+    onSuccess: (data: Report[]) => {
       toast.success("Successfully got graph data.");
       onDataFromChild({
         labels: data.map((item) => item.date),

@@ -7,7 +7,7 @@ import {
   type Department,
   type Log,
   type User,
-  type ReportItem,
+  type Report,
 } from "@/types";
 
 const api = axios.create({
@@ -48,7 +48,7 @@ export async function getOneDepartment(id?: string, name?: string) {
 export async function createWalkthrough(
   name: string,
   department: string,
-  orgId: string,
+  orgId: string
 ) {
   // if (!name || !department || name === "Select a Walkthrough") {
   //   return null;
@@ -62,7 +62,7 @@ export async function createWalkthrough(
     },
     {
       withCredentials: true,
-    },
+    }
   );
   return response;
 }
@@ -108,7 +108,7 @@ export async function updateWalkthrough(
   name?: string,
   periodicity?: string,
   weekly?: string,
-  perSwing?: string,
+  perSwing?: string
 ) {
   const payload: any = {};
 
@@ -121,7 +121,7 @@ export async function updateWalkthrough(
     { ...payload, orgId },
     {
       withCredentials: true,
-    },
+    }
   );
   return response;
 }
@@ -147,7 +147,7 @@ export async function createArea(areaPackage: Area, orgId: string) {
     { ...areaPackage, orgId },
     {
       withCredentials: true,
-    },
+    }
   );
   return response;
 }
@@ -175,7 +175,7 @@ export async function updateArea(areaPackage: Area, orgId: string) {
     { ...areaPackage, orgId },
     {
       withCredentials: true,
-    },
+    }
   );
   return response;
 }
@@ -197,7 +197,7 @@ export async function createDataPoint(dataPoint: DataPoint, orgId: string) {
     { ...dataPoint, orgId },
     {
       withCredentials: true,
-    },
+    }
   );
   return response;
 }
@@ -225,7 +225,7 @@ export async function updateDataPoint(dataPoint: DataPoint, orgId: string) {
     { ...dataPoint, orgId },
     {
       withCredentials: true,
-    },
+    }
   );
   return response;
 }
@@ -247,7 +247,7 @@ export async function createLog(data: Log) {
     { data },
     {
       withCredentials: true,
-    },
+    }
   );
   return response;
 }
@@ -256,7 +256,7 @@ export async function createLog(data: Log) {
 export async function findAllLogs(
   walkthrough: string,
   fromDate?: Date,
-  toDate?: Date,
+  toDate?: Date
 ) {
   const response = await api.get("log", {
     params: {
@@ -281,7 +281,7 @@ export async function updateLog(id: string, data: Log) {
     { data },
     {
       withCredentials: true,
-    },
+    }
   );
   return response;
 }
@@ -338,8 +338,8 @@ export async function deleteUser(id: string) {
 // Report CRUD
 // Get Report
 export async function getReport(walkthrough: string) {
-  const response = await api.get<ReportItem[]>(`report`, {
-    params: walkthrough,
+  const response = await api.get<Report>(`report`, {
+    params: { walkthrough },
   });
   return response.data;
 }
@@ -350,7 +350,7 @@ export async function getGraph(
   walkthrough: string,
   dataPoint: string,
   toDate?: string,
-  fromDate?: string,
+  fromDate?: string
 ) {
   const paramPackage = {
     walkthrough: walkthrough,

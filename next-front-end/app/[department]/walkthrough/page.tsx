@@ -89,6 +89,7 @@ export default function WalkthroughPage(props: {
                 type="checkbox"
                 className="toggle toggle-primary"
                 checked={edit}
+                disabled
                 onChange={(e) => setEdit(e.target.checked)}
               />
             </label>
@@ -97,10 +98,8 @@ export default function WalkthroughPage(props: {
       </div>
       {/* 
       TODO 
-      - use a renderer to go through selectedWalkthroughQuery results and show walkthrough
       - buttons and data picker to go through past logs
-      - have a navigation spy to help navigate the walkthrough will need to be based on areas
-      so an area will create a branch on the navspy with all it's children
+      - edit button so that the user can reorganize walkthrough
       */}
       {selectedWalkthrough !== "" &&
         selectedWalkthroughQuery.isSuccess &&

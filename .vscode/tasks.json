@@ -6,7 +6,7 @@
       "type": "shell",
       "command": "npm run dev",
       "options": {
-        "cwd": "c:/Next.js/sdi-walkthrough/Next Front-end"
+        "cwd": "${workspaceFolder}/next-front-end"
       }
     },
     {
@@ -14,7 +14,7 @@
       "type": "shell",
       "command": "npm run start:dev",
       "options": {
-        "cwd": "c:/Next.js/sdi-walkthrough/nestjs-back-end"
+        "cwd": "${workspaceFolder}/nestjs-back-end"
       }
     },
     {

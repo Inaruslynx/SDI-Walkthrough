@@ -3,6 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Log } from 'src/schemas/logs.schema';
 import { std, mean, min, max, round } from 'mathjs';
+import { DataPointDocument } from 'src/schemas/DataPoints.schema';
 // import { isToday } from 'date-fns';
 
 @Injectable()
@@ -24,10 +25,21 @@ export class ReportService {
       );
     }
 
-    const differenceOfRecentLogs = [{}];
-    const itemsOfConcern = [{}];
+    const differenceOfRecentLogs: Record<string, number>[] = [];
+    const itemsOfConcern: Record<
+      string,
+      {
+        dataPoint: DataPointDocument;
+        issues: {
+          type: string;
+          value: number;
+          range?: { Min: number; Max: number };
+          threshold?: number;
+        }[];
+      }
+    >[] = [];
     // let logs: LogDocument[] = [];
-    console.log('walkthrough:', walkthrough);
+    // console.log('walkthrough:', walkthrough);
 
     const logs = await this.logModel
       .find({ walkthrough })
@@ -40,7 +52,7 @@ export class ReportService {
     const rawData = logs.map((log) => {
       return log.data;
     });
-    console.log('rawData:', rawData);
+    // console.log('rawData:', rawData);
     // TODO Need to fix this. Data will be an array of {dataPoint, value}
     const onlyNumberData = rawData.map((data) => {
       return data
@@ -53,9 +65,10 @@ export class ReportService {
 
     let lastLog: any;
     let beforeLastLog: any;
-    console.log('onlyNumberData:', onlyNumberData);
+    // console.log('onlyNumberData:', onlyNumberData);
+    lastLog = onlyNumberData.pop();
+    // console.log('lastLog:', lastLog);
     if (onlyNumberData.length > 1) {
-      lastLog = onlyNumberData.pop();
       beforeLastLog = onlyNumberData[onlyNumberData.length - 1];
 
       lastLog.forEach((logData: any) => {
@@ -77,51 +90,54 @@ export class ReportService {
       });
     }
 
-    let results: {
-      id: string;
-      name: string;
-      values: { mean: number; stdDev: number; min: number; max: number };
-    }[] = [];
-    onlyNumberData.forEach((data) => {
-      // TODO add code to create items of concern
-      let valuesByDataPoint: Record<
-        string,
-        { text: string; values: number[] }
-      > = {};
-      data.forEach((logData) => {
-        console.log('logData:', logData);
-        const dataText = logData.dataPoint.text as string;
-        const dataPointId = logData.dataPoint.id as string;
-        if (!valuesByDataPoint[dataPointId]) {
-          valuesByDataPoint[dataPointId] = { text: dataText, values: [] };
-        }
-        valuesByDataPoint[dataPointId].values.push(logData.value);
+    let results: Record<
+      string,
+      {
+        name: string;
+        values: { mean: number; stdDev: number; min: number; max: number };
+      }[]
+    >[] = [];
+    if (onlyNumberData.length > 0) {
+      onlyNumberData.forEach((data) => {
+        // TODO add code to create items of concern
+        let valuesByDataPoint: Record<
+          string,
+          { text: string; values: number[] }
+        > = {};
+        data.forEach((logData) => {
+          // console.log('logData:', logData);
+          const dataText = logData.dataPoint.text as string;
+          const dataPointId = logData.dataPoint.id as string;
+          if (!valuesByDataPoint[dataPointId]) {
+            valuesByDataPoint[dataPointId] = { text: dataText, values: [] };
+          }
+          valuesByDataPoint[dataPointId].values.push(logData.value);
+        });
+        // console.log('valuesByDataPoint:', valuesByDataPoint);
+        Object.entries(valuesByDataPoint).forEach(
+          ([dataPointId, { text: dataText, values }]) => {
+            // console.log('dataPointId:', dataPointId);
+            // console.log('dataText:', dataText);
+            // console.log('values:', values);
+
+            const Mean = round(mean(values), 2);
+            // console.log('Mean:', Mean);
+            const stdDev = round(Number(std(values, 'unbiased')), 2);
+            // console.log('stdDev:', stdDev);
+            const Min = min(values);
+            // console.log('Min:', Min);
+            const Max = max(values);
+            // console.log('Max:', Max);
+            results[dataPointId] = {
+              name: dataText,
+              values: { mean: Mean, stdDev, min: Min, max: Max },
+            };
+          },
+        );
       });
-      console.log('valuesByDataPoint:', valuesByDataPoint);
-      Object.entries(valuesByDataPoint).forEach(
-        ([dataPointId, { text: dataText, values }]) => {
-          console.log('dataPointId:', dataPointId);
-          console.log('dataText:', dataText);
-          console.log('values:', values);
+    }
 
-          const Mean = round(mean(values), 2);
-          console.log('Mean:', Mean);
-          const stdDev = round(Number(std(values, 'unbiased')), 2);
-          console.log('stdDev:', stdDev);
-          const Min = min(values);
-          console.log('Min:', Min);
-          const Max = max(values);
-          console.log('Max:', Max);
-          results.push({
-            id: dataPointId,
-            name: dataText,
-            values: { mean: Mean, stdDev, min: Min, max: Max },
-          });
-        },
-      );
-    });
-
-    if (lastLog) {
+    if (lastLog && results.length > 0) {
       lastLog.forEach((logData: any) => {
         // console.log('logData:', logData);
         const dataPointId = logData.dataPoint._id as string;
@@ -149,7 +165,7 @@ export class ReportService {
       });
     }
 
-    if (differenceOfRecentLogs.length > 0) {
+    if (differenceOfRecentLogs.length > 0 && results.length > 0) {
       differenceOfRecentLogs.forEach((diffLog: any) => {
         if (Object.keys(diffLog).length === 0) {
           return;
@@ -174,7 +190,7 @@ export class ReportService {
         if (absDifference > stdDev) {
           itemsOfConcern[dataPointId].issues.push({
             type: 'Exceeds standard deviation',
-            difference: diffLog.value,
+            value: diffLog.value,
             threshold: stdDev,
           });
         }
@@ -186,7 +202,7 @@ export class ReportService {
     return {
       lastLog: lastLog ? lastLog : undefined,
       beforeLastLog: beforeLastLog ? beforeLastLog : undefined,
-      results,
+      results: results.length > 1 ? results : undefined,
       differenceOfRecentLogs:
         onlyNumberData.length > 1 ? differenceOfRecentLogs : undefined,
       itemsOfConcern: itemsOfConcern.length > 1 ? itemsOfConcern : undefined,
