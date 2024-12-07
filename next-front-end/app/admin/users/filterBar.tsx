@@ -18,7 +18,7 @@ export default function FilterBar({ users, onFilter }: Props) {
       return (
         user.firstName?.toLowerCase().includes(queryLower) ||
         user.lastName?.toLowerCase().includes(queryLower) ||
-        user.email.toLowerCase().includes(queryLower) ||
+        user.email?.toLowerCase().includes(queryLower) ||
         (user.department &&
           typeof user.department === "object" &&
           user.department.name?.toLowerCase().includes(queryLower)) ||

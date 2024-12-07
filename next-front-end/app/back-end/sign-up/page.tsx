@@ -6,16 +6,23 @@ import { toast } from "react-toastify";
 import { Theme, User } from "@/types";
 import { useUser } from "@clerk/nextjs";
 import { useMutation } from "@tanstack/react-query";
-import { useEffect } from "react";
+import { Suspense, useEffect } from "react";
 
-export default function SignUpPage() {
+export default function SignUpPageWrapper() {
+  return (
+    <Suspense fallback={<div>Creating user...</div>}>
+      <SignUpPage />
+    </Suspense>
+  );
+}
+
+function SignUpPage() {
   const { user } = useUser();
   const searchParams = useSearchParams();
   const router = useRouter();
   //   console.log("In SignUpPage");
   //   console.log("user:", user);
 
-  const redirectUrl = searchParams.get("redirect_url");
   // console.log("redirectUrl:", redirectUrl);
 
   // useMutation function that makes api post request to create user
@@ -26,6 +33,7 @@ export default function SignUpPage() {
     onSuccess: () => {
       //   console.log("Successfully created new user");
       toast.success("Welcome to SDI Walkthrough!");
+      const redirectUrl = searchParams.get("redirect_url");
       if (redirectUrl) {
         router.push(redirectUrl);
       } else {
@@ -60,4 +68,6 @@ export default function SignUpPage() {
       console.log("user:", user);
     }
   }, [user]);
+
+  return null;
 }

@@ -31,10 +31,10 @@ const DataPointElement: React.FC<DataPointProps> = ({
           if (dataPoint.min !== undefined || dataPoint.max !== undefined) {
             zodType = zodType.unwrap();
             if (dataPoint.min !== undefined) {
-              zodType = zodType.min(dataPoint.min);
+              zodType = zodType.min(Number(dataPoint.min));
             }
             if (dataPoint.max !== undefined) {
-              zodType = zodType.max(dataPoint.max);
+              zodType = zodType.max(Number(dataPoint.max));
             }
           }
           break;

@@ -154,52 +154,59 @@ export default function ReportPage(props: {
               </thead>
               <tbody>
                 {lastLog.map((logItem) => (
-                  <tr key={logItem.dataPoint._id}>
-                    <th>{logItem.dataPoint.text}</th>
+                  <tr key={(logItem.dataPoint as DataPoint)._id}>
+                    <th>{(logItem.dataPoint as DataPoint).text}</th>
                     <td>{logItem.value}</td>
                     <td>
-                      {beforeLastLog && logItem.dataPoint._id
+                      {beforeLastLog && (logItem.dataPoint as DataPoint)._id
                         ? beforeLastLog.find(
                             (item) =>
-                              item.dataPoint._id === logItem.dataPoint._id
+                              (item.dataPoint as DataPoint)._id ===
+                              (logItem.dataPoint as DataPoint)._id
                           )?.value || ""
                         : ""}
                     </td>
                     <td>
                       {differenceOfRecentLogs &&
-                      logItem.dataPoint._id &&
+                      (logItem.dataPoint as DataPoint)._id &&
                       differenceOfRecentLogs.hasOwnProperty(
-                        logItem.dataPoint._id
+                        (logItem.dataPoint as DataPoint)._id!
                       )
-                        ? differenceOfRecentLogs[logItem.dataPoint._id]
+                        ? differenceOfRecentLogs[
+                            (logItem.dataPoint as DataPoint)._id!
+                          ]
                         : ""}
                     </td>
                     <td className="text-center">
                       {results &&
-                      logItem.dataPoint._id &&
-                      logItem.dataPoint._id in results
-                        ? results[logItem.dataPoint._id].values.mean
+                      (logItem.dataPoint as DataPoint)._id &&
+                      (logItem.dataPoint as DataPoint)._id! in results
+                        ? results[(logItem.dataPoint as DataPoint)._id!].values
+                            .mean
                         : ""}
                     </td>
                     <td className="text-center">
                       {results &&
-                      logItem.dataPoint._id &&
-                      logItem.dataPoint._id in results
-                        ? results[logItem.dataPoint._id].values.stdDev
+                      (logItem.dataPoint as DataPoint) &&
+                      (logItem.dataPoint as DataPoint)._id! in results
+                        ? results[(logItem.dataPoint as DataPoint)._id!].values
+                            .stdDev
                         : ""}
                     </td>
                     <td className="text-center">
                       {results &&
-                      logItem.dataPoint._id &&
-                      logItem.dataPoint._id in results
-                        ? results[logItem.dataPoint._id].values.min
+                      (logItem.dataPoint as DataPoint)._id &&
+                      (logItem.dataPoint as DataPoint)._id! in results
+                        ? results[(logItem.dataPoint as DataPoint)._id!].values
+                            .min
                         : ""}
                     </td>
                     <td className="text-center">
                       {results &&
-                      logItem.dataPoint._id &&
-                      logItem.dataPoint._id in results
-                        ? results[logItem.dataPoint._id].values.max
+                      (logItem.dataPoint as DataPoint)._id &&
+                      (logItem.dataPoint as DataPoint)._id! in results
+                        ? results[(logItem.dataPoint as DataPoint)._id!].values
+                            .max
                         : ""}
                     </td>
                   </tr>

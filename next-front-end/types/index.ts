@@ -66,11 +66,11 @@ export interface Department {
 
 export interface User {
   _id?: string;
-  email: string;
+  email?: string;
   clerkId: string;
   firstName?: string;
   lastName?: string;
-  assignedWalkthroughs: Walkthrough[] | string[];
+  assignedWalkthroughs?: Walkthrough[] | string[];
   department?: Department | string;
   admin?: boolean;
   type?: Theme;
@@ -83,7 +83,7 @@ export interface Log {
 }
 
 export interface LogItem {
-  dataPoint: DataPoint;
+  dataPoint: DataPoint | string;
   value: string;
 }
 
@@ -94,7 +94,7 @@ export type Result = {
 
 export type ResultRecord = {
   readonly [index: string]: Result;
-}
+};
 
 export type ItemOfConcern = {
   dataPoint: DataPoint;
@@ -108,8 +108,8 @@ export type ItemOfConcern = {
 
 export type ItemOfConcernRecord = {
   readonly [index: string]: ItemOfConcern;
-}
-  // Record<string, ItemOfConcern>;
+};
+// Record<string, ItemOfConcern>;
 
 export type Report = {
   lastLog?: LogItem[];
