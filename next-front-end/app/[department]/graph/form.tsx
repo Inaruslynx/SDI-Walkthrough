@@ -3,11 +3,10 @@
 import { format } from "date-fns";
 import { toast } from "react-toastify";
 import { ChartData } from "chart.js";
-import api, { getReport } from "@/lib/api";
-import type { AxiosResponse } from "axios";
+import { getGraph } from "@/lib/api";
 import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
-import { Report } from "@/types";
+import { GraphData } from "@/types";
 
 // const FormSchema = z.object({
 //   dataSelection: z.string().min(1, { message: "Please select a data point." }),
@@ -52,17 +51,19 @@ export default function GraphForm({
 
   const graphFormMutation = useMutation({
     mutationFn: async () =>
-      getReport(
+      getGraph(
         walkthroughId,
         selectedDataPoint,
         selectedToDate,
         selectedFromDate
       ),
-    onSuccess: (data: Report[]) => {
+    onSuccess: (data: GraphData) => {
       toast.success("Successfully got graph data.");
       onDataFromChild({
-        labels: data.map((item) => item.date),
-        datasets: [{ data: data.map((item) => item.value) }],
+        labels: data.labels,
+        datasets: data.datasets.map((dataset) => ({
+          data: dataset.data.map((value) => Number(value)),
+        })),
       });
     },
     onError: (e) => {

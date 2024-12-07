@@ -14,7 +14,7 @@ export class GraphService {
     toDate: string,
     fromDate: string,
   ) {
-    let logs: LogDocument[] = [];
+    let logs;
     const fromDateObject = new Date(fromDate);
     const toDateObject = new Date(toDate);
     fromDateObject.setUTCHours(14, 0, 0, 0);
@@ -23,34 +23,61 @@ export class GraphService {
     } else {
       toDateObject.setTime(new Date().getTime());
     }
+    // console.log('walkthrough:', walkthrough);
+    // console.log('selectedData', selectedDataPoint);
     if (!toDate && !fromDate) {
       logs = await this.logModel
-        .find({ _id: walkthrough })
-        .select('data -_id')
+        .find({ walkthrough })
+        .select('data date -_id')
+        .populate({ path: 'data', populate: { path: 'dataPoint' } })
+        .lean()
         .exec();
     } else if (!toDate) {
+      // console.log('fromDate only:', fromDateObject);
       logs = await this.logModel
-        .find({ _id: walkthrough, date: { $gte: fromDateObject } })
+        .find({ walkthrough, date: { $gte: fromDateObject } })
         .select('data date -_id')
+        .populate({ path: 'data', populate: { path: 'dataPoint' } })
+        .lean()
         .exec();
     } else if (!fromDate) {
+      // console.log('toDate only:', toDateObject);
       logs = await this.logModel
-        .find({ _id: walkthrough, date: { $lte: toDateObject } })
+        .find({ walkthrough, date: { $lte: toDateObject } })
         .select('data date -_id')
+        .populate({ path: 'data', populate: { path: 'dataPoint' } })
+        .lean()
         .exec();
     } else {
+      // console.log('toDate:', toDateObject);
+      // console.log('fromDate:', fromDateObject);
       logs = await this.logModel
         .find({
-          _id: walkthrough,
+          walkthrough,
           date: { $gte: fromDateObject, $lte: toDateObject },
         })
         .select('data date -_id')
+        .populate({ path: 'data', populate: { path: 'dataPoint' } })
+        .lean()
         .exec();
     }
 
-    const data = logs.flatMap((log) => {
-      return log.data.map((data) => {
-        if (data.dataPoint._id === selectedDataPoint) {
+    // console.log('logs:', logs);
+
+    const sendPackage: {
+      labels: string[];
+      datasets: [
+        {
+          data: number[];
+        },
+      ];
+    } = { labels: [], datasets: [{ data: [] }] };
+    logs.forEach((log) => {
+      log.data.forEach((data) => {
+        // console.log("data:", data);
+        // console.log('dataPoint id:', data.dataPoint._id);
+        if (data.dataPoint._id.toString() === selectedDataPoint) {
+          // console.log('data:', data);
           let itemDate = new Date(log.date);
           const sameDateAtFourteen = set(itemDate, {
             hours: 7,
@@ -74,21 +101,20 @@ export class GraphService {
             );
             // console.log("New time:", itemDate)
           }
-          // console.log(format(itemDate, "PPP"));
-          return {
-            value:
-              data.value === 'true'
-                ? 1
-                : data.value === 'false'
-                  ? 0
-                  : data.value,
-            date: format(itemDate, 'PPP'),
-          };
-          // return { date: log.date.toDateString(), value: data.value };
+          // console.log('itemDate:', itemDate);
+          // console.log('value:', data.value);
+          sendPackage.labels.push(format(itemDate, 'PPP'));
+          sendPackage.datasets[0].data.push(
+            data.value === 'true'
+              ? 1
+              : data.value === 'false'
+                ? 0
+                : Number(data.value),
+          );
         }
       });
     });
 
-    return data;
+    return sendPackage;
   }
 }

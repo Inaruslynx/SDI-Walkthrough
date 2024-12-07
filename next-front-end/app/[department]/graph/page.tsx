@@ -4,14 +4,8 @@ import { useQuery } from "@tanstack/react-query";
 import type { ChartData } from "chart.js";
 import Graph from "./graph";
 import GraphForm from "./form";
-import {
-  findAllLogs,
-  findArea,
-  getWalkthrough,
-  getWalkthroughs,
-} from "@/lib/api";
+import { findArea, getWalkthrough } from "@/lib/api";
 import SelectWalkthrough from "@/components/ui/selectWalkthrough";
-import { AxiosResponse } from "axios";
 import { Area, DataPoint, Walkthrough } from "@/types";
 
 interface Response {
@@ -117,7 +111,9 @@ export default function GraphPage(props: {
   function extractOptions(
     dataPoints: DataPoint[]
   ): { _id: string; text: string }[] {
-    return dataPoints.map((dp) => ({ _id: dp._id ?? "", text: dp.text }));
+    return dataPoints
+      .filter((dp) => dp.type !== "string")
+      .map((dp) => ({ _id: dp._id ?? "", text: dp.text }));
   }
 
   useEffect(() => {

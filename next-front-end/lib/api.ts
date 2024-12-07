@@ -8,6 +8,7 @@ import {
   type Log,
   type User,
   type Report,
+  GraphData,
 } from "@/types";
 
 const api = axios.create({
@@ -354,11 +355,11 @@ export async function getGraph(
 ) {
   const paramPackage = {
     walkthrough: walkthrough,
-    dataPoint: dataPoint,
+    selectedDataPoint: dataPoint,
     toDate: toDate || undefined,
     fromDate: fromDate || undefined,
   };
-  const response = await api.get(`graph`, {
+  const response = await api.get<GraphData>(`graph`, {
     params: paramPackage,
   });
   return response.data;
