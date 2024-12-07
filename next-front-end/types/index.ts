@@ -1,8 +1,8 @@
 export interface GraphData {
-  labels: Date[];
+  labels: string[];
   datasets: [
     {
-      data: number[];
+      data: string[];
     },
   ];
 }
@@ -15,8 +15,8 @@ export interface DataPoint {
   type: "number" | "string" | "boolean" | "choice";
   value?: string;
   unit?: string;
-  min?: number;
-  max?: number;
+  min?: string;
+  max?: string;
   choices?: string[];
   parentArea: string;
   parentWalkthrough: string;
@@ -87,33 +87,36 @@ export interface LogItem {
   value: string;
 }
 
-export type Result = Record<
-  string,
-  {
-    name: string;
-    values: { mean: number; stdDev: number; min: number; max: number };
-  }[]
->;
+export type Result = {
+  name: string;
+  values: { mean: string; stdDev: string; min: string; max: string };
+};
 
-export type ItemOfConcern = Record<
-  string,
-  {
-    dataPoint: DataPoint;
-    issues: {
-      type: string;
-      value: number;
-      range?: { Min: number; Max: number };
-      threshold?: number;
-    }[];
-  }
->;
+export type ResultRecord = {
+  readonly [index: string]: Result;
+}
+
+export type ItemOfConcern = {
+  dataPoint: DataPoint;
+  issues: {
+    type: string;
+    value: string;
+    range?: { Min: string; Max: string };
+    threshold?: string;
+  }[];
+};
+
+export type ItemOfConcernRecord = {
+  readonly [index: string]: ItemOfConcern;
+}
+  // Record<string, ItemOfConcern>;
 
 export type Report = {
   lastLog?: LogItem[];
   beforeLastLog?: LogItem[];
-  results?: Result[];
-  differenceOfRecentLogs?: Record<string, number>[];
-  itemsOfConcern?: ItemOfConcern[];
+  results?: ResultRecord;
+  differenceOfRecentLogs?: Record<string, string>;
+  itemsOfConcern?: ItemOfConcernRecord;
 };
 
 export enum Theme {

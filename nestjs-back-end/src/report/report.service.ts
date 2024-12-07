@@ -25,7 +25,8 @@ export class ReportService {
       );
     }
 
-    const differenceOfRecentLogs: Record<string, number>[] = [];
+    type Difference = {dataPoint: DataPointDocument, value: number};
+    const differenceOfRecentLogs: Record<string, Difference> = {};
     const itemsOfConcern: Record<
       string,
       {
@@ -37,7 +38,7 @@ export class ReportService {
           threshold?: number;
         }[];
       }
-    >[] = [];
+    > = {};
     // let logs: LogDocument[] = [];
     // console.log('walkthrough:', walkthrough);
 
@@ -82,10 +83,10 @@ export class ReportService {
 
         // If a match is found, calculate the difference
         if (matchingBeforeLog) {
-          differenceOfRecentLogs.push({
+          differenceOfRecentLogs[logData.dataPoint._id] = {
             dataPoint: logData.dataPoint,
             value: logData.value - matchingBeforeLog.value,
-          });
+          };
         }
       });
     }
@@ -95,8 +96,8 @@ export class ReportService {
       {
         name: string;
         values: { mean: number; stdDev: number; min: number; max: number };
-      }[]
-    >[] = [];
+      }
+    > = {};
     if (onlyNumberData.length > 0) {
       onlyNumberData.forEach((data) => {
         // TODO add code to create items of concern
@@ -137,14 +138,14 @@ export class ReportService {
       });
     }
 
-    if (lastLog && results.length > 0) {
+    if (lastLog && Object.keys(results).length > 0) {
       lastLog.forEach((logData: any) => {
         // console.log('logData:', logData);
         const dataPointId = logData.dataPoint._id as string;
         const result = results[dataPointId];
         if (!result) return; // Skip if results for this dataPoint do not exist
 
-        const { Min, Max } = result;
+        const { min: Min, max: Max } = result.values;
 
         // Initialize the itemsOfConcern entry if it doesn't exist
         if (!itemsOfConcern[dataPointId]) {
@@ -165,23 +166,18 @@ export class ReportService {
       });
     }
 
-    if (differenceOfRecentLogs.length > 0 && results.length > 0) {
-      differenceOfRecentLogs.forEach((diffLog: any) => {
-        if (Object.keys(diffLog).length === 0) {
-          return;
-        }
-        // console.log('diffLog:', diffLog);
-        const dataPointId = diffLog.dataPoint._id as string;
+    if (Object.keys(differenceOfRecentLogs).length > 0 && Object.keys(results).length > 0) {
+      for (const dataPointId in differenceOfRecentLogs) {
         const result = results[dataPointId];
         if (!result) return; // Skip if results for this dataPoint do not exist
 
-        const { stdDev } = result;
-        const absDifference = Math.abs(diffLog.value);
+        const { stdDev } = result.values;
+        const absDifference = Math.abs(differenceOfRecentLogs[dataPointId].value);
 
         // Initialize the itemsOfConcern entry if it doesn't exist
         if (!itemsOfConcern[dataPointId]) {
           itemsOfConcern[dataPointId] = {
-            dataPoint: diffLog.dataPoint,
+            dataPoint: differenceOfRecentLogs[dataPointId].dataPoint,
             issues: [],
           };
         }
@@ -190,23 +186,22 @@ export class ReportService {
         if (absDifference > stdDev) {
           itemsOfConcern[dataPointId].issues.push({
             type: 'Exceeds standard deviation',
-            value: diffLog.value,
+            value: absDifference,
             threshold: stdDev,
           });
         }
-      });
+      }
     }
 
     // console.log(lastLog);
-    // This will render the page
+    // This will send the report
     return {
       lastLog: lastLog ? lastLog : undefined,
       beforeLastLog: beforeLastLog ? beforeLastLog : undefined,
-      results: results.length > 1 ? results : undefined,
+      results: Object.keys(results).length > 1 ? results : undefined,
       differenceOfRecentLogs:
         onlyNumberData.length > 1 ? differenceOfRecentLogs : undefined,
-      itemsOfConcern: itemsOfConcern.length > 1 ? itemsOfConcern : undefined,
+      itemsOfConcern: Object.keys(itemsOfConcern).length > 0 ? itemsOfConcern : undefined,
     };
-    // return `${walkthrough} ${toDate} ${fromDate}`;
   }
 }
