@@ -31,8 +31,8 @@ interface FormValues {
   text: string;
   type: "number" | "string" | "boolean" | "choice";
   unit?: string;
-  min?: number;
-  max?: number;
+  min?: string;
+  max?: string;
   choices: string[] | string;
 }
 
@@ -151,8 +151,8 @@ export default function WalkthroughDataCard({
       name: namePassDown + " - " + formData.text,
       type: formData.type,
       unit: formData.unit,
-      min: formData.min,
-      max: formData.max,
+      min: formData.min?.toString(),
+      max: formData.max?.toString(),
       parentArea: parentArea,
       parentWalkthrough: selectedWalkthrough,
       choices: Array.isArray(formData.choices)
@@ -208,7 +208,7 @@ export default function WalkthroughDataCard({
       ? currentChoices
       : [currentChoices];
     const updatedChoices = currentChoicesArray.filter(
-      (choice) => choice !== choiceToDelete,
+      (choice) => choice !== choiceToDelete
     );
     console.log("updatedChoice:", updatedChoices);
     setValue("choices", updatedChoices);
@@ -476,25 +476,3 @@ export default function WalkthroughDataCard({
     </>
   );
 }
-
-/* 
-{Array.isArray(getValues("choices")) &&
-                    getValues("choices").length > 0 && (
-                      <div className="join flex items-center">
-                        {getValues("choices").map((choice, index) => (
-                          <div key={index} className="mt-2">
-                            <span className="join-item p-2">
-                              {choice || "Blank"}
-                            </span>
-                            <button
-                              type="button"
-                              className="btn btn-error btn-sm join-item"
-                              onClick={() => handleDeleteChoice(choice)}
-                            >
-                              Delete
-                            </button>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                       */
