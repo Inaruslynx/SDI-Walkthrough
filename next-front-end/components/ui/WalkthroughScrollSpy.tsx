@@ -12,8 +12,13 @@ export default function WalkthroughScrollSpy({
   const renderArea = (area: Area) => (
     <React.Fragment key={area._id + "li"}>
       <li>
-        <div key={area._id + "n"} className="">
-          <NavLink scrollSpy id={area._id} href={`#${area._id}`}>
+        <div key={area._id + "n"}>
+          <NavLink
+            scrollSpy
+            id={area._id}
+            href={`#${area._id}`}
+            className="block text-ellipsis overflow-hidden whitespace-nowrap"
+          >
             {area.name}
           </NavLink>
         </div>
@@ -27,7 +32,7 @@ export default function WalkthroughScrollSpy({
   );
 
   return (
-    <ul className="mt-8 flex flex-col items-center menu sticky top-32">
+    <ul className="mt-8 flex-col flex-nowrap items-start menu sticky top-32 max-h-[80vh] hover:overflow-y-auto">
       {Data.map((area) => renderArea(area))}
     </ul>
   );

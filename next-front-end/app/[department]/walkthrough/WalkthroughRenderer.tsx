@@ -105,21 +105,25 @@ const WalkthroughRenderer: React.FC<WalkthroughRendererProps> = ({
                       />
                     </div>
                     {area.dataPoints && area.dataPoints.length > 0 && (
-                      <DataPointRenderer
-                        key={area._id + "1"}
-                        data={area.dataPoints}
-                        draggable={edit}
-                      />
+                      <div className="dataafterarea flex flex-col container w-full m-4 p-2 items-center text-center">
+                        <DataPointRenderer
+                          key={area._id + "1"}
+                          data={area.dataPoints}
+                          draggable={edit}
+                          border
+                        />
+                      </div>
                     )}
                   </React.Fragment>
                 ) : (
                   <React.Fragment>
                     {area.dataPoints && area.dataPoints.length > 0 && (
-                      <div className="flex flex-col container w-full m-4 items-center text-center">
+                      <div className="noarea flex flex-col container w-full m-4 p-2 items-center text-center">
                         <DataPointRenderer
                           key={area._id + "1"}
                           data={area.dataPoints}
                           draggable={edit}
+                          border
                         />
                       </div>
                     )}
