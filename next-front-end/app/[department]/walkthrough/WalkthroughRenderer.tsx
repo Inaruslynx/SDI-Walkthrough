@@ -3,7 +3,7 @@ import { Area, Log } from "@/types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import ScrollSpy from "react-ui-scrollspy";
 import SubArea from "./SubArea";
-import DataPointElement from "./DataPointElement";
+import DataPointRenderer from "./DataPointRenderer";
 import { FormProvider, useForm } from "react-hook-form";
 import { DevTool } from "@hookform/devtools";
 import { toast } from "react-toastify";
@@ -50,9 +50,7 @@ const WalkthroughRenderer: React.FC<WalkthroughRendererProps> = ({
     },
   });
 
-  const onSubmit = async (
-    formData: Record<string, string>
-  ) => {
+  const onSubmit = async (formData: Record<string, string>) => {
     // Map formData to the expected structure for Log.data
     const mappedData = Object.entries(formData).map(([dataPoint, value]) => ({
       dataPoint,
@@ -107,7 +105,7 @@ const WalkthroughRenderer: React.FC<WalkthroughRendererProps> = ({
                       />
                     </div>
                     {area.dataPoints && area.dataPoints.length > 0 && (
-                      <DataPointElement
+                      <DataPointRenderer
                         key={area._id + "1"}
                         data={area.dataPoints}
                         draggable={edit}
@@ -118,7 +116,7 @@ const WalkthroughRenderer: React.FC<WalkthroughRendererProps> = ({
                   <React.Fragment>
                     {area.dataPoints && area.dataPoints.length > 0 && (
                       <div className="flex flex-col container w-full m-4 items-center text-center">
-                        <DataPointElement
+                        <DataPointRenderer
                           key={area._id + "1"}
                           data={area.dataPoints}
                           draggable={edit}

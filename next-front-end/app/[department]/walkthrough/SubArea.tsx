@@ -1,5 +1,5 @@
 import { Area } from "@/types";
-import DataPointElement from "./DataPointElement";
+import DataPointRenderer from "./DataPointRenderer";
 
 interface SubAreaProps {
   data: Area[];
@@ -32,7 +32,7 @@ const SubArea: React.FC<SubAreaProps> = ({ data, edit, border }) => {
             </div>
           )}
           {area.dataPoints && area.dataPoints.length > 0 && (
-            <DataPointElement data={area.dataPoints} draggable={edit} />
+            <DataPointRenderer data={area.dataPoints} draggable={edit} />
           )}
         </div>
       ))}
