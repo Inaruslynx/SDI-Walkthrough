@@ -19,7 +19,7 @@ export default function DataPointElement({
     setShowText((prevValue: boolean) => !prevValue);
   };
   return (
-    <div>
+    <div className={dataPoint.type === "string" ? "w-full" : ""}>
       {dataPoint.type === "number" && (
         <label className="form-control">
           <div className="label">
@@ -37,13 +37,13 @@ export default function DataPointElement({
       {dataPoint.type === "boolean" && (
         <label className="form-control cursor-pointer">
           <div className="label">
+            <input
+              type="checkbox"
+              className="checkbox checkbox-sm m-2"
+              {...register(`${dataPoint._id}`)}
+            />
             <span className="label-text">{dataPoint.text}</span>
           </div>
-          <input
-            type="checkbox"
-            className="checkbox"
-            {...register(`${dataPoint._id}`)}
-          />
         </label>
       )}
       {dataPoint.type === "choice" && (
@@ -76,7 +76,7 @@ export default function DataPointElement({
         </button>
       )}
       {dataPoint.type === "string" && showText && (
-        <div className="react-grid-item react-resizable min-w-fit mx-8">
+        <div className="react-grid-item react-resizable mx-8">
           <label className="form-control">
             <div className="label">
               <span className="label-text">{dataPoint.text}</span>

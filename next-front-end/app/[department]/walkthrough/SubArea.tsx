@@ -32,7 +32,7 @@ const SubArea: React.FC<SubAreaProps> = ({ data, edit, border }) => {
             </div>
           )}
           {area.dataPoints && area.dataPoints.length > 0 && (
-            <DataPointRenderer data={area.dataPoints} draggable={edit} />
+            <DataPointRenderer data={area.dataPoints} draggable={edit} border />
           )}
         </div>
       ))}

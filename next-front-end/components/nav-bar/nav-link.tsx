@@ -8,6 +8,7 @@ import { usePathname } from "next/navigation";
 interface NavLinkProps {
   href: string;
   children: React.ReactNode;
+  className?: string;
   button?: boolean;
   scrollSpy?: boolean;
   id?: string;
@@ -16,6 +17,7 @@ interface NavLinkProps {
 export default function NavLink({
   href,
   children,
+  className,
   button,
   scrollSpy,
   id,
@@ -25,7 +27,7 @@ export default function NavLink({
   const onPress = (e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
     e.preventDefault();
     const target = window.document.getElementById(
-      e.currentTarget.href.split("#")[1],
+      e.currentTarget.href.split("#")[1]
     );
     if (target) {
       var headerOffset = 120;
@@ -45,7 +47,7 @@ export default function NavLink({
     return (
       <Link
         href={href}
-        className={`btn m-2 px-4 py-2 ${path === href ? "btn-primary" : "hover:btn-primary"} rounded-btn`}
+        className={`btn m-2 px-4 py-2 ${path === href ? "btn-primary" : "hover:btn-primary"} rounded-btn ${className}`}
       >
         {children}
       </Link>
@@ -54,7 +56,7 @@ export default function NavLink({
   if (scrollSpy) {
     return (
       <Link
-        className={""}
+        className={className}
         key={id + "1"}
         data-to-scrollspy-id={id}
         onClick={(e) => onPress(e)}

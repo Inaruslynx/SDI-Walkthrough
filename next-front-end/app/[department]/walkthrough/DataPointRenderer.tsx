@@ -12,13 +12,48 @@ const ResponsiveGridLayout = WidthProvider(Responsive);
 interface DataPointRendererProps {
   data: DataPoint[];
   draggable: boolean;
+  border?: boolean;
 }
 
 const DataPointRenderer: React.FC<DataPointRendererProps> = ({
   data,
   draggable,
+  border = false,
 }: DataPointRendererProps) => {
-  const [showText, setShowText] = useState(false);
+  const [showTextMap, setShowTextMap] = useState<Record<string, boolean>>({});
+
+  // Group data by type
+  const numbersAndChoices = data.filter(
+    (dp) => dp.type === "number" || dp.type === "choice"
+  );
+  const booleans = data.filter((dp) => dp.type === "boolean");
+  const strings = data.filter((dp) => dp.type === "string");
+
+  // Calculate columns dynamically for numbers and choices
+  const hasNumberType = numbersAndChoices.length > 0;
+  const columns = hasNumberType
+    ? {
+        lg: min([6, numbersAndChoices.length]),
+        md: min([4, numbersAndChoices.length]),
+        sm: min([3, numbersAndChoices.length]),
+        xs: min([2, numbersAndChoices.length]),
+        xxs: min([1, numbersAndChoices.length]),
+      }
+    : {
+        lg: 1,
+        md: 1,
+        sm: 1,
+        xs: 1,
+        xxs: 1,
+      };
+  
+  // Toggle showText for a specific dataPoint
+  const toggleShowText = (id: string) => {
+    setShowTextMap((prev) => ({
+      ...prev,
+      [id]: !prev[id],
+    }));
+  };
 
   // Dynamically build Zod schema based on data array
   const dataPointSchema = z.object(
@@ -68,16 +103,10 @@ const DataPointRenderer: React.FC<DataPointRendererProps> = ({
 
   return (
     <ResponsiveGridLayout
-      className="border"
+      className={`w-full ${border ? "border" : ""}`}
       // items={data.length}
       breakpoints={{ lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0 }}
-      cols={{
-        lg: min([6, data.length]),
-        md: min([4, data.length]),
-        sm: min([3, data.length]),
-        xs: min([2, data.length]),
-        xxs: min([1, data.length]),
-      }}
+      cols={columns}
       width={1000}
       preventCollision={false}
       allowOverlap={false}
@@ -87,24 +116,65 @@ const DataPointRenderer: React.FC<DataPointRendererProps> = ({
       // isDraggable={draggable}
       isDraggable={false}
     >
-      {data.map((dataPoint, index) => (
-        <div
-          className="object-center"
-          key={dataPoint._id}
-          data-grid={{
-            x: index % min([6, data.length]),
-            y: floor(index / min([6, data.length])),
-            w: 1,
-            h: showText ? 2 : 1,
-          }}
-        >
-          <DataPointElement
-            dataPoint={dataPoint}
-            showText={showText}
-            setShowText={setShowText}
-          />
-        </div>
-      ))}
+      {/* Numbers and Choices */}
+      {numbersAndChoices.map((dataPoint, index) => (
+          <div
+            className="flex items-center justify-center object-center"
+            key={dataPoint._id}
+            data-grid={{
+              x: index % (columns.lg || 1),
+              y: floor(index / (columns.lg || 1)),
+              w: 1,
+              h: showTextMap[dataPoint._id!] ? 2 : 1,
+            }}
+          >
+            <DataPointElement
+              dataPoint={dataPoint}
+              showText={!!showTextMap[dataPoint._id!]}
+              setShowText={() => toggleShowText(dataPoint._id!)}
+            />
+          </div>
+        ))}
+
+        {/* Booleans */}
+        {booleans.map((dataPoint, index) => (
+          <div
+            className="flex items-center justify-center object-center"
+            key={dataPoint._id}
+            data-grid={{
+              x: 0,
+              y: numbersAndChoices.length + index,
+              w: columns.lg || 1,
+              h: showTextMap[dataPoint._id!] ? 2 : 1,
+            }}
+          >
+            <DataPointElement
+              dataPoint={dataPoint}
+              showText={!!showTextMap[dataPoint._id!]}
+              setShowText={() => toggleShowText(dataPoint._id!)}
+            />
+          </div>
+        ))}
+
+        {/* Strings */}
+        {strings.map((dataPoint, index) => (
+          <div
+            className="flex items-center justify-center object-center"
+            key={dataPoint._id}
+            data-grid={{
+              x: 0,
+              y: numbersAndChoices.length + booleans.length + index,
+              w: columns.lg || 1,
+              h: showTextMap[dataPoint._id!] ? 2 : 1,
+            }}
+          >
+            <DataPointElement
+              dataPoint={dataPoint}
+              showText={!!showTextMap[dataPoint._id!]}
+              setShowText={() => toggleShowText(dataPoint._id!)}
+            />
+          </div>
+        ))}
     </ResponsiveGridLayout>
   );
 };
