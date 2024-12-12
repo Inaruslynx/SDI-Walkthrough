@@ -7,12 +7,15 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { ClerkUser } from '../schemas/users.schema';
+import { Department } from 'src/schemas/departments.schema';
 import { Model } from 'mongoose';
+import { createClerkClient } from '@clerk/express';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectModel(ClerkUser.name) private userModel: Model<ClerkUser>,
+    @InjectModel(Department.name) private departmentModel: Model<Department>,
   ) {}
   async create(createUserDto: CreateUserDto) {
     // console.log('createUserDto:', createUserDto);
@@ -60,24 +63,47 @@ export class UserService {
     // console.log('userDoc:', userDoc);
     if (userDoc) {
       // console.log('updating an existing user');
+      if (userDoc.department !== updateUserDto.department) {
+        const departmentDoc = await this.departmentModel.findById(
+          userDoc.department,
+        );
+        // console.log('departmentDoc:', departmentDoc);
+        const clerkClient = createClerkClient({
+          secretKey: process.env.CLERK_SECRET_KEY,
+          publishableKey: process.env.CLERK_PUBLISHABLE_KEY,
+        });
+        const result = await clerkClient.users.updateUserMetadata(
+          userDoc.clerkId,
+          {
+            publicMetadata: {
+              role: `org:${departmentDoc.name.toLowerCase()}`,
+            },
+          },
+        );
+        if (!result) {
+          throw new InternalServerErrorException(
+            'Failed to update user metadata',
+          );
+        }
+      }
 
-      const userDoc = {
+      const updatedUserDoc = {
         ...updateUserDto,
       };
       // console.log('updated userDoc:', userDoc);
       const result = await this.userModel.updateOne(
         { clerkId: updateUserDto.clerkId },
-        userDoc,
+        updatedUserDoc,
       );
       return result;
     } else {
       // console.log('creating a new user');
-      const userData = {
+      const updateUserData = {
         ...updateUserDto,
         admin: false,
         assignedWalkthroughs: [],
       };
-      const newUser = new this.userModel(userData);
+      const newUser = new this.userModel(updateUserData);
       const result = await newUser.save();
       // console.log(result);
       return result;
