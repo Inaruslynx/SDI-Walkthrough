@@ -1,6 +1,6 @@
 "use client";
 import {
-  UserButton,
+  useClerk,
   SignedIn,
   SignedOut,
   SignInButton,
@@ -18,6 +18,7 @@ import { AxiosResponse } from "axios";
 import { useEffect, useState } from "react";
 
 export default function NavBar() {
+  const { signOut } = useClerk();
   const [Admin, setAdmin] = useState(false);
   const { user } = useUser();
   const departments = useQuery<AxiosResponse<Department[]>, Error>({
@@ -25,6 +26,12 @@ export default function NavBar() {
     queryFn: getAllDepartments,
     staleTime: 1000 * 60 * 5, // ms * s * m
   });
+
+  function handleSignOut(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
+    e.preventDefault;
+    signOut();
+    window.location.href = "https://login.microsoftonline.com/logout.srf";
+  }
 
   const userQuery = useQuery({
     queryKey: ["user"],
@@ -122,17 +129,14 @@ export default function NavBar() {
               {departments.data?.data?.map((department) => (
                 <NavDropdown name={department.name} key={department.name} />
               ))}
-            </div>
-            {/* TODO: Need to show or hide based on metadata for admin */}
-            <SignedIn>
-              {userQuery.isSuccess && Admin === true && (
-                <li>
+              <SignedIn>
+                {userQuery.isSuccess && Admin === true && (
                   <NavLink button href="/admin/users/">
                     User Control
                   </NavLink>
-                </li>
-              )}
-            </SignedIn>
+                )}
+              </SignedIn>
+            </div>
           </div>
           <div className="flex-none navbar-end">
             <SignedIn>
@@ -156,18 +160,12 @@ export default function NavBar() {
                 }}
               />
               <div className="p-2">
-                <UserButton
-                  appearance={{
-                    elements: {
-                      userButtonPopoverCard: "bg-base-200 text-base-content",
-                      userButtonPopoverActionButtonText: "text-base-content",
-                      userButtonPopoverActionButtonIcon: "stroke-base-content",
-                      userPreviewSecondaryIdentifier: "text-base-content",
-                      userButtonPopoverFooter:
-                        "text-base-content stroke-base-content",
-                    },
-                  }}
-                />
+                <button
+                  className="btn hover:btn-primary"
+                  onClick={(e) => handleSignOut(e)}
+                >
+                  Sign Out
+                </button>
               </div>
             </SignedIn>
             <SignedOut>
