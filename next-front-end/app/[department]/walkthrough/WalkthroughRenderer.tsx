@@ -1,6 +1,6 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Area, Log } from "@/types";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import ScrollSpy from "react-ui-scrollspy";
 import SubArea from "./SubArea";
 import DataPointRenderer from "./DataPointRenderer";
@@ -27,12 +27,22 @@ const WalkthroughRenderer: React.FC<WalkthroughRendererProps> = ({
   // console.log("In WalkthroughRenderer");
   // console.log(data);
 
+  useEffect(() => {
+    const savedData = JSON.parse(
+      localStorage.getItem(selectedWalkthrough) || "{}"
+    );
+    for (const [key, value] of Object.entries(savedData)) {
+      methods.setValue(key, value);
+    }
+  }, [selectedWalkthrough, methods]);
+
   // Log CRUD
   const createLogMutation = useMutation({
     mutationFn: createLog,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["log"] });
       toast.success("Successfully entered Log.");
+      localStorage.removeItem(selectedWalkthrough);
     },
     onError: (e) => {
       toast.error(`Failed to enter Log. ${e}`);
@@ -111,6 +121,7 @@ const WalkthroughRenderer: React.FC<WalkthroughRendererProps> = ({
                           data={area.dataPoints}
                           draggable={edit}
                           border
+                          walkthroughId={selectedWalkthrough}
                         />
                       </div>
                     )}
@@ -123,6 +134,7 @@ const WalkthroughRenderer: React.FC<WalkthroughRendererProps> = ({
                           key={area._id + "1"}
                           data={area.dataPoints}
                           draggable={edit}
+                          walkthroughId={selectedWalkthrough}
                           border
                         />
                       </div>

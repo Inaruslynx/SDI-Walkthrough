@@ -12,11 +12,13 @@ const ResponsiveGridLayout = WidthProvider(Responsive);
 interface DataPointRendererProps {
   data: DataPoint[];
   draggable: boolean;
+  walkthroughId: string;
   border?: boolean;
 }
 
 const DataPointRenderer: React.FC<DataPointRendererProps> = ({
   data,
+  walkthroughId,
   draggable,
   border = false,
 }: DataPointRendererProps) => {
@@ -131,7 +133,8 @@ const DataPointRenderer: React.FC<DataPointRendererProps> = ({
             <DataPointElement
               dataPoint={dataPoint}
               showText={!!showTextMap[dataPoint._id!]}
-              setShowText={() => toggleShowText(dataPoint._id!)}
+            setShowText={() => toggleShowText(dataPoint._id!)}
+            walkthroughId={walkthroughId}
             />
           </div>
         ))}
@@ -152,6 +155,7 @@ const DataPointRenderer: React.FC<DataPointRendererProps> = ({
               dataPoint={dataPoint}
               showText={!!showTextMap[dataPoint._id!]}
               setShowText={() => toggleShowText(dataPoint._id!)}
+              walkthroughId={walkthroughId}
             />
           </div>
         ))}
@@ -172,6 +176,7 @@ const DataPointRenderer: React.FC<DataPointRendererProps> = ({
               dataPoint={dataPoint}
               showText={!!showTextMap[dataPoint._id!]}
               setShowText={() => toggleShowText(dataPoint._id!)}
+              walkthroughId={walkthroughId}
             />
           </div>
         ))}

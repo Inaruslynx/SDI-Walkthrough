@@ -7,17 +7,36 @@ interface DataPointProps {
   dataPoint: DataPoint;
   showText: boolean;
   setShowText: React.Dispatch<React.SetStateAction<boolean>>;
+  walkthroughId: string;
 }
 
 export default function DataPointElement({
   dataPoint,
   showText,
   setShowText,
+  walkthroughId,
 }: DataPointProps) {
   const { register } = useFormContext();
+
+  // Handle saving to localStorage
+  const handleChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+    >
+  ) => {
+    if (!walkthroughId || walkthroughId === "") {
+      console.log("No walkthroughId:", walkthroughId);
+      return;
+    }
+    const savedData = JSON.parse(localStorage.getItem(walkthroughId) || "{}");
+    savedData[dataPoint._id!] = e.target.value;
+    localStorage.setItem(walkthroughId, JSON.stringify(savedData));
+  };
+
   const onShowButtonClick = () => {
     setShowText((prevValue: boolean) => !prevValue);
   };
+
   return (
     <div className={dataPoint.type === "string" ? "w-full" : ""}>
       {dataPoint.type === "number" && (
@@ -31,6 +50,7 @@ export default function DataPointElement({
             step="any"
             placeholder="Enter value"
             {...register(`${dataPoint._id}`)}
+            onChange={handleChange}
           />
         </label>
       )}
@@ -41,6 +61,7 @@ export default function DataPointElement({
               type="checkbox"
               className="checkbox checkbox-sm m-2"
               {...register(`${dataPoint._id}`)}
+              onChange={handleChange}
             />
             <span className="label-text">{dataPoint.text}</span>
           </div>
@@ -54,6 +75,7 @@ export default function DataPointElement({
           <select
             className="select select-primary"
             {...register(`${dataPoint._id}`, { value: "" })}
+            onChange={handleChange}
           >
             <option disabled value={""}>
               Please select one
@@ -85,6 +107,7 @@ export default function DataPointElement({
               className="textarea textarea-bordered h-24"
               placeholder="Log status"
               {...register(`${dataPoint._id}`)}
+              onChange={handleChange}
             ></textarea>
           </label>
         </div>
