@@ -28,6 +28,10 @@ const WalkthroughRenderer: React.FC<WalkthroughRendererProps> = ({
   // console.log(data);
 
   useEffect(() => {
+    // console.log(
+    //   "in WalkthroughRenderer selectedWalkthrough:",
+    //   selectedWalkthrough
+    // );
     const savedData = JSON.parse(
       localStorage.getItem(selectedWalkthrough) || "{}"
     );
@@ -112,6 +116,7 @@ const WalkthroughRenderer: React.FC<WalkthroughRendererProps> = ({
                         data={area.areas}
                         edit={edit}
                         border
+                        walkthroughId={selectedWalkthrough}
                       />
                     </div>
                     {area.dataPoints && area.dataPoints.length > 0 && (

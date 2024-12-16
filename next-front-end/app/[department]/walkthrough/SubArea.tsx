@@ -3,11 +3,12 @@ import DataPointRenderer from "./DataPointRenderer";
 
 interface SubAreaProps {
   data: Area[];
+  walkthroughId: string;
   edit: boolean;
   border?: boolean;
 }
 
-const SubArea: React.FC<SubAreaProps> = ({ data, edit, border }) => {
+const SubArea: React.FC<SubAreaProps> = ({ data, walkthroughId, edit, border }) => {
   return (
     <>
       {data.map((area, index) => (
@@ -28,11 +29,11 @@ const SubArea: React.FC<SubAreaProps> = ({ data, edit, border }) => {
           </div>
           {area.areas && area.areas.length > 0 && (
             <div className={`w-full ${border ? "border" : ""}`}>
-              <SubArea data={area.areas} edit={edit} />
+              <SubArea data={area.areas} edit={edit} walkthroughId={walkthroughId} />
             </div>
           )}
           {area.dataPoints && area.dataPoints.length > 0 && (
-            <DataPointRenderer data={area.dataPoints} draggable={edit} border />
+            <DataPointRenderer data={area.dataPoints} draggable={edit} walkthroughId={walkthroughId} border />
           )}
         </div>
       ))}
