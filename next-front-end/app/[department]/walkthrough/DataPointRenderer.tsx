@@ -12,11 +12,13 @@ const ResponsiveGridLayout = WidthProvider(Responsive);
 interface DataPointRendererProps {
   data: DataPoint[];
   draggable: boolean;
+  walkthroughId: string;
   border?: boolean;
 }
 
 const DataPointRenderer: React.FC<DataPointRendererProps> = ({
   data,
+  walkthroughId,
   draggable,
   border = false,
 }: DataPointRendererProps) => {
@@ -46,7 +48,7 @@ const DataPointRenderer: React.FC<DataPointRendererProps> = ({
         xs: 1,
         xxs: 1,
       };
-  
+
   // Toggle showText for a specific dataPoint
   const toggleShowText = (id: string) => {
     setShowTextMap((prev) => ({
@@ -54,6 +56,10 @@ const DataPointRenderer: React.FC<DataPointRendererProps> = ({
       [id]: !prev[id],
     }));
   };
+
+  // useEffect(() => {
+  //   console.log("in dataPointRenderer walkthroughId:", walkthroughId);
+  // }, [walkthroughId]);
 
   // Dynamically build Zod schema based on data array
   const dataPointSchema = z.object(
@@ -102,80 +108,87 @@ const DataPointRenderer: React.FC<DataPointRendererProps> = ({
   // }, []);
 
   return (
-    <ResponsiveGridLayout
-      className={`w-full ${border ? "border" : ""}`}
-      // items={data.length}
-      breakpoints={{ lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0 }}
-      cols={columns}
-      width={1000}
-      preventCollision={false}
-      allowOverlap={false}
-      autoSize={true}
-      measureBeforeMount={false}
-      isResizable={false}
-      // isDraggable={draggable}
-      isDraggable={false}
-    >
-      {/* Numbers and Choices */}
-      {numbersAndChoices.map((dataPoint, index) => (
-          <div
-            className="flex items-center justify-center object-center"
-            key={dataPoint._id}
-            data-grid={{
-              x: index % (columns.lg || 1),
-              y: floor(index / (columns.lg || 1)),
-              w: 1,
-              h: showTextMap[dataPoint._id!] ? 2 : 1,
-            }}
-          >
-            <DataPointElement
-              dataPoint={dataPoint}
-              showText={!!showTextMap[dataPoint._id!]}
-              setShowText={() => toggleShowText(dataPoint._id!)}
-            />
-          </div>
-        ))}
+    <>
+      {walkthroughId !== "" && (
+        <ResponsiveGridLayout
+          className={`w-full ${border ? "border" : ""}`}
+          // items={data.length}
+          breakpoints={{ lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0 }}
+          cols={columns}
+          width={1000}
+          preventCollision={false}
+          allowOverlap={false}
+          autoSize={true}
+          measureBeforeMount={false}
+          isResizable={false}
+          // isDraggable={draggable}
+          isDraggable={false}
+        >
+          {/* Numbers and Choices */}
+          {numbersAndChoices.map((dataPoint, index) => (
+            <div
+              className="flex items-center justify-center object-center"
+              key={dataPoint._id}
+              data-grid={{
+                x: index % (columns.lg || 1),
+                y: floor(index / (columns.lg || 1)),
+                w: 1,
+                h: showTextMap[dataPoint._id!] ? 2 : 1,
+              }}
+            >
+              <DataPointElement
+                dataPoint={dataPoint}
+                showText={!!showTextMap[dataPoint._id!]}
+                setShowText={() => toggleShowText(dataPoint._id!)}
+                walkthroughId={walkthroughId}
+              />
+            </div>
+          ))}
 
-        {/* Booleans */}
-        {booleans.map((dataPoint, index) => (
-          <div
-            className="flex items-center justify-center object-center"
-            key={dataPoint._id}
-            data-grid={{
-              x: 0,
-              y: numbersAndChoices.length + index,
-              w: columns.lg || 1,
-              h: showTextMap[dataPoint._id!] ? 2 : 1,
-            }}
-          >
-            <DataPointElement
-              dataPoint={dataPoint}
-              showText={!!showTextMap[dataPoint._id!]}
-              setShowText={() => toggleShowText(dataPoint._id!)}
-            />
-          </div>
-        ))}
+          {/* Booleans */}
+          {booleans.map((dataPoint, index) => (
+            <div
+              className="flex items-center justify-center object-center"
+              key={dataPoint._id}
+              data-grid={{
+                x: 0,
+                y: numbersAndChoices.length + index,
+                w: columns.lg || 1,
+                h: showTextMap[dataPoint._id!] ? 2 : 1,
+              }}
+            >
+              <DataPointElement
+                dataPoint={dataPoint}
+                showText={!!showTextMap[dataPoint._id!]}
+                setShowText={() => toggleShowText(dataPoint._id!)}
+                walkthroughId={walkthroughId}
+              />
+            </div>
+          ))}
 
-        {/* Strings */}
-        {strings.map((dataPoint, index) => (
-          <div
-            className="flex items-center justify-center object-center"
-            key={dataPoint._id}
-            data-grid={{
-              x: 0,
-              y: numbersAndChoices.length + booleans.length + index,
-              w: columns.lg || 1,
-              h: showTextMap[dataPoint._id!] ? 2 : 1,
-            }}
-          >
-            <DataPointElement
-              dataPoint={dataPoint}
-              showText={!!showTextMap[dataPoint._id!]}
-              setShowText={() => toggleShowText(dataPoint._id!)}
-            />
-          </div>
-        ))}
-    </ResponsiveGridLayout>
+          {/* Strings */}
+          {strings.map((dataPoint, index) => (
+            <div
+              className="flex items-center justify-center object-center"
+              key={dataPoint._id}
+              data-grid={{
+                x: 0,
+                y: numbersAndChoices.length + booleans.length + index,
+                w: columns.lg || 1,
+                h: showTextMap[dataPoint._id!] ? 2 : 1,
+              }}
+            >
+              <DataPointElement
+                dataPoint={dataPoint}
+                showText={!!showTextMap[dataPoint._id!]}
+                setShowText={() => toggleShowText(dataPoint._id!)}
+                walkthroughId={walkthroughId}
+              />
+            </div>
+          ))}
+        </ResponsiveGridLayout>
+      )}
+    </>
   );
 };
 

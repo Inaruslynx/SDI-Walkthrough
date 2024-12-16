@@ -64,10 +64,14 @@ export class UserService {
     if (userDoc) {
       // console.log('updating an existing user');
       if (userDoc.department !== updateUserDto.department) {
+        // console.log(updateUserDto.department);
         const departmentDoc = await this.departmentModel.findById(
-          userDoc.department,
+          updateUserDto.department,
         );
         // console.log('departmentDoc:', departmentDoc);
+        if (!departmentDoc.name) {
+          throw new InternalServerErrorException('Failed to find department');
+        }
         const clerkClient = createClerkClient({
           secretKey: process.env.CLERK_SECRET_KEY,
           publishableKey: process.env.CLERK_PUBLISHABLE_KEY,

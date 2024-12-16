@@ -7,6 +7,8 @@ import { findArea, getWalkthrough } from "@/lib/api";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import WalkthroughRenderer from "./WalkthroughRenderer";
 import WalkthroughScrollSpy from "@/components/ui/WalkthroughScrollSpy";
+import DatePicker from "@/components/ui/DatePicker";
+import "react-day-picker/style.css";
 
 export default function WalkthroughPage(props: {
   params: Promise<{ department: string }>;
@@ -16,6 +18,7 @@ export default function WalkthroughPage(props: {
   const [edit, setEdit] = useState(false);
   const [selectedWalkthrough, setSelectedWalkthrough] = useState("");
   const [walkthroughData, setWalkthroughData] = useState<Area[]>([]);
+  const [selectedDate, setSelectedDate] = useState<Date>();
   const [loadedLog, setLoadedLog] = useState(""); // holds log ID if user loaded prev log
 
   // Fetch the selected Walkthrough
@@ -29,7 +32,7 @@ export default function WalkthroughPage(props: {
   });
 
   const masterGetWalkthrough = async (
-    walkthroughId: string
+    walkthroughId: string,
   ): Promise<Area[]> => {
     const response = await getWalkthrough(walkthroughId);
     // console.log("response:", response.data.data);
@@ -56,7 +59,7 @@ export default function WalkthroughPage(props: {
           }
 
           return areaData;
-        })
+        }),
       )
     ).filter((area) => area !== null);
     return allAreas;
@@ -82,23 +85,32 @@ export default function WalkthroughPage(props: {
           className={"select-bordered m-2"}
         />
         {selectedWalkthrough !== "" && (
-          <div className="form-control m-2 w-32">
-            <label className="label cursor-pointer">
-              <span className="label-text">Re-order</span>
-              <input
-                type="checkbox"
-                className="toggle toggle-primary"
-                checked={edit}
-                disabled
-                onChange={(e) => setEdit(e.target.checked)}
-              />
-            </label>
-          </div>
+          <>
+            <button className="btn btn-primary m-2 ml-40">Previous Log</button>
+            <DatePicker
+              className={"m-2"}
+              onChange={(e) => setSelectedDate(e)}
+            />
+            <button className="btn btn-primary m-2">Load Date</button>
+            <button className="btn btn-primary m-2">Next Log</button>
+            <div className="form-control m-2 w-32 ml-40">
+              <label className="label cursor-pointer">
+                <span className="label-text">Re-order</span>
+                <input
+                  type="checkbox"
+                  className="toggle toggle-primary"
+                  checked={edit}
+                  disabled
+                  onChange={(e) => setEdit(e.target.checked)}
+                />
+              </label>
+            </div>
+          </>
         )}
       </div>
       {/* 
       TODO 
-      - buttons and data picker to go through past logs
+      - buttons and date picker to go through past logs
       - edit button so that the user can reorganize walkthrough
       */}
       {selectedWalkthrough !== "" &&

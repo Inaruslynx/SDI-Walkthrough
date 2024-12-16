@@ -1,6 +1,5 @@
 import {
   BadRequestException,
-  HttpStatus,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
@@ -9,7 +8,7 @@ import { clerkClient, createClerkClient, getAuth } from '@clerk/express';
 import { Request } from 'express';
 import { CreateLogDto } from './dto/create-log.dto';
 import { UpdateLogDto } from './dto/update-log.dto';
-import { Expression, Model } from 'mongoose';
+import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { Walkthrough } from 'src/schemas/walkthroughs.schema';
 import { ClerkUser } from '../schemas/users.schema';
@@ -24,11 +23,7 @@ export class LogService {
   ) {}
 
   async create(createLogDto: CreateLogDto, req: Request) {
-    console.log(createLogDto);
-    // const clerkClient = createClerkClient({
-    //   secretKey: process.env.CLERK_SECRET_KEY,
-    //   publishableKey: process.env.CLERK_PUBLISHABLE_KEY,
-    // });
+    // console.log(createLogDto);
     const { userId } = getAuth(req);
     // this.logger.log('this is userId:', userId);
     // this.logger.log('this is the url:', request.url);
@@ -42,28 +37,56 @@ export class LogService {
         description: 'Walkthrough not found',
       });
     }
-    console.log('Here in the create log service');
+    // console.log('Here in the create log service');
 
-    // Get user from clerk
-    // const result = await clerkClient.authenticateRequest(req.cookies.__session);
-    // no results then not logged in
-    // if (!result) {
-    //   throw new BadRequestException('Not logged in', {
-    //     cause: new Error(),
-    //     description: 'Not logged in',
-    //   });
-    // }
+    // Parse start time from environment variable (e.g., "14:00")
+    const startTimeEnv = process.env.DAY_START_TIME || '14:00';
+    const [startHour, startMinute] = startTimeEnv.split(':').map(Number);
 
-    const logData = { ...createLogDto.data, user, walkthrough: walkthroughDoc };
+    // Get current UTC time
+    const now = new Date();
+    const currentUTCDate = new Date(
+      Date.UTC(
+        now.getUTCFullYear(),
+        now.getUTCMonth(),
+        now.getUTCDate(),
+        now.getUTCHours(),
+        now.getUTCMinutes(),
+      ),
+    );
 
-    console.log(logData);
+    // Calculate today's start time in UTC
+    const todayStartTime = new Date(
+      Date.UTC(
+        now.getUTCFullYear(),
+        now.getUTCMonth(),
+        now.getUTCDate(),
+        startHour,
+        startMinute,
+      ),
+    );
 
-    // const LogModel = getLogModel(walkthroughDoc.name);
-    // console.log('logModel', LogModel);
+    // Adjust to the previous day's start time if before today's start time
+    let logDate = new Date(todayStartTime);
+    if (currentUTCDate < todayStartTime) {
+      logDate.setUTCDate(todayStartTime.getUTCDate() - 1);
+    }
+
+    // Add 1 minute to ensure it is after the start time
+    logDate.setUTCMinutes(logDate.getUTCMinutes() + 1);
+
+    const logData = {
+      ...createLogDto.data,
+      user,
+      date: logDate,
+      walkthrough: walkthroughDoc,
+    };
+
+    // console.log(logData);
     const newLog = new this.logModel(logData);
-    console.log('newLog', newLog);
+    // console.log('newLog', newLog);
     const logResult = await newLog.save();
-    console.log('logResult', logResult);
+    // console.log('logResult', logResult);
     if (!logResult || logResult['acknowledged'] === false) {
       throw new InternalServerErrorException('Failed to create log', {
         cause: new Error(),
