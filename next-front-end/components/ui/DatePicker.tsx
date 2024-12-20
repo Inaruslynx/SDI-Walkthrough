@@ -43,7 +43,7 @@ export default function DatePicker({ onChange, className }: DatePickerProps) {
     };
   }, [isDialogOpen]);
 
-  const handleDayPickerSelect = (date: Date) => {
+  const handleDayPickerSelect = (date?: Date) => {
     if (!date) {
       setInputValue("");
       setSelectedDate(undefined);
@@ -84,12 +84,10 @@ export default function DatePicker({ onChange, className }: DatePickerProps) {
         onChange={handleInputChange}
       />{" "}
       <button
-        style={{ fontSize: "inherit" }}
         onClick={toggleDialog}
         aria-controls="dialog"
         aria-haspopup="dialog"
-        aria-expanded={isDialogOpen}
-        aria-label="Open calendar to choose booking date"
+        aria-label="Open calendar to choose log date"
       >
         📆
       </button>
@@ -108,6 +106,7 @@ export default function DatePicker({ onChange, className }: DatePickerProps) {
       >
         <DayPicker
           mode="single"
+          required={false}
           selected={selectedDate}
           onSelect={handleDayPickerSelect}
           footer={
