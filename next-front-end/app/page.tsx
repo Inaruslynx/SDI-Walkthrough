@@ -6,10 +6,18 @@ export default function Home() {
           <h1>Welcome to SDI Walkthrough</h1>
           <p>
             This app should be pretty fleshed out, but bugs might still exist.
-            Please let me know if you find any issues. I am utilizing new
-            technology: Next.js and Nest.js.
+            Please let me know if you find any issues. I am planning to add
+            further functionality, but at this point the old version can be
+            abandoned.
           </p>
-          <h3>TODO List:</h3>
+        </div>
+      </main>
+    </>
+  );
+}
+
+{
+  /* <h3>TODO List:</h3>
           <ul className="px-6">
             <li>Fix all of the Walkthrough requests.</li>
             <li>
@@ -67,9 +75,5 @@ export default function Home() {
                 <li>As needed</li>
               </ul>
             </li>
-          </ul>
-        </div>
-      </main>
-    </>
-  );
+          </ul> */
 }
