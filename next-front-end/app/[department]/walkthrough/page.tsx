@@ -21,7 +21,7 @@ export default function WalkthroughPage(props: {
   params: Promise<{ department: string }>;
 }) {
   const { department } = use(props.params);
-  const { user } = useUser;
+  const { user } = useUser();
 
   const [edit, setEdit] = useState(false);
   const [selectedWalkthrough, setSelectedWalkthrough] = useState("");
