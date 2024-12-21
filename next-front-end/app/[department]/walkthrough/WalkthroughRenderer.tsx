@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { Area, Log } from "@/types";
+import { Area, Log, LogItem } from "@/types";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import ScrollSpy from "react-ui-scrollspy";
 import SubArea from "./SubArea";
@@ -12,8 +12,10 @@ import { createLog, updateLog } from "@/lib/api";
 interface WalkthroughRendererProps {
   data: Area[];
   selectedWalkthrough: string;
-  loadedLog: string;
+  loadedLog?: string | undefined;
   edit: boolean;
+  logData?: LogItem[];
+  formDisabled: boolean;
 }
 
 const WalkthroughRenderer: React.FC<WalkthroughRendererProps> = ({
@@ -21,6 +23,8 @@ const WalkthroughRenderer: React.FC<WalkthroughRendererProps> = ({
   selectedWalkthrough,
   loadedLog,
   edit,
+  logData,
+  formDisabled,
 }: WalkthroughRendererProps) => {
   const queryClient = useQueryClient();
   const methods = useForm();
@@ -39,6 +43,16 @@ const WalkthroughRenderer: React.FC<WalkthroughRendererProps> = ({
       methods.setValue(key, value);
     }
   }, [selectedWalkthrough, methods]);
+
+  // Set form values when logData is available
+  useEffect(() => {
+    if (logData) {
+      // Initialize form values with logData
+      logData.forEach((item) => {
+        methods.setValue(item.dataPoint as string, item.value);
+      });
+    }
+  }, [logData, methods]);
 
   // Log CRUD
   const createLogMutation = useMutation({
@@ -117,6 +131,7 @@ const WalkthroughRenderer: React.FC<WalkthroughRendererProps> = ({
                         edit={edit}
                         border
                         walkthroughId={selectedWalkthrough}
+                        formDisabled={formDisabled}
                       />
                     </div>
                     {area.dataPoints && area.dataPoints.length > 0 && (
@@ -127,6 +142,7 @@ const WalkthroughRenderer: React.FC<WalkthroughRendererProps> = ({
                           draggable={edit}
                           border
                           walkthroughId={selectedWalkthrough}
+                          formDisabled={formDisabled}
                         />
                       </div>
                     )}
@@ -140,6 +156,7 @@ const WalkthroughRenderer: React.FC<WalkthroughRendererProps> = ({
                           data={area.dataPoints}
                           draggable={edit}
                           walkthroughId={selectedWalkthrough}
+                          formDisabled={formDisabled}
                           border
                         />
                       </div>
@@ -152,6 +169,7 @@ const WalkthroughRenderer: React.FC<WalkthroughRendererProps> = ({
               <input
                 className="btn btn-primary"
                 type="submit"
+                disabled={formDisabled}
                 value={loadedLog ? `Update` : "Submit"}
               />
             </div>

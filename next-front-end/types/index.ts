@@ -80,6 +80,8 @@ export interface Log {
   _id?: string;
   walkthrough: string;
   data: LogItem[];
+  date?: string;
+  user?: string;
 }
 
 export interface LogItem {

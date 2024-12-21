@@ -14,6 +14,7 @@ interface DataPointRendererProps {
   draggable: boolean;
   walkthroughId: string;
   border?: boolean;
+  formDisabled: boolean;
 }
 
 const DataPointRenderer: React.FC<DataPointRendererProps> = ({
@@ -21,6 +22,7 @@ const DataPointRenderer: React.FC<DataPointRendererProps> = ({
   walkthroughId,
   draggable,
   border = false,
+  formDisabled,
 }: DataPointRendererProps) => {
   const [showTextMap, setShowTextMap] = useState<Record<string, boolean>>({});
 
@@ -50,7 +52,8 @@ const DataPointRenderer: React.FC<DataPointRendererProps> = ({
       };
 
   // Toggle showText for a specific dataPoint
-  const toggleShowText = (id: string) => {
+  const toggleShowText = (id: string, type: string) => {
+    if (type !== "string") return;
     setShowTextMap((prev) => ({
       ...prev,
       [id]: !prev[id],
@@ -139,8 +142,11 @@ const DataPointRenderer: React.FC<DataPointRendererProps> = ({
               <DataPointElement
                 dataPoint={dataPoint}
                 showText={!!showTextMap[dataPoint._id!]}
-                setShowText={() => toggleShowText(dataPoint._id!)}
+                setShowText={() =>
+                  toggleShowText(dataPoint._id!, dataPoint.type)
+                }
                 walkthroughId={walkthroughId}
+                disabled={formDisabled}
               />
             </div>
           ))}
@@ -160,8 +166,11 @@ const DataPointRenderer: React.FC<DataPointRendererProps> = ({
               <DataPointElement
                 dataPoint={dataPoint}
                 showText={!!showTextMap[dataPoint._id!]}
-                setShowText={() => toggleShowText(dataPoint._id!)}
+                setShowText={() =>
+                  toggleShowText(dataPoint._id!, dataPoint.type)
+                }
                 walkthroughId={walkthroughId}
+                disabled={formDisabled}
               />
             </div>
           ))}
@@ -181,8 +190,11 @@ const DataPointRenderer: React.FC<DataPointRendererProps> = ({
               <DataPointElement
                 dataPoint={dataPoint}
                 showText={!!showTextMap[dataPoint._id!]}
-                setShowText={() => toggleShowText(dataPoint._id!)}
+                setShowText={() =>
+                  toggleShowText(dataPoint._id!, dataPoint.type)
+                }
                 walkthroughId={walkthroughId}
+                disabled={formDisabled}
               />
             </div>
           ))}

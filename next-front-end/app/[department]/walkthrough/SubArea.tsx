@@ -6,9 +6,16 @@ interface SubAreaProps {
   walkthroughId: string;
   edit: boolean;
   border?: boolean;
+  formDisabled: boolean;
 }
 
-const SubArea: React.FC<SubAreaProps> = ({ data, walkthroughId, edit, border }) => {
+const SubArea: React.FC<SubAreaProps> = ({
+  data,
+  walkthroughId,
+  edit,
+  border,
+  formDisabled,
+}) => {
   return (
     <>
       {data.map((area, index) => (
@@ -29,11 +36,22 @@ const SubArea: React.FC<SubAreaProps> = ({ data, walkthroughId, edit, border }) 
           </div>
           {area.areas && area.areas.length > 0 && (
             <div className={`w-full ${border ? "border" : ""}`}>
-              <SubArea data={area.areas} edit={edit} walkthroughId={walkthroughId} />
+              <SubArea
+                data={area.areas}
+                edit={edit}
+                walkthroughId={walkthroughId}
+                formDisabled={formDisabled}
+              />
             </div>
           )}
           {area.dataPoints && area.dataPoints.length > 0 && (
-            <DataPointRenderer data={area.dataPoints} draggable={edit} walkthroughId={walkthroughId} border />
+            <DataPointRenderer
+              data={area.dataPoints}
+              draggable={edit}
+              walkthroughId={walkthroughId}
+              formDisabled={formDisabled}
+              border
+            />
           )}
         </div>
       ))}

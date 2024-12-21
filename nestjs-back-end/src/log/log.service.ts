@@ -13,6 +13,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Walkthrough } from 'src/schemas/walkthroughs.schema';
 import { ClerkUser } from '../schemas/users.schema';
 import { Log } from 'src/schemas/logs.schema';
+import { isAfter } from 'date-fns';
 
 @Injectable()
 export class LogService {
@@ -97,19 +98,109 @@ export class LogService {
     }
   }
 
-  findAll() {
-    return `This action returns all log`;
+  findAll(walkthroughId: string) {
+    const logs = this.logModel.find({ walkthrough: walkthroughId });
+    return logs;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} log`;
+  async findOne(walkthroughId: string, date: string) {
+    const log = await this.logModel.find({ walkthrough: walkthroughId, date });
+    return log;
   }
 
-  update(id: number, updateLogDto: UpdateLogDto) {
-    return `This action updates a #${id} log`;
+  async findPrev(id?: string, walkthroughId?: string) {
+    console.log('id:', id);
+    console.log('walkthroughId:', walkthroughId);
+    if (!id && !walkthroughId) {
+      throw new BadRequestException('id or walkthroughId is required', {
+        cause: new Error(),
+        description: 'id or walkthroughId is required',
+      });
+    }
+    if (walkthroughId) {
+      const log = (
+        await this.logModel.find({ walkthrough: walkthroughId })
+      ).sort(
+        (a, b) =>
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+      )[0];
+      return log;
+    }
+    if (id) {
+      const log = await this.logModel.findById(id);
+      const result = await this.logModel.findOne({
+        walkthrough: log.walkthrough,
+        createdAt: { $lt: log.createdAt },
+      });
+      return result;
+    }
+    throw new InternalServerErrorException('Failed to find log', {
+      cause: new Error(),
+      description: 'Failed to find log',
+    });
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} log`;
+  async findNext(id?: string, walkthroughId?: string) {
+    console.log('id:', id);
+    console.log('walkthroughId:', walkthroughId);
+    if (!id && !walkthroughId) {
+      throw new BadRequestException('id or walkthroughId is required', {
+        cause: new Error(),
+        description: 'id or walkthroughId is required',
+      });
+    }
+    if (walkthroughId) {
+      const log = (
+        await this.logModel.find({ walkthrough: walkthroughId })
+      ).sort(
+        (a, b) =>
+          new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
+      )[0];
+      return log;
+    }
+    if (id) {
+      const log = await this.logModel.findById(id);
+      const result = await this.logModel.findOne({
+        walkthrough: log.walkthrough,
+        createdAt: { $gt: log.createdAt },
+      });
+      return result;
+    }
+
+    throw new InternalServerErrorException('Failed to find log', {
+      cause: new Error(),
+      description: 'Failed to find log',
+    });
+  }
+
+  // async findRange(walkthroughId: string, fromDate: string, toDate: string) {
+  //   const logs = await this.logModel.find({ walkthrough: walkthroughId, date: { $gte: fromDate, $lte: toDate } }).lean().exec();
+  //   return logs;
+  // }
+
+  async update(id: string, updateLogDto: UpdateLogDto) {
+    const updatedLog = await this.logModel.findByIdAndUpdate(
+      id,
+      { $set: updateLogDto },
+      { new: true },
+    );
+    if (!updatedLog) {
+      throw new InternalServerErrorException('Failed to update log', {
+        cause: new Error(),
+        description: 'Failed to update log',
+      });
+    }
+    return updatedLog;
+  }
+
+  async remove(id: string) {
+    const result = await this.logModel.findByIdAndDelete(id);
+    if (!result) {
+      throw new InternalServerErrorException('Failed to remove log', {
+        cause: new Error(),
+        description: 'Failed to remove log',
+      });
+    }
+    return result;
   }
 }

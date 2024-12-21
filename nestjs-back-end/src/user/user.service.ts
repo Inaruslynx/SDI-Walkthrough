@@ -65,6 +65,9 @@ export class UserService {
       // console.log('updating an existing user');
       if (userDoc.department !== updateUserDto.department) {
         // console.log(updateUserDto.department);
+        if (!updateUserDto.department) {
+          throw new BadRequestException('Missing department.');
+        }
         const departmentDoc = await this.departmentModel.findById(
           updateUserDto.department,
         );
