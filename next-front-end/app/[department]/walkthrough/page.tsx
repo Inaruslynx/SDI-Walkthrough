@@ -2,24 +2,36 @@
 import SelectWalkthrough from "@/components/ui/selectWalkthrough";
 import { useEffect, useState, use } from "react";
 import { useQuery } from "@tanstack/react-query";
-import type { Area } from "@/types";
-import { findArea, getWalkthrough } from "@/lib/api";
+import type { Area, Log } from "@/types";
+import {
+  findArea,
+  findLog,
+  findNext,
+  findPrev,
+  getWalkthrough,
+} from "@/lib/api";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import WalkthroughRenderer from "./WalkthroughRenderer";
 import WalkthroughScrollSpy from "@/components/ui/WalkthroughScrollSpy";
 import DatePicker from "@/components/ui/DatePicker";
 import "react-day-picker/style.css";
+import { useUser } from "@clerk/nextjs";
 
 export default function WalkthroughPage(props: {
   params: Promise<{ department: string }>;
 }) {
   const { department } = use(props.params);
+  const { user } = useUser;
 
   const [edit, setEdit] = useState(false);
   const [selectedWalkthrough, setSelectedWalkthrough] = useState("");
   const [walkthroughData, setWalkthroughData] = useState<Area[]>([]);
   const [selectedDate, setSelectedDate] = useState<Date>();
-  const [loadedLog, setLoadedLog] = useState(""); // holds log ID if user loaded prev log
+  const [loadedLog, setLoadedLog] = useState<string | undefined>(undefined); // holds log ID if user loaded prev log
+  const [logAction, setLogAction] = useState<
+    "prev" | "next" | "date" | undefined
+  >(undefined);
+  const [formDisabled, setFormDisabled] = useState(false);
 
   // Fetch the selected Walkthrough
   const selectedWalkthroughQuery = useQuery<Area[]>({
@@ -31,8 +43,20 @@ export default function WalkthroughPage(props: {
       selectedWalkthrough !== "Select a Walkthrough",
   });
 
+  const logQuery = useQuery<Log | undefined>({
+    queryKey: [
+      "log",
+      logAction,
+      selectedDate,
+      { walkthrough: selectedWalkthrough },
+    ],
+    queryFn: () => masterGetLog(logAction),
+    enabled: !!selectedWalkthrough && !!logAction,
+    staleTime: 0,
+  });
+
   const masterGetWalkthrough = async (
-    walkthroughId: string,
+    walkthroughId: string
   ): Promise<Area[]> => {
     const response = await getWalkthrough(walkthroughId);
     // console.log("response:", response.data.data);
@@ -44,6 +68,33 @@ export default function WalkthroughPage(props: {
       return [];
     }
   };
+
+  async function masterGetLog(
+    action: "prev" | "next" | "date" | undefined
+  ): Promise<Log | undefined> {
+    switch (action) {
+      case "prev": {
+        if (loadedLog) {
+          return await findPrev(loadedLog);
+        } else {
+          return await findPrev(undefined, selectedWalkthrough);
+        }
+      }
+      case "next": {
+        if (loadedLog) {
+          return await findNext(loadedLog);
+        } else {
+          return await findNext(undefined, selectedWalkthrough);
+        }
+      }
+      case "date": {
+        if (selectedDate) {
+          return await findLog(selectedWalkthrough, selectedDate.toISOString());
+        }
+        break;
+      }
+    }
+  }
 
   const fetchWalkthroughAreas = async (areas: Area[]): Promise<Area[]> => {
     const allAreas: Area[] = (
@@ -59,11 +110,24 @@ export default function WalkthroughPage(props: {
           }
 
           return areaData;
-        }),
+        })
       )
     ).filter((area) => area !== null);
     return allAreas;
   };
+
+  function loadPreviousLog() {
+    setLogAction("prev");
+  }
+
+  function loadNextLog() {
+    setLogAction("next");
+  }
+
+  function loadDateLog() {
+    if (!selectedDate) return;
+    setLogAction("date");
+  }
 
   useEffect(() => {
     if (selectedWalkthroughQuery.isSuccess && selectedWalkthroughQuery.data) {
@@ -71,12 +135,27 @@ export default function WalkthroughPage(props: {
     }
   }, [selectedWalkthroughQuery.isSuccess, selectedWalkthroughQuery.data]);
 
+  useEffect(() => {
+    setLogAction(undefined);
+    if (logQuery.isSuccess && logQuery.data && logQuery.data._id) {
+      setLoadedLog(logQuery.data._id);
+      setSelectedDate(new Date(logQuery.data.date!));
+      console.log("logQuery.data.user:", logQuery.data.user);
+      console.log("user?.id:", user?.id);
+      if (logQuery.data.user !== user?.id) {
+        setFormDisabled(true);
+      } else {
+        setFormDisabled(false);
+      }
+    }
+  }, [logQuery.isSuccess, logQuery.data]);
+
   return (
     <div className="px-8 pb-4">
       <div className="row m-4 p-4 relative justify-center prose md:prose-lg max-w-full container">
         <h1 className="text-center">{department} Walkthrough</h1>
       </div>
-      <div className="inline-flex">
+      <div className="inline-flex w-full">
         <SelectWalkthrough
           text={"Select a Walkthrough"}
           department={department}
@@ -86,14 +165,37 @@ export default function WalkthroughPage(props: {
         />
         {selectedWalkthrough !== "" && (
           <>
-            <button className="btn btn-primary m-2 ml-40">Previous Log</button>
-            <DatePicker
-              className={"m-2"}
-              onChange={(e) => setSelectedDate(e)}
-            />
-            <button className="btn btn-primary m-2">Load Date</button>
-            <button className="btn btn-primary m-2">Next Log</button>
-            <div className="form-control m-2 w-32 ml-40">
+            <div className="inline-flex w-full justify-around mx-4">
+              <button
+                disabled={logQuery.isLoading}
+                onClick={loadPreviousLog}
+                className="btn btn-primary m-2"
+              >
+                Previous Log
+              </button>
+              <div className="inline-flex">
+                <DatePicker
+                  value={selectedDate}
+                  className={"m-2"}
+                  onChange={(e) => setSelectedDate(e)}
+                />
+                <button
+                  className={`btn btn-primary m-2`}
+                  onClick={loadDateLog}
+                  disabled={logQuery.isLoading || !selectedDate}
+                >
+                  Load Date
+                </button>
+              </div>
+              <button
+                disabled={logQuery.isLoading}
+                onClick={loadNextLog}
+                className="btn btn-primary m-2"
+              >
+                Next Log
+              </button>
+            </div>
+            <div className="form-control m-2 w-40">
               <label className="label cursor-pointer">
                 <span className="label-text">Re-order</span>
                 <input
@@ -110,7 +212,6 @@ export default function WalkthroughPage(props: {
       </div>
       {/* 
       TODO 
-      - buttons and date picker to go through past logs
       - edit button so that the user can reorganize walkthrough
       */}
       {selectedWalkthrough !== "" &&
@@ -130,6 +231,8 @@ export default function WalkthroughPage(props: {
                   selectedWalkthrough={selectedWalkthrough}
                   loadedLog={loadedLog}
                   edit={edit}
+                  logData={logQuery.data?.data}
+                  formDisabled={formDisabled}
                 />
               </>
             </ScrollArea>

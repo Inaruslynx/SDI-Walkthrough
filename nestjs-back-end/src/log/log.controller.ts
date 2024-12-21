@@ -8,6 +8,7 @@ import {
   Delete,
   Req,
   UseGuards,
+  Query,
 } from '@nestjs/common';
 import { Request } from 'express';
 import { LogService } from './log.service';
@@ -26,24 +27,43 @@ export class LogController {
   }
 
   @Get()
-  findAll() {
-    return this.logService.findAll();
+  findOne(
+    @Query('walkthroughId') walkthroughId: string,
+    @Query('date') date: string,
+  ) {
+    return this.logService.findOne(walkthroughId, date);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.logService.findOne(+id);
+  @Get('prev/')
+  findPrevByWalkthrough(
+    @Query('id') id: string,
+    @Query('walkthroughId') walkthroughId: string,
+  ) {
+    return this.logService.findPrev(id, walkthroughId);
+  }
+
+  @Get('next/')
+  findNextByWalkthrough(
+    @Query('id') id: string,
+    @Query('walkthroughId') walkthroughId: string,
+  ) {
+    return this.logService.findNext(id, walkthroughId);
+  }
+
+  @Get(':walkthroughId')
+  findAll(@Param('walkthroughId') walkthroughId: string) {
+    return this.logService.findAll(walkthroughId);
   }
 
   @Patch(':id')
   @UseGuards(LoggedInAuthGuard)
   update(@Param('id') id: string, @Body() updateLogDto: UpdateLogDto) {
-    return this.logService.update(+id, updateLogDto);
+    return this.logService.update(id, updateLogDto);
   }
 
   @Delete(':id')
   @UseGuards(LoggedInAuthGuard)
   remove(@Param('id') id: string) {
-    return this.logService.remove(+id);
+    return this.logService.remove(id);
   }
 }

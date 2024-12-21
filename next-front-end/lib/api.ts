@@ -254,25 +254,50 @@ export async function createLog(data: Log) {
 }
 
 // Find all
-export async function findAllLogs(
-  walkthrough: string,
-  fromDate?: Date,
-  toDate?: Date
-) {
-  const response = await api.get("log", {
+export async function findAllLogs(walkthrough: string) {
+  const response = await api.get("log/walkthrough", {
     params: {
-      walkthrough: walkthrough,
-      fromDate: fromDate,
-      toDate: toDate,
+      walkthroughId: walkthrough,
     },
   });
   return response;
 }
 
 // Find one
-export async function findLog(id: string) {
-  const response = await api.get(`log/${id}`);
-  return response;
+export async function findLog(walkthroughId: string, date: string) {
+  const response = await api.get<Log>(`log/`, {
+    params: {
+      walkthroughId: walkthroughId,
+      date: date,
+    },
+  });
+  return response.data;
+}
+
+export async function findPrev(id?: string, walkthroughId?: string) {
+  if (!id && !walkthroughId) {
+    return;
+  }
+    const response = await api.get<Log>(`log/prev`, {
+      params: {
+        id: id,
+        walkthroughId
+      },
+    });
+    return response.data;
+}
+
+export async function findNext(id?: string, walkthroughId?: string) {
+  if (!id && !walkthroughId) {
+    return;
+  }
+  const response = await api.get<Log>(`log/next`, {
+    params: {
+      id: id,
+      walkthroughId,
+    },
+  });
+  return response.data;
 }
 
 // Update

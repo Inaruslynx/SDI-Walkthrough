@@ -1,17 +1,24 @@
 import { ChangeEventHandler, useEffect, useId, useRef, useState } from "react";
 
-import { format, isValid, parse } from "date-fns";
+import { format, isValid, parse, set } from "date-fns";
 import { DayPicker } from "react-day-picker";
 
 interface DatePickerProps {
+  value: Date | undefined;
   onChange: (date: Date | undefined) => void;
   className?: string;
 }
 
-export default function DatePicker({ onChange, className }: DatePickerProps) {
+export default function DatePicker({
+  value,
+  onChange,
+  className,
+}: DatePickerProps) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const dialogId = useId();
   const headerId = useId();
+
+  // Need month after all
 
   // Hold the selected date in state
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
@@ -24,6 +31,13 @@ export default function DatePicker({ onChange, className }: DatePickerProps) {
 
   // Function to toggle the dialog visibility
   const toggleDialog = () => setIsDialogOpen(!isDialogOpen);
+
+  useEffect(() => {
+    if (value) {
+      setSelectedDate(value);
+      setInputValue(format(value, "MM/dd/yyyy"));
+    }
+  }, [value]);
 
   // Hook to handle the body scroll behavior and focus trapping.
   useEffect(() => {

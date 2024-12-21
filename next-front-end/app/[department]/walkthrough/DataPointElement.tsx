@@ -9,6 +9,7 @@ interface DataPointProps {
   showText: boolean;
   setShowText: React.Dispatch<React.SetStateAction<boolean>>;
   walkthroughId: string;
+  disabled: boolean
 }
 
 export default function DataPointElement({
@@ -16,8 +17,9 @@ export default function DataPointElement({
   showText,
   setShowText,
   walkthroughId,
+  disabled,
 }: DataPointProps) {
-  const { register } = useFormContext();
+  const { register, getValues } = useFormContext();
 
   // console.log("console.log on every render walkthroughId:", walkthroughId);
 
@@ -35,6 +37,12 @@ export default function DataPointElement({
     savedData[dataPoint._id!] = e.target.value;
     localStorage.setItem(walkthroughId, JSON.stringify(savedData));
   };
+
+  useEffect(() => {
+    if (disabled && getValues(`${dataPoint._id}`) ) {
+      setShowText(true)
+    }
+  }, [disabled])
 
   // useEffect(() => {
   //   console.log("in dataPointElement walkthroughId on change:", walkthroughId);
@@ -57,6 +65,7 @@ export default function DataPointElement({
               className={`w-11/12 input input-bordered input-primary`}
               type="number"
               step="any"
+              disabled={disabled}
               placeholder="Enter value"
               {...register(`${dataPoint._id}`)}
               onChange={handleChange}
@@ -68,6 +77,7 @@ export default function DataPointElement({
             <div className="label">
               <input
                 type="checkbox"
+                disabled={disabled}
                 className="checkbox checkbox-sm m-2"
                 {...register(`${dataPoint._id}`)}
                 onChange={handleChange}
@@ -83,6 +93,7 @@ export default function DataPointElement({
             </div>
             <select
               className="select select-primary"
+              disabled={disabled}
               {...register(`${dataPoint._id}`, { value: "" })}
               onChange={handleChange}
             >
@@ -115,6 +126,7 @@ export default function DataPointElement({
               <textarea
                 className="textarea textarea-bordered h-24"
                 placeholder="Log status"
+                disabled={disabled}
                 {...register(`${dataPoint._id}`)}
                 onChange={handleChange}
               ></textarea>
