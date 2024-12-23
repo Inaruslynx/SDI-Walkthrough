@@ -7,7 +7,14 @@ import { ItemOfConcernRecord, LogItem, ResultRecord } from "@/types";
 import { DataPoint } from "../../../types/index";
 
 type DiffType = {
-  readonly [index: string]: string;
+  readonly [index: string]: {
+    dataPoint: DataPoint;
+    value: string;
+  };
+};
+
+type ReportPageProps = {
+  params: Promise<{ department: string }>;
 };
 
 /* for (const key in object) {
@@ -23,9 +30,7 @@ type DiffType = {
   }
 */
 
-export default function ReportPage(props: {
-  params: Promise<{ department: string }>;
-}) {
+export default function ReportPage(props: ReportPageProps) {
   const { department } = use(props.params);
   const [lastLog, setLastLog] = useState<LogItem[]>();
   const [beforeLastLog, setBeforeLastLog] = useState<LogItem[]>();
@@ -49,18 +54,26 @@ export default function ReportPage(props: {
       return;
     }
     if (reportQuery.data.lastLog) {
+      console.log("lastLog:", reportQuery.data.lastLog);
       setLastLog(reportQuery.data.lastLog);
     }
     if (reportQuery.data.beforeLastLog) {
+      console.log("beforeLastLog:", reportQuery.data.beforeLastLog);
       setBeforeLastLog(reportQuery.data.beforeLastLog);
     }
     if (reportQuery.data.results) {
+      console.log("results:", reportQuery.data.results);
       setResults(reportQuery.data.results);
     }
     if (reportQuery.data.differenceOfRecentLogs) {
+      console.log(
+        "differenceOfRecentLogs:",
+        reportQuery.data.differenceOfRecentLogs
+      );
       setDifferenceOfRecentLogs(reportQuery.data.differenceOfRecentLogs);
     }
     if (reportQuery.data.itemsOfConcern) {
+      console.log("itemsOfConcern:", reportQuery.data.itemsOfConcern);
       setItemsOfConcern(reportQuery.data.itemsOfConcern);
     }
     // console.log("Finished fetching form data.");
@@ -174,7 +187,7 @@ export default function ReportPage(props: {
                       )
                         ? differenceOfRecentLogs[
                             (logItem.dataPoint as DataPoint)._id!
-                          ]
+                          ].value
                         : ""}
                     </td>
                     <td className="text-center">

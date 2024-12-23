@@ -117,7 +117,10 @@ export type Report = {
   lastLog?: LogItem[];
   beforeLastLog?: LogItem[];
   results?: ResultRecord;
-  differenceOfRecentLogs?: Record<string, string>;
+  differenceOfRecentLogs?: Record<
+    string,
+    { dataPoint: DataPoint; value: string }
+  >;
   itemsOfConcern?: ItemOfConcernRecord;
 };
 

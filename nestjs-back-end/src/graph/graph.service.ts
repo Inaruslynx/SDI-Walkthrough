@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { Log, LogDocument } from 'src/schemas/logs.schema';
@@ -72,10 +72,14 @@ export class GraphService {
         },
       ];
     } = { labels: [], datasets: [{ data: [] }] };
+
     logs.forEach((log) => {
       log.data.forEach((data) => {
         // console.log("data:", data);
         // console.log('dataPoint id:', data.dataPoint._id);
+        if (!data.dataPoint || !data.dataPoint._id) {
+          return;
+        }
         if (data.dataPoint._id.toString() === selectedDataPoint) {
           // console.log('data:', data);
           let itemDate = new Date(log.date);

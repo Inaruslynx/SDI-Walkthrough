@@ -10,7 +10,7 @@ async function bootstrap() {
     publishableKey: process.env.CLERK_PUBLISHABLE_KEY,
   });
   app.setGlobalPrefix('api');
-  app.enableCors({ origin: 'http://fs3s-hotmilllog:3001', credentials: true });
+  app.enableCors({ origin: 'http://fs3s-hotmilllog:3000', credentials: true });
   app.use(cookieParser());
   app.use(clerkMiddleware({ clerkClient }));
   await app.listen(8000);

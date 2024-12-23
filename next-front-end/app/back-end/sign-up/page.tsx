@@ -57,7 +57,7 @@ function SignUpPage() {
   });
 
   useEffect(() => {
-    // console.log("usercheck:", userCheck.isError);
+    console.log("usercheck:", userCheck);
     // When user changes, check if user is defined then create new user
     if (
       user &&
