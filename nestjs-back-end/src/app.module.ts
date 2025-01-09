@@ -1,4 +1,4 @@
-import { MiddlewareConsumer, Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, OnModuleInit } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
@@ -15,6 +15,7 @@ import { AreaModule } from './area/area.module';
 import { DatapointModule } from './datapoint/datapoint.module';
 import { UserModule } from './user/user.module';
 import { clerkMiddleware } from '@clerk/express';
+import * as mongoose from 'mongoose';
 
 @Module({
   imports: [
@@ -41,6 +42,17 @@ import { clerkMiddleware } from '@clerk/express';
   providers: [AppService, GraphService],
 })
 export class AppModule {
+  constructor(private readonly configService: ConfigService) {}
+
+  OnModuleInit() {
+    console.log('MONGO_URI:', this.configService.get<string>('MONGO_URI'));
+    const debugMode = this.configService.get<string>('MONGO_DEBUG') === 'true';
+    if (debugMode) {
+      mongoose.set('debug', true);
+      console.log('Mongoose debug mode is enabled');
+    }
+  }
+
   configure(consumer: MiddlewareConsumer) {
     consumer.apply(clerkMiddleware()).forRoutes('*');
   }
