@@ -3,8 +3,8 @@ var Service = require("node-windows").Service;
 var svc = new Service({
   name: "SDI Walkthrough - NextJS Frontend",
   description: "Next.js server for SDI Walkthrough",
-  script: "C:\\SDI_Walkthrough\\next-front-end\\.next\\standalone\\server.js",
-  workingDirectory: `C:\\SDI_Walkthrough\\next-front-end\\.next\\standalone\\`,
+  script: "C:\\walkthrough\\next-front-end\\.next\\standalone\\server.js",
+  workingDirectory: `C:\\walkthrough\\next-front-end\\.next\\standalone\\`,
 });
 
 // Listen for the "uninstall" event so we know when it's done.
