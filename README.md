@@ -2,7 +2,8 @@
 
 Currently, to successfully install this app you will need to:
 
-- Clone this repository
+- Create a folder the following folder: C:\walkthrough or change the installService.js and uninstallService.js later on
+- Clone this repository into whatever folder you decided above
 - Create a [Clerk](https://clerk.com/) account and create an app
 - When setting up Clerk configure as follows:
   - disable Email Address and Username
@@ -15,10 +16,10 @@ NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
 CLERK_SECRET_KEY
 ```
 
-- Install [MongoDB](https://www.mongodb.com/try/download/community) and follow the [setup](https://www.mongodb.com/docs/manual/tutorial/install-mongodb-on-windows/#install-mongodb-community-edition)
-- MongoDB will need a user to write to a database called `Logs` make sure to save these for later
+- Install [MongoDB](https://www.mongodb.com/try/download/community), [MongoShell](https://www.mongodb.com/try/download/shell), and follow the [setup](https://www.mongodb.com/docs/manual/tutorial/install-mongodb-on-windows/#install-mongodb-community-edition)
+- MongoDB will need a user to write to a database called `Logs` make sure to save these for later [User Creation Instructions](https://www.mongodb.com/docs/manual/core/security-users/). For example, have an admin accoount and a user DataEntry that only has `readWrite` access to `Logs`
 - [Node](https://nodejs.org/en) installed and restart OS
-- Open command line and in the main folder with `nestjs-back-end` and `next-front-end` run:
+- Open admin level command line and in the main folder with `nestjs-back-end` and `next-front-end` run:
 
 ```bash
 corepack enable pnpm
@@ -31,8 +32,9 @@ pnpm install -r -w
   - Create a `.env` file in `nestjs-back-end` and create the following keys:
 
 ```text
-CLERK_PUBLISHABLE_KEY (starts with pk)
-CLERK_SECRET_KEY (starts with sk)
+DOMAIN=<address of Next server> ie http://<ip-address or server name>/
+CLERK_PUBLISHABLE_KEY=key(starts with pk)
+CLERK_SECRET_KEY=key(starts with sk)
 MONGO_URI="mongodb://<user>:<password>@127.0.0.1:27017/?authMechanism=DEFAULT"
 MONGO_DEBUG=false
 ```
@@ -41,7 +43,7 @@ MONGO_DEBUG=false
 - In the `.env.local` the following variables need to be created:
 
 ```text
-NEXT_PUBLIC_API_URL=http://<server ip or address>:8000/api/
+NEXT_PUBLIC_API_URL=http://<server name or ip address>:8000/api/
 NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY (starts with pk)
 CLERK_SECRET_KEY (starts with sk)
 NEXT_PUBLIC_CLERK_SIGN_IN_URL=/sign-in
@@ -49,19 +51,19 @@ NEXT_PUBLIC_CLERK_SIGN_UP_URL=/sign-up
 NEXT_PUBLIC_CLERK_SIGN_UP_FORCE_REDIRECT_URL=/back-end/sign-up
 ```
 
-- In a console, navigate the nestjs-back-end folder and run:
+- In an admin commandline console, navigate the nestjs-back-end folder and run:
 
 ```bash
 pnpm build
 ```
 
-- Copy the `.env` into dist then in console:
+- Copy the `.env` into dist then in admin console:
 
 ```bash
 node installService.js
 ```
 
-- Navigate to next-front-end and run:
+- Navigate to next-front-end and run (as admin):
 
 ```bash
 pnpm build
