@@ -31,15 +31,15 @@ const config = {
     require("tailwindcss-animate"),
     require("@tailwindcss/typography"),
     require("@tailwindcss/forms"),
-    require("daisyui"),
+    // require("daisyui"),
   ],
-  daisyui: {
-    themes: true,
-    base: true,
-    styled: true,
-    utils: true,
-    logs: true,
-  },
+  // daisyui: {
+  //   themes: true,
+  //   base: true,
+  //   styled: true,
+  //   utils: true,
+  //   logs: true,
+  // },
 } satisfies Config;
 
 export default config;
