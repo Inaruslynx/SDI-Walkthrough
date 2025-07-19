@@ -11,7 +11,7 @@ export default function ThemeList({
   return (
     <ul
       tabIndex={0}
-      className="dropdown-content p-2 z-10 shadow bg-base-300 rounded-box w-52 h-80 overflow-auto overscroll-auto"
+      className="dropdown-content p-2 z-10 shadow-sm bg-base-300 rounded-box w-52 h-80 overflow-auto overscroll-auto"
     >
       <div className="grid grid-cols-1">
         {themes.map((theme) => (
