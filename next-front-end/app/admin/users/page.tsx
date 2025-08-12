@@ -1,6 +1,6 @@
 "use client";
 import { useQuery } from "@tanstack/react-query";
-import { findAllUsers, getWalkthroughs } from "@/lib/api";
+import { findAllUsers } from "@/lib/api";
 import { useState, useEffect } from "react";
 import { User } from "@/types";
 import { AxiosResponse } from "axios";

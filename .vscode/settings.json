@@ -17,5 +17,23 @@
       ]
     }
   },
-  "terminal.integrated.defaultProfile.windows": "PowerShell"
+  "terminal.integrated.defaultProfile.windows": "PowerShell",
+  "VsCodeTaskButtons.showCounter": true,
+  "VsCodeTaskButtons.tasks": [
+    {
+      "label": "$(play) Start Next Server",
+      "task": "Start Next Server",
+      "tooltip": "Start Front-end server"
+    },
+    {
+      "label": "$(play) Start Nest Server",
+      "task": "Start Nestjs Server",
+      "tooltip": "Run Back-end server"
+    },
+    {
+      "label": "$(play) Start Both Servers",
+      "task": "Start Both Servers",
+      "tooltip": "Start both servers"
+    }
+  ]
 }
