@@ -17,9 +17,6 @@ export default function DatePicker({
 }: DatePickerProps) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const dialogId = useId();
-  // const headerId = useId();
-
-  // Need month after all
 
   // Hold the selected date in state
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
@@ -27,36 +24,12 @@ export default function DatePicker({
   // Hold the input value in state
   const [inputValue, setInputValue] = useState("");
 
-  // Hold the dialog visibility in state
-  // const [isDialogOpen, setIsDialogOpen] = useState(false);
-
-  // Function to toggle the dialog visibility
-  // const toggleDialog = () => setIsDialogOpen(!isDialogOpen);
-
   useEffect(() => {
     if (value) {
       setSelectedDate(value);
       setInputValue(format(value, "MM/dd/yyyy"));
     }
   }, [value]);
-
-  // Hook to handle the body scroll behavior and focus trapping.
-  // useEffect(() => {
-  //   const handleBodyScroll = (isOpen: boolean) => {
-  //     document.body.style.overflow = isOpen ? "hidden" : "";
-  //   };
-  //   if (!dialogRef.current) return;
-  //   if (isDialogOpen) {
-  //     handleBodyScroll(true);
-  //     dialogRef.current.showModal();
-  //   } else {
-  //     handleBodyScroll(false);
-  //     dialogRef.current.close();
-  //   }
-  //   return () => {
-  //     handleBodyScroll(false);
-  //   };
-  // }, [isDialogOpen]);
 
   const handleDayPickerSelect = (date?: Date) => {
     if (!date) {
@@ -68,7 +41,6 @@ export default function DatePicker({
       setInputValue(format(date, "MM/dd/yyyy"));
       onChange(date);
     }
-    // dialogRef.current?.close();
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -105,11 +77,6 @@ export default function DatePicker({
       >
         📆
       </button>
-      {/*<p aria-live="assertive" aria-atomic="true">*/}
-      {/*  {selectedDate !== undefined*/}
-      {/*    ? selectedDate.toDateString()*/}
-      {/*    : "Please type or pick a date"}*/}
-      {/*</p>*/}
       <div
         popover="auto"
         className="dropdown"
