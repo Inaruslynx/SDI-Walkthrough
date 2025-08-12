@@ -16,8 +16,8 @@ export default function UserListener() {
     onSuccess: () => {
       console.log("Profile updated successfully");
     },
-    onError: () => {
-      console.error("Error updating profile");
+    onError: (e) => {
+      console.error("Error updating profile: ", e);
     },
   });
 

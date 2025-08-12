@@ -3,8 +3,8 @@ var Service = require('node-windows').Service;
 var svc = new Service({
   name: 'SDI Walkthrough - NestJS Backend',
   description: 'NestJS server for SDI Walkthrough',
-  script: 'C:\\SDI_Walkthrough\\nestjs-back-end\\dist\\main.js',
-  workingDirectory: `C:\\SDI_Walkthrough\\nestjs-back-end\\dist\\`,
+  script: 'C:\\walkthrough\\nestjs-back-end\\dist\\main.js',
+  workingDirectory: `C:\\walkthrough\\nestjs-back-end\\dist\\`,
 });
 
 svc.on('install', function () {

@@ -11,7 +11,9 @@ async function bootstrap() {
     publishableKey: process.env.CLERK_PUBLISHABLE_KEY,
   });
   app.setGlobalPrefix('api');
-  app.enableCors({ origin: 'http://fs3s-hotmilllog:3000', credentials: true });
+  const domain = process.env.DOMAIN ? JSON.parse(process.env.DOMAIN) : [];
+  console.log('Allowed domains:', domain);
+  app.enableCors({ origin: ["http://fs3s-hmlogbook:3000", "http://fs3s-hmlogbook:3001"], credentials: true });
   app.use(cookieParser());
   app.use(clerkMiddleware({ clerkClient }));
   // const debugMode = process.env.MONGO_DEBUG === 'true';

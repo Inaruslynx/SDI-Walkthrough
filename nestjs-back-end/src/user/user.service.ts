@@ -63,11 +63,13 @@ export class UserService {
     // console.log('userDoc:', userDoc);
     if (userDoc) {
       // console.log('updating an existing user');
-      if (userDoc.department !== updateUserDto.department) {
+      if (
+        updateUserDto.department &&
+        id &&
+        userDoc.department !== updateUserDto.department
+      ) {
         // console.log(updateUserDto.department);
-        if (!updateUserDto.department) {
-          throw new BadRequestException('Missing department.');
-        }
+        // console.log('Trying to contact Clerk to update user metadata');
         const departmentDoc = await this.departmentModel.findById(
           updateUserDto.department,
         );
@@ -95,6 +97,7 @@ export class UserService {
       }
 
       const updatedUserDoc = {
+        ...userDoc.toObject(),
         ...updateUserDto,
       };
       // console.log('updated userDoc:', userDoc);
