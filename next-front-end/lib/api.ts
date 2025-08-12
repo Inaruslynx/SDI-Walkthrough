@@ -337,7 +337,7 @@ export async function findAllUsers() {
   return response;
 }
 
-// Find one
+// Find one by clerkId
 export async function findUser(id: string) {
   const response = await api.get<User>(`user/${id}`, {
     withCredentials: true,

@@ -1,5 +1,7 @@
 @import "tailwindcss";
-@plugin "daisyui";
+@plugin "daisyui" {
+  themes: all;
+}
 @plugin "@tailwindcss/typography";
 
 @custom-variant dark (&:is(.dark *));
@@ -80,7 +82,8 @@
 } */
   /* This is for theme buttons whenever theme is selected */
   .ACTIVECLASS {
-    background-color: oklch(var(--p)) !important;
-    color: oklch(var(--pc)) !important;
+    @apply bg-primary text-primary-content;
+    /* background-color: oklch(var(--p)) !important;
+    color: oklch(var(--pc)) !important; */
   }
 }

@@ -3,10 +3,14 @@ import ThemeItem from "./theme-item";
 
 interface ThemeListProps {
   themes: string[];
+  currentTheme?: string | null;
+  onThemeSelect: (theme: string) => void;
 }
 
 export default function ThemeList({
-  themes
+  themes,
+  currentTheme,
+  onThemeSelect,
 }: ThemeListProps): React.ReactNode {
   return (
     <ul
@@ -15,7 +19,7 @@ export default function ThemeList({
     >
       <div className="grid grid-cols-1">
         {themes.map((theme) => (
-          <ThemeItem key={theme} value={theme} />
+          <ThemeItem key={theme} value={theme} isActive={theme === currentTheme} onClick={() => onThemeSelect(theme)}/>
         ))}
       </div>
     </ul>

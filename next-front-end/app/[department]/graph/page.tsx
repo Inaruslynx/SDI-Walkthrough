@@ -167,28 +167,31 @@ export default function GraphPage(props: {
             {department} Graph
           </h1>
         </div>
-        <div className="inline-flex items-baseline">
-          <label className="form-control">
-            <div className="label">
-              <span className="label-text">Walkthrough</span>
-            </div>
-            <SelectWalkthrough
-              className="select-bordered align-end m-2"
-              text="Select a Walkthrough"
-              value={selectedWalkthrough}
-              department={department}
-              onChange={setSelectedWalkthrough}
-            />
-          </label>
-
-          {showForm && selectedWalkthrough !== "" && (
-            <div className="mb-8 pb-4 row">
-              <GraphForm
-                onDataFromChild={handleDataFromChild}
-                walkthroughId={selectedWalkthrough}
-                options={Options}
+        <div className="row">
+          <div className="flex">
+            <label className="w-full form-control whitespace-nowrap">
+              <div className="label">
+                <span className="label-text">
+                  <strong>Walkthrough: </strong>
+                </span>
+              </div>
+              <SelectWalkthrough
+                className="select-bordered w-full align-end m-2 max-w-none"
+                text="Select a Walkthrough"
+                value={selectedWalkthrough}
+                department={department}
+                onChange={setSelectedWalkthrough}
               />
-            </div>
+            </label>
+          </div>
+        </div>
+        <div className="flex items-center">
+          {showForm && selectedWalkthrough !== "" && (
+            <GraphForm
+              onDataFromChild={handleDataFromChild}
+              walkthroughId={selectedWalkthrough}
+              options={Options}
+            />
           )}
         </div>
       </div>

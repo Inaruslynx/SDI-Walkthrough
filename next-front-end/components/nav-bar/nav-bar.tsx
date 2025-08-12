@@ -30,6 +30,7 @@ export default function NavBar() {
   function handleSignOut(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
     e.preventDefault;
     signOut();
+    localStorage.removeItem("theme");
     window.location.href = "https://login.microsoftonline.com/logout.srf";
   }
 

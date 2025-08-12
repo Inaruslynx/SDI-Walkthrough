@@ -1,22 +1,23 @@
-import { ChangeEventHandler, useEffect, useId, useRef, useState } from "react";
-
-import { format, isValid, parse, set } from "date-fns";
+import React, { useEffect, useId, useRef, useState } from "react";
+import { format, isValid, parse } from "date-fns";
 import { DayPicker } from "react-day-picker";
 
-interface DatePickerProps {
+interface DatePickerProps extends React.PropsWithChildren {
   value: Date | undefined;
   onChange: (date: Date | undefined) => void;
   className?: string;
+  children: React.ReactNode;
 }
 
 export default function DatePicker({
   value,
   onChange,
   className,
+  children,
 }: DatePickerProps) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const dialogId = useId();
-  const headerId = useId();
+  // const headerId = useId();
 
   // Need month after all
 
@@ -27,10 +28,10 @@ export default function DatePicker({
   const [inputValue, setInputValue] = useState("");
 
   // Hold the dialog visibility in state
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  // const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   // Function to toggle the dialog visibility
-  const toggleDialog = () => setIsDialogOpen(!isDialogOpen);
+  // const toggleDialog = () => setIsDialogOpen(!isDialogOpen);
 
   useEffect(() => {
     if (value) {
@@ -40,22 +41,22 @@ export default function DatePicker({
   }, [value]);
 
   // Hook to handle the body scroll behavior and focus trapping.
-  useEffect(() => {
-    const handleBodyScroll = (isOpen: boolean) => {
-      document.body.style.overflow = isOpen ? "hidden" : "";
-    };
-    if (!dialogRef.current) return;
-    if (isDialogOpen) {
-      handleBodyScroll(true);
-      dialogRef.current.showModal();
-    } else {
-      handleBodyScroll(false);
-      dialogRef.current.close();
-    }
-    return () => {
-      handleBodyScroll(false);
-    };
-  }, [isDialogOpen]);
+  // useEffect(() => {
+  //   const handleBodyScroll = (isOpen: boolean) => {
+  //     document.body.style.overflow = isOpen ? "hidden" : "";
+  //   };
+  //   if (!dialogRef.current) return;
+  //   if (isDialogOpen) {
+  //     handleBodyScroll(true);
+  //     dialogRef.current.showModal();
+  //   } else {
+  //     handleBodyScroll(false);
+  //     dialogRef.current.close();
+  //   }
+  //   return () => {
+  //     handleBodyScroll(false);
+  //   };
+  // }, [isDialogOpen]);
 
   const handleDayPickerSelect = (date?: Date) => {
     if (!date) {
@@ -67,7 +68,7 @@ export default function DatePicker({
       setInputValue(format(date, "MM/dd/yyyy"));
       onChange(date);
     }
-    dialogRef.current?.close();
+    // dialogRef.current?.close();
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -86,8 +87,8 @@ export default function DatePicker({
 
   return (
     <div className={className}>
-      <label htmlFor="date-input">
-        <strong>Pick a Date: </strong>
+      <label htmlFor="date-input" className="whitespace-nowrap">
+        <strong>{children}</strong>
       </label>
       <input
         className={"input"}
@@ -98,9 +99,8 @@ export default function DatePicker({
         onChange={handleInputChange}
       />{" "}
       <button
-        onClick={toggleDialog}
-        aria-controls="dialog"
-        aria-haspopup="dialog"
+        popoverTarget={dialogId}
+        style={{ anchorName: "--rdp" } as React.CSSProperties}
         aria-label="Open calendar to choose log date"
       >
         📆
@@ -110,15 +110,15 @@ export default function DatePicker({
       {/*    ? selectedDate.toDateString()*/}
       {/*    : "Please type or pick a date"}*/}
       {/*</p>*/}
-      <dialog
-        role="dialog"
+      <div
+        popover="auto"
+        className="dropdown"
         ref={dialogRef}
         id={dialogId}
-        aria-modal
-        aria-labelledby={headerId}
-        onClose={() => setIsDialogOpen(false)}
+        style={{ positionAnchor: "--rdp" } as React.CSSProperties}
       >
         <DayPicker
+          className="react-day-picker"
           mode="single"
           required={false}
           selected={selectedDate}
@@ -128,7 +128,7 @@ export default function DatePicker({
             `Selected: ${selectedDate.toDateString()}`
           }
         />
-      </dialog>
+      </div>
     </div>
   );
 }
