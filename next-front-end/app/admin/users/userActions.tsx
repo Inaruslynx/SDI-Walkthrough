@@ -175,7 +175,7 @@ export default function UserActions({
 
   return (
     <>
-      <div className="card flex animate-growDown justify-between items-baseline bg-accent p-4 rounded-xl shadow m-4 w-full">
+      <div className="card flex animate-grow-down justify-between items-baseline bg-accent p-4 rounded-xl shadow-sm m-4 w-full">
         <div className="card-body w-full">
           <div className="inline-flex items-baseline">
             <select

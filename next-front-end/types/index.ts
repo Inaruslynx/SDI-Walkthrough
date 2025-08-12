@@ -157,6 +157,9 @@ export enum Theme {
   DIM = "dim",
   NORD = "nord",
   SUNSET = "sunset",
+  CARAMELLATTE = "caramellatte",
+  ABYSS = "abyss",
+  SILK = "silk",
 }
 
 export enum PeriodicityOptions {

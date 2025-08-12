@@ -323,8 +323,8 @@ export default function WalkthroughPage(props: {
       <div className="mb-4 relative justify-center prose md:prose-lg max-w-full container">
         <h1 className="text-center">Admin - {params.department} Walkthrough</h1>
       </div>
-      <div className="flex items-center justify-between">
-        <div>
+      <div className="flex items-center justify-between p-2">
+        <div className="inline-flex flex-1 items-center">
           <Button
             id="walkthrough-dialog"
             type="primary"

@@ -173,12 +173,12 @@ export default function WalkthroughPage(props: {
               >
                 Previous Log
               </button>
-              <div className="inline-flex">
+              <div className="flex items-center">
                 <DatePicker
                   value={selectedDate}
-                  className={"m-2"}
+                  className={"m-2 flex items-center gap-2"}
                   onChange={(e) => setSelectedDate(e)}
-                />
+                >Pick a Date:  </DatePicker>
                 <button
                   className={`btn btn-primary m-2`}
                   onClick={loadDateLog}

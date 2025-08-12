@@ -7,6 +7,7 @@ import { getGraph } from "@/lib/api";
 import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { GraphData } from "@/types";
+import DatePicker from "@/components/ui/DatePicker";
 
 // const FormSchema = z.object({
 //   dataSelection: z.string().min(1, { message: "Please select a data point." }),
@@ -35,8 +36,8 @@ export default function GraphForm({
   options,
 }: GraphFormProps) {
   const [selectedDataPoint, setSelectedDataPoint] = useState("");
-  const [selectedFromDate, setSelectedFromDate] = useState("");
-  const [selectedToDate, setSelectedToDate] = useState("");
+  const [selectedFromDate, setSelectedFromDate] = useState<Date>();
+  const [selectedToDate, setSelectedToDate] = useState<Date>();
 
   // const form = useForm<z.infer<typeof FormSchema>>({
   //   resolver: zodResolver(FormSchema),
@@ -96,18 +97,21 @@ export default function GraphForm({
   }
 
   return (
-    <div className="inline-flex items-baseline">
-      <label className="form-control w-full max-w-xs">
+    <div>
+      <label className="form-control mx-2 max-w-md whitespace-nowrap">
         <div className="label">
-          <span className="label-text">Value to graph</span>
+          <span className="label-text">
+            <strong>Value to graph: </strong>
+          </span>
         </div>
         <select
+          id="selectedDataPoint"
           className="select select-bordered m-2"
           onChange={(e) => setSelectedDataPoint(e.target.value)}
           value={selectedDataPoint}
         >
           <option value="" disabled>
-            Pick one
+            Datapoint
           </option>
           {options.map((datapoint) => (
             <option key={datapoint._id} value={datapoint._id}>
@@ -116,28 +120,22 @@ export default function GraphForm({
           ))}
         </select>
       </label>
-      <label className="form-control w-full max-w-xs">
-        <div className="label">
-          <span className="label-text">From</span>
-        </div>
-        <input
-          className="m-2 bg-base-100 text-base-100-content"
-          type="date"
-          value={selectedFromDate}
-          onChange={(e) => setSelectedFromDate(e.target.value)}
-        />
-      </label>
-      <label className="form-control w-full max-w-xs">
-        <div className="label">
-          <span className="label-text">To</span>
-        </div>
-        <input
-          className="m-2 bg-base-100 text-base-100-content"
-          type="date"
-          value={selectedToDate}
-          onChange={(e) => setSelectedToDate(e.target.value)}
-        />
-      </label>
+      <DatePicker
+        value={selectedFromDate}
+        className="inline-flex mx-2 items-center gap-2"
+        onChange={(e) => setSelectedFromDate(e)}
+      >
+        From:{" "}
+      </DatePicker>
+
+      <DatePicker
+        value={selectedToDate}
+        className="inline-flex mx-2 items-center gap-2"
+        onChange={(e) => setSelectedToDate(e)}
+      >
+        To:{" "}
+      </DatePicker>
+
       <button className="btn btn-primary m-2 mb-3 self-end" onClick={onSubmit}>
         Graph
       </button>

@@ -102,7 +102,7 @@ export default function ReportPage(props: ReportPageProps) {
         </div>
         {/* Items of Concern */}
         {itemsOfConcern && Object.keys(itemsOfConcern).length > 0 && (
-          <div className="row max-w-screen-2xl mx-auto overflow-auto overscroll-contain">
+          <div className="row max-w-(--breakpoint-2xl) mx-auto overflow-auto overscroll-contain">
             <table className="table table-zebra">
               <thead>
                 <tr>
@@ -145,7 +145,7 @@ export default function ReportPage(props: ReportPageProps) {
         {/* Main Report */}
 
         {lastLog && (
-          <div className="row max-w-screen-2xl mx-auto overflow-auto overscroll-contain">
+          <div className="row max-w-(--breakpoint-2xl) mx-auto overflow-auto overscroll-contain">
             <table className="table table-zebra">
               <thead>
                 <tr>
