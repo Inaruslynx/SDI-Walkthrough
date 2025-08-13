@@ -9,20 +9,6 @@ import { useMutation } from "@tanstack/react-query";
 import { GraphData } from "@/types";
 import DatePicker from "@/components/ui/DatePicker";
 
-// const FormSchema = z.object({
-//   dataSelection: z.string().min(1, { message: "Please select a data point." }),
-//   fromDatePicker: z.date(),
-//   toDatePicker: z.date(),
-// });
-
-// type PostResponse = AxiosResponse<
-//   [
-//     {
-//       date: string;
-//       value: number;
-//     },
-//   ]
-// >;
 
 interface GraphFormProps {
   onDataFromChild: (data: ChartData<"line">) => void;
@@ -39,24 +25,13 @@ export default function GraphForm({
   const [selectedFromDate, setSelectedFromDate] = useState<Date>();
   const [selectedToDate, setSelectedToDate] = useState<Date>();
 
-  // const form = useForm<z.infer<typeof FormSchema>>({
-  //   resolver: zodResolver(FormSchema),
-  //   defaultValues: {
-  //     dataSelection: "",
-  //     fromDatePicker: new Date(fromDate),
-  //     toDatePicker: new Date(toDate),
-  //   },
-  // });
-  //   console.log("fromDate:", fromDate);
-  //   console.log("toDate:", toDate);
-
   const graphFormMutation = useMutation({
     mutationFn: async () =>
       getGraph(
         walkthroughId,
         selectedDataPoint,
-        selectedToDate,
-        selectedFromDate
+        selectedToDate?.toDateString(),
+        selectedFromDate?.toDateString()
       ),
     onSuccess: (data: GraphData) => {
       toast.success("Successfully got graph data.");

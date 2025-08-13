@@ -173,7 +173,7 @@ export default function WalkthroughAreaCard({
 
   useEffect(() => {
     reset(initialFormValues);
-  }, [area]);
+  }, [area, reset, initialFormValues]);
 
   return (
     <div

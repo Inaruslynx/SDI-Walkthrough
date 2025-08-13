@@ -42,7 +42,7 @@ export default function DataPointElement({
     if (disabled && getValues(`${dataPoint._id}`) ) {
       setShowText(true)
     }
-  }, [disabled])
+  }, [disabled, getValues, dataPoint._id, setShowText]);
 
   // useEffect(() => {
   //   console.log("in dataPointElement walkthroughId on change:", walkthroughId);

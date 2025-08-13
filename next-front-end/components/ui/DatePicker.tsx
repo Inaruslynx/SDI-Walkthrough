@@ -80,7 +80,7 @@ export default function DatePicker({
       <div
         popover="auto"
         className="dropdown"
-        ref={dialogRef}
+        // ref={dialogRef}
         id={dialogId}
         style={{ positionAnchor: "--rdp" } as React.CSSProperties}
       >

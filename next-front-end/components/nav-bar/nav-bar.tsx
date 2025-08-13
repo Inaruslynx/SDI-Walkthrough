@@ -48,7 +48,7 @@ export default function NavBar() {
         setAdmin(userQuery.data.data.admin || false);
       }
     }
-  }, [userQuery.data]);
+  }, [userQuery.data, userQuery.isSuccess]);
 
   return (
     <>

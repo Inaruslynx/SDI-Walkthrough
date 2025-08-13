@@ -40,7 +40,7 @@ export default function FilterBar({ users, onFilter }: Props) {
 
   useEffect(() => {
     handleSearch();
-  }, [users, searchQuery]);
+  }, [users, searchQuery, handleSearch]);
 
   return (
     <div className="bg-neutral flex inline-flex w-full">

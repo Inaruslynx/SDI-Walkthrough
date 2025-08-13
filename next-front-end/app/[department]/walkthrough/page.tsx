@@ -148,7 +148,7 @@ export default function WalkthroughPage(props: {
         setFormDisabled(false);
       }
     }
-  }, [logQuery.isSuccess, logQuery.data]);
+  }, [logQuery.isSuccess, logQuery.data, user?.id]);
 
   return (
     <div className="px-8 pb-4">

@@ -18,8 +18,6 @@ export default function UserListener() {
     },
     onError: (e) => {
       console.error("Error updating profile: ", e);
-<<<<<<< HEAD
-=======
     },
   });
 
@@ -32,7 +30,6 @@ export default function UserListener() {
     },
     onError: (e) => {
       console.error("Error creating profile: ", e);
->>>>>>> b4c46e61970fb7fa4849b07c2d96b7f4c514ff28
     },
   });
 
@@ -67,7 +64,7 @@ export default function UserListener() {
       console.log("Unsubscribing from Clerk user changes");
       unsubscribeCallback();
     };
-  }, []);
+  }, [clerkInstance, handleCreateUser, handleUpdateUser]);
 
   return null;
 }

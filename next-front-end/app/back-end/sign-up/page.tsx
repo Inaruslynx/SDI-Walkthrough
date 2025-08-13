@@ -83,7 +83,7 @@ function SignUpPage() {
       console.log("Didn't create user");
       console.log("user:", user);
     }
-  }, [user, isUserCreated, userCheck]);
+  }, [user, isUserCreated, userCheck, handleCreateNewUser]);
 
   return null;
 }

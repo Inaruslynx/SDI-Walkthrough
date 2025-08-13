@@ -17,19 +17,6 @@ type ReportPageProps = {
   params: Promise<{ department: string }>;
 };
 
-/* for (const key in object) {
-      console.log(`{${key}: ${object[key as keyof typeof object]}}`);
-} 
-    
-  Object.keys(object).map(key => {
-    console.log(`{${key}: ${object[key as keyof typeof object]}}`);
-  });
-
-  const objectFunction = (object: Object, key: keyof Object): void => {
-    console.log(`{${key}: ${object[key]}}`);
-  }
-*/
-
 export default function ReportPage(props: ReportPageProps) {
   const { department } = use(props.params);
   const [lastLog, setLastLog] = useState<LogItem[]>();
@@ -77,13 +64,7 @@ export default function ReportPage(props: ReportPageProps) {
       setItemsOfConcern(reportQuery.data.itemsOfConcern);
     }
     // console.log("Finished fetching form data.");
-  }, [reportQuery]);
-
-  // useEffect(() => {
-  //   if (selectedWalkthrough !== "") {
-  //     reportQuery.refetch();
-  //   }
-  // }, [selectedWalkthrough]);
+  }, [reportQuery, selectedWalkthrough]);
 
   return (
     <>

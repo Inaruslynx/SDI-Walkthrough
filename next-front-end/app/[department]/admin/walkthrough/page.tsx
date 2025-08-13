@@ -305,7 +305,7 @@ export default function WalkthroughPage(props: {
     ) {
       selectedWalkthroughQuery.refetch();
     }
-  }, [selectedWalkthrough]);
+  }, [selectedWalkthrough, selectedWalkthroughQuery]);
 
   useEffect(() => {
     if (selectedWalkthroughQuery.isSuccess && selectedWalkthroughQuery.data) {
