@@ -52,6 +52,14 @@ export interface Walkthrough {
   perSwing?: PerSwingOptions;
   department: string | Department;
   data: Array<Area>;
+  nextDueDate?: Date | null;
+}
+
+export interface WalkthroughStatus {
+  walkthroughId: string;
+  nextDueDate: Date;
+  status: "on-time" | "late" | "not-started";
+  lastLog: Log;
 }
 
 export interface createWalkthroughResponse {
@@ -81,7 +89,7 @@ export interface Log {
   walkthrough: string;
   data: LogItem[];
   date?: string;
-  user?: string;
+  user?: User;
 }
 
 export interface LogItem {

@@ -4,7 +4,7 @@ import { Department, User } from "@/types";
 import { useUpdateUserMutation } from "./mutations";
 import { getAllDepartments } from "@/lib/api";
 import { AxiosResponse } from "axios";
-import SelectWalkthrough from "@/components/ui/selectWalkthrough";
+import SelectWalkthrough from "@/components/ui/SelectWalkthrough";
 
 type UserActionsProps = {
   selectedUsers: User[];

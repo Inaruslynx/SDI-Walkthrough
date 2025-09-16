@@ -102,6 +102,14 @@ export async function getWalkthrough(id: string) {
   return response;
 }
 
+export async function getWalkthroughStatus(id: string) {
+  const response = await api.get<{ walkthroughId: string,
+      nextDueDate: Date,
+      status: 'on-time' | 'late' | 'not-started',
+      lastLog: Log, }>(`walkthrough/${id}/status`);
+  return response.data;
+}
+
 // Update
 export async function updateWalkthrough(
   id: string,
@@ -109,11 +117,13 @@ export async function updateWalkthrough(
   name?: string,
   periodicity?: string,
   weekly?: string,
-  perSwing?: string
+  perSwing?: string,
+  createNewDueDate?: boolean,
 ) {
   const payload: any = {};
 
   if (name !== undefined) payload.name = name;
+  if (createNewDueDate !== undefined) payload.createNewDueDate = createNewDueDate;
   if (periodicity !== undefined) payload.periodicity = periodicity;
   if (weekly !== undefined) payload.weekly = weekly;
   if (perSwing !== undefined) payload.perSwing = perSwing;

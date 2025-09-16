@@ -39,6 +39,9 @@ export default function NavDropdown({ name }: { name: string }) {
         <li>
           <NavLink href={`/${name}/report/`}>Report</NavLink>
         </li>
+        <li>
+          <NavLink href={`/${name}/status/`}>Status</NavLink>
+        </li>
         {orgAdmin && (
           <li>
             <NavLink href={`/${name}/admin/walkthrough`}>

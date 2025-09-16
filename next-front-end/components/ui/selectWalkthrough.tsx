@@ -50,7 +50,7 @@ export default function SelectWalkthrough({
     if (walkthroughs.isSuccess) {
       console.log("walkthroughs:", walkthroughs.data?.data);
     }
-  }, [walkthroughs]);
+  }, [walkthroughs.isSuccess, walkthroughs.data]);
 
   // useEffect(() => {
   //   if (departments.isSuccess) {

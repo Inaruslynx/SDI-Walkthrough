@@ -1,5 +1,5 @@
 "use client";
-import { ReactNode, useEffect, useState } from "react";
+import { ReactNode, useEffect, useMemo, useState } from "react";
 import IconEdit from "@/components/ui/icons/edit";
 import IconSave from "@/components/ui/icons/save";
 import IconDelete from "@/components/ui/icons/delete";
@@ -66,9 +66,12 @@ export default function WalkthroughAreaCard({
   const [canEdit, setCanEdit] = useState<boolean>(false);
   const name = useWatch({ control, name: "name" });
   const queryClient = useQueryClient();
-  const initialFormValues = {
-    name: area?.name || "",
-  };
+  const initialFormValues = useMemo<FormValues>(
+    () => ({
+      name: area?.name || "",
+    }),
+    [area?.name]
+  );
   const { organization } = useOrganization();
 
   const createAreaMutation = useMutation({
@@ -173,7 +176,7 @@ export default function WalkthroughAreaCard({
 
   useEffect(() => {
     reset(initialFormValues);
-  }, [area, reset, initialFormValues]);
+  }, [reset, initialFormValues]);
 
   return (
     <div

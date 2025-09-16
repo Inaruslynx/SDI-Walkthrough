@@ -1,7 +1,7 @@
 "use client";
 import { getReport } from "@/lib/api";
 import { useEffect, useState, use } from "react";
-import SelectWalkthrough from "@/components/ui/selectWalkthrough";
+import SelectWalkthrough from "@/components/ui/SelectWalkthrough";
 import { useQuery } from "@tanstack/react-query";
 import { ItemOfConcernRecord, LogItem, ResultRecord } from "@/types";
 import { DataPoint } from "../../../types/index";

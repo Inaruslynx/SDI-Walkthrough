@@ -1,16 +1,13 @@
+import StatusPanel from "@/components/ui/status-panel/StatusPanel";
+
 export default function Home() {
   return (
     <>
-      <main className="px-12 bg-base-100 prose md:prose-lg text-base-content max-w-full">
-        <div className="container">
-          <h1>Welcome to SDI Walkthrough</h1>
-          <p>
-            This app should be pretty fleshed out, but bugs might still exist.
-            Please let me know if you find any issues. I am planning to add
-            further functionality, but at this point the old version can be
-            abandoned.
-          </p>
-        </div>
+      <h1 className="text-5xl mb-8 justify-self-center self-center place-self-center text-center">
+        <b>Welcome to SDI Walkthrough</b>
+      </h1>
+      <main className="px-12 bg-base-100 prose md:prose-lg text-base-content min-w-full">
+        <StatusPanel className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" />
       </main>
     </>
   );

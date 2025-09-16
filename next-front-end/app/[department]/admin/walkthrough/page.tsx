@@ -6,7 +6,7 @@ import WalkthroughRenderer from "./WalkthroughRenderer";
 import { findArea, getOneDepartment, getWalkthrough } from "@/lib/api";
 import Modal from "./modal";
 import Button from "./button";
-import SelectWalkthrough from "@/components/ui/selectWalkthrough";
+import SelectWalkthrough from "@/components/ui/SelectWalkthrough";
 import { useQuery } from "@tanstack/react-query";
 import {
   Area,
@@ -15,6 +15,7 @@ import {
   WeeklyOptionsType,
   PerSwingOptions,
   PerSwingOptionsType,
+  Walkthrough,
 } from "@/types";
 import IconPlus from "@/components/ui/icons/plus";
 import { PeriodicityOptions } from "@/types";
@@ -25,13 +26,14 @@ import {
   useRenameWalkthrough,
   useSavePeriodicity,
 } from "./mutations";
+// import { set } from "date-fns";
 
 const periodicityValues = Object.values(PeriodicityOptions);
 const weeklyValues = Object.values(WeeklyOptions);
 const perSwingValues = Object.values(PerSwingOptions);
 
 function usePeriodicityState() {
-  const [selectedPeriodicity, setSelectedPeriodicity] = useState("");
+  const [selectedPeriodicity, setSelectedPeriodicity] = useState<PeriodicityOptions>();
   const [selectedWeekly, setSelectedWeekly] = useState<WeeklyOptionsType>();
   const [selectedPerSwing, setSelectedPerSwing] =
     useState<PerSwingOptionsType>();
@@ -50,6 +52,7 @@ export default function WalkthroughPage(props: {
 }) {
   const params = use(props.params);
   const [selectedWalkthrough, setSelectedWalkthrough] = useState("");
+  const [walkthroughData, setWalkthroughData] = useState<Walkthrough>();
   const {
     selectedPerSwing,
     selectedWeekly,
@@ -94,19 +97,12 @@ export default function WalkthroughPage(props: {
   const masterGetWalkthrough = async (
     walkthroughId: string
   ): Promise<Area[]> => {
+    console.log("Fetching walkthrough areas for:", walkthroughId);
     const response = await getWalkthrough(walkthroughId);
     // console.log("response:", response.data.data);
     if (response) {
+      setWalkthroughData(response.data);
       const results = await fetchWalkthroughAreas(response.data.data);
-      if (response.data.periodicity) {
-        setSelectedPeriodicity(response.data.periodicity);
-      }
-      if (response.data.weekly) {
-        setSelectedWeekly(response.data.weekly);
-      }
-      if (response.data.perSwing) {
-        setSelectedPerSwing(response.data.perSwing);
-      }
       // console.log("results:", results);
       return results;
     } else {
@@ -293,8 +289,8 @@ export default function WalkthroughPage(props: {
     if (e.target.value === PeriodicityOptions.PerSwing)
       setSelectedPerSwing(PerSwingOptions.First);
     else setSelectedPerSwing(undefined);
-
-    setSelectedPeriodicity(e.target.value);
+    const periodicity = e.target.value as PeriodicityOptions;
+    setSelectedPeriodicity(periodicity);
   }
 
   // is this necessary?
@@ -303,9 +299,29 @@ export default function WalkthroughPage(props: {
       selectedWalkthrough !== "" &&
       selectedWalkthrough !== "Select a Walkthrough"
     ) {
+      if (!selectedWalkthroughQuery.isEnabled) return;
+      console.log("refetching selectedWalkthrough");
       selectedWalkthroughQuery.refetch();
     }
-  }, [selectedWalkthrough, selectedWalkthroughQuery]);
+  }, [selectedWalkthrough, selectedWalkthroughQuery.isEnabled]);
+
+  useEffect(() => {
+    if (!walkthroughData) return;
+    console.log("walkthroughData changed:", walkthroughData); 
+    if (!walkthroughData) return;
+    setSelectedPeriodicity(walkthroughData.periodicity);
+
+    if (walkthroughData.periodicity == PeriodicityOptions.Weekly) {
+      setSelectedWeekly(walkthroughData.weekly);
+    } else {
+      setSelectedWeekly(undefined);
+    }
+    if (walkthroughData.periodicity == PeriodicityOptions.PerSwing) {
+      setSelectedPerSwing(walkthroughData.perSwing);
+    } else {
+      setSelectedPerSwing(undefined);
+    }
+  }, [walkthroughData])
 
   useEffect(() => {
     if (selectedWalkthroughQuery.isSuccess && selectedWalkthroughQuery.data) {
@@ -441,7 +457,7 @@ export default function WalkthroughPage(props: {
                 </select>
               )}
 
-              {selectedPeriodicity && selectedPeriodicity !== "" && (
+              {selectedPeriodicity && (
                 <button
                   className="btn btn-primary m-2"
                   onClick={() => {

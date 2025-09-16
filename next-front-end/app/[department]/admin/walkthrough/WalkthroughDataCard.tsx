@@ -99,7 +99,7 @@ export default function WalkthroughDataCard({
     if (dataPoint?._id) {
       setId(dataPoint._id);
     }
-  }, [dataPoint]);
+  }, [dataPoint._id]);
 
   const handleEditClick = () => {
     setCanEdit(true);

@@ -54,6 +54,7 @@ export function useRenameWalkthrough(
         undefined,
         undefined,
         undefined,
+        false,
       ),
     onSuccess: (data) => {
       toast.success("Successfully renamed walkthrough.");
@@ -106,6 +107,7 @@ export function useSavePeriodicity() {
         periodicity,
         weekly,
         perSwing,
+        true,
       ),
     onSuccess: () => {
       toast.success("Successfully changed periodicity.");

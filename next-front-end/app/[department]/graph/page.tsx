@@ -5,22 +5,22 @@ import type { ChartData } from "chart.js";
 import Graph from "./graph";
 import GraphForm from "./form";
 import { findArea, getWalkthrough } from "@/lib/api";
-import SelectWalkthrough from "@/components/ui/selectWalkthrough";
-import { Area, DataPoint, Walkthrough } from "@/types";
+import SelectWalkthrough from "@/components/ui/SelectWalkthrough";
+import { Area, DataPoint } from "@/types";
 
-interface Response {
-  data: {
-    dataPoints: string[];
-    fromDate: string;
-    toDate: string;
-  };
-}
+// interface Response {
+//   data: {
+//     dataPoints: string[];
+//     fromDate: string;
+//     toDate: string;
+//   };
+// }
 
-interface FetchData {
-  options: string[];
-  fromDate: string;
-  toDate: string;
-}
+// interface FetchData {
+//   options: string[];
+//   fromDate: string;
+//   toDate: string;
+// }
 
 export default function GraphPage(props: {
   params: Promise<{ department: string }>;

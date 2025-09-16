@@ -1,5 +1,5 @@
 "use client";
-import SelectWalkthrough from "@/components/ui/selectWalkthrough";
+import SelectWalkthrough from "@/components/ui/SelectWalkthrough";
 import { useEffect, useState, use } from "react";
 import { useQuery } from "@tanstack/react-query";
 import type { Area, Log } from "@/types";
@@ -178,7 +178,9 @@ export default function WalkthroughPage(props: {
                   value={selectedDate}
                   className={"m-2 flex items-center gap-2"}
                   onChange={(e) => setSelectedDate(e)}
-                >Pick a Date:  </DatePicker>
+                >
+                  Pick a Date:{" "}
+                </DatePicker>
                 <button
                   className={`btn btn-primary m-2`}
                   onClick={loadDateLog}

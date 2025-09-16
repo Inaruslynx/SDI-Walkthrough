@@ -104,6 +104,11 @@ export default function NavBar() {
                           Report
                         </NavLink>
                       </li>
+                      <li>
+                        <NavLink href={`/${department.name}/status/`}>
+                          Status
+                        </NavLink>
+                      </li>
                     </div>
                   </details>
                 ))}
