@@ -29,6 +29,9 @@ export class WalkthroughController {
 
   @Get()
   find(@Query('department') department?: string) {
+    if (!department) {
+      return this.walkthroughService.findAll();
+    }
     const isId = /^[0-9a-fA-F-]+$/.test(department);
     if (isId) {
       return this.walkthroughService.findAllById(department);
@@ -40,6 +43,11 @@ export class WalkthroughController {
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.walkthroughService.findOne(id);
+  }
+
+  @Get(':id/status')
+  getWalkthroughStatus(@Param('id') id: string) {
+    return this.walkthroughService.getWalkthroughStatus(id);
   }
 
   @Patch(':id')

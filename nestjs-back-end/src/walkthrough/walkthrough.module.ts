@@ -6,6 +6,9 @@ import { WalkthroughSchema } from 'src/schemas/walkthroughs.schema';
 import { DepartmentSchema } from 'src/schemas/departments.schema';
 import { AreaSchema } from 'src/schemas/areas.schema';
 import { DataPointSchema } from 'src/schemas/DataPoints.schema';
+import { LogService } from 'src/log/log.service';
+import { ClerkUserSchema } from 'src/schemas/users.schema';
+import { LogSchema } from 'src/schemas/logs.schema';
 
 @Module({
   imports: [
@@ -17,8 +20,10 @@ import { DataPointSchema } from 'src/schemas/DataPoints.schema';
     ]),
     MongooseModule.forFeature([{ name: 'Area', schema: AreaSchema }]),
     MongooseModule.forFeature([{ name: 'DataPoint', schema: DataPointSchema }]),
+    MongooseModule.forFeature([{ name: 'ClerkUser', schema: ClerkUserSchema }]),
+    MongooseModule.forFeature([{ name: 'Log', schema: LogSchema }]),
   ],
   controllers: [WalkthroughController],
-  providers: [WalkthroughService],
+  providers: [WalkthroughService, LogService],
 })
 export class WalkthroughModule {}

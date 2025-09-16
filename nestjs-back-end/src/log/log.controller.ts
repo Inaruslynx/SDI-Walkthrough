@@ -36,8 +36,8 @@ export class LogController {
 
   @Get('prev/')
   findPrevByWalkthrough(
-    @Query('id') id: string,
     @Query('walkthroughId') walkthroughId: string,
+    @Query('id') id?: string,
   ) {
     return this.logService.findPrev(id, walkthroughId);
   }

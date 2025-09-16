@@ -58,6 +58,9 @@ export class Walkthrough extends Document {
 
   @Prop([{ type: mongoose.Schema.Types.ObjectId, ref: 'Area' }])
   data: Area[];
+
+  @Prop()
+  nextDueDate: Date;
 }
 
 export const WalkthroughSchema = SchemaFactory.createForClass(Walkthrough);

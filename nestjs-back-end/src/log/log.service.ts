@@ -13,7 +13,6 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Walkthrough } from 'src/schemas/walkthroughs.schema';
 import { ClerkUser } from '../schemas/users.schema';
 import { Log } from 'src/schemas/logs.schema';
-import { isAfter } from 'date-fns';
 
 @Injectable()
 export class LogService {
@@ -99,18 +98,18 @@ export class LogService {
   }
 
   findAll(walkthroughId: string) {
-    const logs = this.logModel.find({ walkthrough: walkthroughId });
+    const logs = this.logModel.find({ walkthrough: walkthroughId }).populate('user');
     return logs;
   }
 
   async findOne(walkthroughId: string, date: string) {
-    const log = await this.logModel.find({ walkthrough: walkthroughId, date });
+    const log = await this.logModel.find({ walkthrough: walkthroughId, date }).populate('user');
     return log;
   }
 
   async findPrev(id?: string, walkthroughId?: string) {
-    console.log('id:', id);
-    console.log('walkthroughId:', walkthroughId);
+    // console.log('id:', id);
+    // console.log('walkthroughId:', walkthroughId);
     if (!id && !walkthroughId) {
       throw new BadRequestException('id or walkthroughId is required', {
         cause: new Error(),
@@ -119,7 +118,7 @@ export class LogService {
     }
     if (walkthroughId) {
       const log = (
-        await this.logModel.find({ walkthrough: walkthroughId })
+        await this.logModel.find({ walkthrough: walkthroughId }).populate('user')
       ).sort(
         (a, b) =>
           new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
@@ -131,7 +130,7 @@ export class LogService {
       const result = await this.logModel.findOne({
         walkthrough: log.walkthrough,
         createdAt: { $lt: log.createdAt },
-      });
+      }).populate('user');
       return result;
     }
     throw new InternalServerErrorException('Failed to find log', {
@@ -151,7 +150,7 @@ export class LogService {
     }
     if (walkthroughId) {
       const log = (
-        await this.logModel.find({ walkthrough: walkthroughId })
+        await this.logModel.find({ walkthrough: walkthroughId }).populate('user')
       ).sort(
         (a, b) =>
           new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
@@ -163,7 +162,7 @@ export class LogService {
       const result = await this.logModel.findOne({
         walkthrough: log.walkthrough,
         createdAt: { $gt: log.createdAt },
-      });
+      }).populate('user');
       return result;
     }
 
