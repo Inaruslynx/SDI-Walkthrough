@@ -69,6 +69,9 @@ export class ClerkUser {
   @Prop({ default: 'dark', enum: Theme })
   @IsEnum(Theme)
   type: Theme;
+
+  @Prop({ default: true })
+  enabled : boolean;
 }
 
 export const ClerkUserSchema = SchemaFactory.createForClass(ClerkUser);
