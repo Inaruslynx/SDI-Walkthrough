@@ -11,4 +11,5 @@ export class CreateUserDto {
   department: Department;
   admin: boolean;
   type: Theme;
+  enabled: boolean;
 }
