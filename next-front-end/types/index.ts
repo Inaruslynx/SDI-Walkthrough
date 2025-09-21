@@ -82,6 +82,7 @@ export interface User {
   department?: Department | string;
   admin?: boolean;
   type?: Theme;
+  enabled?: boolean;
 }
 
 export interface Log {

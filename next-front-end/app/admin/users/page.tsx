@@ -18,6 +18,7 @@ const SortCategoryArray = [
   { value: "department", label: "Department" },
   { value: "walkthroughs", label: "Assigned Walkthroughs" },
   { value: "userLevel", label: "User Level" },
+  { value: "enabled", label: "Enabled" },
 ] as const;
 
 // Use the array to create a union type
@@ -36,6 +37,7 @@ export default function UsersPage() {
     department: "none",
     walkthroughs: "none",
     userLevel: "none",
+    enabled: "none",
   });
   const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
   const [isMainChecked, setIsMainChecked] = useState(false);
@@ -119,6 +121,10 @@ export default function UsersPage() {
           case "userLevel":
             compareA = a.admin ? 1 : 0;
             compareB = b.admin ? 1 : 0;
+            break;
+          case "enabled":
+            compareA = a.enabled ? 1 : 0;
+            compareB = b.enabled ? 1 : 0;
             break;
           default:
             return 0;

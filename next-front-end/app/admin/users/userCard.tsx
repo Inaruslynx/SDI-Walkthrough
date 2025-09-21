@@ -17,7 +17,7 @@ export default function UserCard({
       className="card bg-neutral text-neutral-content w-full shadow-xl m-4"
     >
       <div className="card-body w-full">
-        <div className="grid grid-cols-6 gap-x-4 justify-between items-baseline">
+        <div className="grid grid-cols-7 gap-x-4 justify-between items-baseline">
           <input
             type="checkbox"
             className="checkbox"
@@ -52,6 +52,11 @@ export default function UserCard({
                     <h3>test</h3>
                   </div> */}
           {user.admin ? <h3>Admin</h3> : <h3>User</h3>}
+          {user.enabled ? (
+            <h3 className="text-green-500">Enabled</h3>
+          ) : (
+            <h3 className="text-red-500">Disabled</h3>
+          )}
         </div>
       </div>
     </div>
