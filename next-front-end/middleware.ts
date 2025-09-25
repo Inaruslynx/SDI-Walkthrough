@@ -2,6 +2,7 @@ import {
   clerkMiddleware,
   createRouteMatcher,
 } from "@clerk/nextjs/server";
+import { handlers } from "@/auth";
 // import { NextResponse } from "next/server";
 // import type { NextRequest } from "next/server";
 // import { findUser } from "@/lib/api";

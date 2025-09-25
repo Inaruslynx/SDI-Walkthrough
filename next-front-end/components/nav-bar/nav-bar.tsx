@@ -16,6 +16,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Department } from "@/types";
 import { AxiosResponse } from "axios";
 import { useEffect, useState } from "react";
+import SignIn from "../ui/sign-in";
 
 export default function NavBar() {
   const { signOut } = useClerk();
@@ -174,6 +175,7 @@ export default function NavBar() {
                 </button>
               </div>
             </SignedIn>
+            <SignIn />
             <SignedOut>
               <div className="px-4 mx-2 btn rounded-btn hover:btn-primary">
                 <SignInButton />
