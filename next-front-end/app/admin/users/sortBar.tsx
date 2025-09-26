@@ -17,7 +17,7 @@ export default function SortBar({
   return (
     <div className="card w-full m-4 bg-primary text-primary-content shadow-lg m-4">
       <div className="card-body w-full">
-        <div className="grid grid-cols-6 gap-x-4 justify-between items-baseline">
+        <div className="grid grid-cols-7 gap-x-4 justify-between items-baseline">
           <input
             type="checkbox"
             className="checkbox"
@@ -50,6 +50,11 @@ export default function SortBar({
             label="User Level"
             onClick={() => onSort("userLevel")}
             sortStatus={sortStatus.userLevel}
+          />
+          <SortButton
+            label="Enabled"
+            onClick={() => onSort("enabled")}
+            sortStatus={sortStatus.enabled}
           />
         </div>
       </div>

@@ -56,7 +56,7 @@ export default function StatusCard({
           <p>
             Next Due Date:{" "}
             {walkthrough.nextDueDate
-              ? new Date(walkthrough.nextDueDate).toDateString()
+              ? new Date(walkthrough.nextDueDate).toLocaleString()
               : "No next due date available"}
             <br />
             Periodicity:{" "}
@@ -68,7 +68,7 @@ export default function StatusCard({
               <>
                 Last Log:{" "}
                 {walkthroughStatus.lastLog.date
-                  ? new Date(walkthroughStatus.lastLog.date).toDateString()
+                  ? new Date(walkthroughStatus.lastLog.date).toLocaleString()
                   : "No last log date available"}
               </>
             ) : (

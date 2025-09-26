@@ -34,7 +34,9 @@ export default function SelectWalkthrough({
   const walkthroughs = useQuery<AxiosResponse<Walkthrough[]>, Error>({
     queryKey: ["walkthrough", { department }],
     queryFn: () => getWalkthroughs(department),
-    staleTime: 1000 * 60 * 5,
+    staleTime: Infinity,
+    refetchOnReconnect: false,
+    refetchOnWindowFocus: false,
     enabled: departmentUsed,
   });
 

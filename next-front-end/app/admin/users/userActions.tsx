@@ -5,6 +5,7 @@ import { useUpdateUserMutation } from "./mutations";
 import { getAllDepartments } from "@/lib/api";
 import { AxiosResponse } from "axios";
 import SelectWalkthrough from "@/components/ui/SelectWalkthrough";
+import { set } from "zod";
 
 type UserActionsProps = {
   selectedUsers: User[];
@@ -73,6 +74,9 @@ export default function UserActions({
   const [assignWalkthrough, setAssignWalkthrough] = useState("");
   const [removeWalkthrough, setRemoveWalkthrough] = useState("");
   const [usersDepartment, setUsersDepartment] = useState("");
+  const [areAllEnabled, setAreAllEnabled] = useState(true);
+  const [areAllDisabled, setAreAllDisabled] = useState(false);
+  const [isUserEnabled, setIsUserEnabled] = useState(true);
   const [isAssignWalkthroughValid, setIsAssignWalkthroughValid] =
     useState(true);
   const [validRemoveWalkthroughs, setValidRemoveWalkthroughs] =
@@ -138,6 +142,20 @@ export default function UserActions({
       });
       setRemoveWalkthrough("");
     }
+
+    if (!isUserEnabled) {
+      selectedUsers.forEach((user) => {
+        if (!user.enabled) return;
+        user.enabled = false;
+        updatedUsers.push(user);
+      });
+    } else {
+      selectedUsers.forEach((user) => {
+        if (user.enabled) return;
+        user.enabled = true;
+        updatedUsers.push(user);
+      });
+    }
     // send updated users
     if (updatedUsers.length === 0) return;
     console.log("updateUsers:", updatedUsers);
@@ -156,6 +174,22 @@ export default function UserActions({
     if (selectedUsers.length === 0) return;
     console.log("selectedUsers:", selectedUsers);
     const walkthroughs = countWalkthroughs(selectedUsers);
+
+    let usersEnabled = 0;
+    let usersDisabled = 0;
+
+    for (const user of selectedUsers) {
+      if (!user.enabled) {
+        usersDisabled += 1;
+      } else {
+        usersEnabled += 1;
+      }
+    }
+    const areAllEnabled = usersEnabled === selectedUsers.length;
+    const areAllDisabled = usersDisabled === selectedUsers.length;
+    setAreAllEnabled(areAllEnabled);
+    setAreAllDisabled(areAllDisabled);
+    setIsUserEnabled(areAllEnabled);
 
     // Filter walkthroughs where count matches the number of selectedUsers and keep name
     const validWalkthroughs = walkthroughs
@@ -178,24 +212,34 @@ export default function UserActions({
       <div className="card flex animate-grow-down justify-between items-baseline bg-accent p-4 rounded-xl shadow-sm m-4 w-full">
         <div className="card-body w-full">
           <div className="inline-flex items-baseline">
-            <select
-              name="departmentSelector"
-              id="departmentSelector"
-              value={assignDepartment}
-              onChange={(e) => setAssignDepartment(e.target.value)}
-              className="select select-ghost text-accent-content m-2"
-            >
-              <option value="" disabled hidden>
-                Assign Department
-              </option>
-              {departments.isSuccess &&
-                departments.data.data &&
-                departments.data.data.map((department: Department) => (
-                  <option key={department._id} value={department._id}>
-                    {department.name}
-                  </option>
-                ))}
-            </select>
+            <label className="form-control text-accent-content m-2">
+              <select
+                name="departmentSelector"
+                id="departmentSelector"
+                value={assignDepartment}
+                onChange={(e) => setAssignDepartment(e.target.value)}
+                className="select select-ghost text-accent-content m-2"
+                disabled={!areAllEnabled}
+              >
+                <option value="" disabled hidden>
+                  Assign Department
+                </option>
+                {departments.isSuccess &&
+                  departments.data.data &&
+                  departments.data.data.map((department: Department) => (
+                    <option key={department._id} value={department._id}>
+                      {department.name}
+                    </option>
+                  ))}
+              </select>
+              {!areAllEnabled ? (
+                <div className="label">
+                  <span className="label-text-alt text-accent-content">
+                    Not all the users are enabled
+                  </span>
+                </div>
+              ) : null}
+            </label>
             <label className="form-control text-accent-content m-2">
               <SelectWalkthrough
                 text={"Assign Walkthrough"}
@@ -220,6 +264,12 @@ export default function UserActions({
                 id="removeWalkthroughSelector"
                 value={removeWalkthrough}
                 onChange={(e) => setRemoveWalkthrough(e.target.value)}
+                disabled={
+                  selectedUsers.length > 0 &&
+                  validRemoveWalkthroughs?.length === 0
+                    ? true
+                    : false
+                }
                 className={`select select-ghost text-accent-content ${
                   selectedUsers.length > 0 &&
                   validRemoveWalkthroughs?.length === 0
@@ -248,6 +298,26 @@ export default function UserActions({
                 </div>
               ) : null}
             </label>
+            <label className="form-control text-accent-content m-2">
+              <input
+                type="checkbox"
+                className={`checkbox ${isUserEnabled ? "checkbox-primary" : "checkbox-error"} m-2`}
+                name="enabled"
+                id="enabled"
+                disabled={!areAllEnabled && !areAllDisabled}
+                checked={isUserEnabled}
+                onChange={() => setIsUserEnabled(!isUserEnabled)}
+              />
+              Enabled
+              {!areAllEnabled && !areAllDisabled ? (
+                <div className="label">
+                  <span className="label-text-alt text-accent-content">
+                    Not all the users are enabled
+                  </span>
+                </div>
+              ) : null}
+            </label>
+
             <button
               className="btn btn-primary m-2"
               onClick={() => handleUpdateUsers()}

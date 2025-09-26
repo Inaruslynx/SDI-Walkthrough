@@ -37,7 +37,9 @@ export default function WalkthroughPage(props: {
   const selectedWalkthroughQuery = useQuery<Area[]>({
     queryKey: ["walkthrough", { id: selectedWalkthrough }],
     queryFn: () => masterGetWalkthrough(selectedWalkthrough),
-    staleTime: 1000 * 60 * 5,
+    staleTime: Infinity,
+    refetchOnReconnect: false,
+    refetchOnWindowFocus: false,
     enabled:
       selectedWalkthrough !== "" &&
       selectedWalkthrough !== "Select a Walkthrough",
