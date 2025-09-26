@@ -96,6 +96,24 @@ export class UserService {
         }
       }
 
+      if (updateUserDto.enabled !== userDoc.enabled) {
+        const clerkClient = createClerkClient({
+          secretKey: process.env.CLERK_SECRET_KEY,
+          publishableKey: process.env.CLERK_PUBLISHABLE_KEY,
+        });
+        const result = await clerkClient.users.updateUserMetadata(
+          userDoc.clerkId,
+          {
+            publicMetadata: { enabled: updateUserDto.enabled },
+          },
+        );
+        if (!result) {
+          throw new InternalServerErrorException(
+            'Failed to update user metadata',
+          );
+        }
+      }
+
       const updatedUserDoc = {
         ...userDoc.toObject(),
         ...updateUserDto,
@@ -111,6 +129,7 @@ export class UserService {
       const updateUserData = {
         ...updateUserDto,
         admin: false,
+        enabled: true,
         assignedWalkthroughs: [],
       };
       const newUser = new this.userModel(updateUserData);
