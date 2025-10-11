@@ -16,7 +16,7 @@ git fetch origin main
 git reset --hard origin/main
 
 Write-Host "Installing dependencies and building the project..."
-pnpm install --frozen-lockfile --prod
+pnpm install --force
 pnpm build
 
 # Copy required files into standalone output
