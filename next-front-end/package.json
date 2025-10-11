@@ -8,7 +8,7 @@
     "build": "next build --turbopack",
     "start": "next start -p 3000",
     "analyze": "cross-env ANALYZE=true next build",
-    "deploy": "powershell .\\deploy.ps1"
+    "autodeploy": "powershell .\\deploy.ps1"
   },
   "dependencies": {
     "-": "^0.0.1",
