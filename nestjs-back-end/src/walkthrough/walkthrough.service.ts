@@ -275,7 +275,7 @@ export class WalkthroughService {
         walkthroughDoc[key] = updateWalkthroughDto[key];
       }
     });
-    console.log(updateWalkthroughDto.periodicity);
+    // console.log(updateWalkthroughDto.periodicity);
     if (updateWalkthroughDto.periodicity !== PeriodicityOptions.PerSwing) {
       walkthroughDoc.perSwing = undefined;
     }

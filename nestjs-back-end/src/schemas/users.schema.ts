@@ -71,7 +71,7 @@ export class ClerkUser {
   type: Theme;
 
   @Prop({ default: true })
-  enabled : boolean;
+  enabled: boolean;
 }
 
 export const ClerkUserSchema = SchemaFactory.createForClass(ClerkUser);

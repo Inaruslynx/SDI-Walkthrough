@@ -68,6 +68,11 @@ export class LogService {
       ),
     );
 
+    // If current time is *before* today's start time, shift base start time back a day
+    if (now < todayStartTime) {
+      todayStartTime.setUTCDate(todayStartTime.getUTCDate() - 1);
+    }
+
     const previousNightTime = new Date(
       todayStartTime.getTime() - 12 * 60 * 60 * 1000, // Subtract 12 hours
     );
@@ -83,6 +88,11 @@ export class LogService {
     let logDate: Date;
 
     if (walkthroughDoc.periodicity === 'Per Shift') {
+      // console.log('Current UTC Date:', currentUTCDate);
+      // console.log('Today Start Time:', todayStartTime);
+      // console.log('Previous Night Time:', previousNightTime);
+      // console.log('Today Night Time:', todayNightTime);
+      // console.log('Tomorrow Start Time:', tomorrowStartTime);
       // Determine if current time is in the "day" shift
       if (currentUTCDate >= todayStartTime && currentUTCDate < todayNightTime) {
         logDate = new Date(todayStartTime);
@@ -97,6 +107,7 @@ export class LogService {
       ) {
         logDate = new Date(previousNightTime);
       }
+      // console.log('logDate Per Shift:', logDate);
       logDate.setUTCMinutes(logDate.getUTCMinutes() + 1); // Add 1 minute to ensure it is after the start time
     } else {
       // Adjust to the previous day's start time if before today's start time
@@ -190,8 +201,8 @@ export class LogService {
   }
 
   async findNext(id?: string, walkthroughId?: string) {
-    console.log('id:', id);
-    console.log('walkthroughId:', walkthroughId);
+    // console.log('id:', id);
+    // console.log('walkthroughId:', walkthroughId);
     if (!id && !walkthroughId) {
       throw new BadRequestException('id or walkthroughId is required', {
         cause: new Error(),

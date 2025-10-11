@@ -1,9 +1,10 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { FlattenMaps, Model } from 'mongoose';
 import { Log } from 'src/schemas/logs.schema';
 import { std, mean, min, max, round } from 'mathjs';
-import { DataPointDocument } from 'src/schemas/DataPoints.schema';
+import { DataPoint, DataPointDocument } from 'src/schemas/DataPoints.schema';
+import { log } from 'console';
 // import { isToday } from 'date-fns';
 
 @Injectable()
@@ -25,7 +26,7 @@ export class ReportService {
       );
     }
 
-    type Difference = {dataPoint: DataPointDocument, value: number};
+    type Difference = { dataPoint: DataPointDocument; value: number };
     const differenceOfRecentLogs: Record<string, Difference> = {};
     const itemsOfConcern: Record<
       string,
@@ -54,7 +55,7 @@ export class ReportService {
       return log.data;
     });
     // console.log('rawData:', rawData);
-    // TODO Need to fix this. Data will be an array of {dataPoint, value}
+    // This will filter out non-number data and convert to numbers
     const onlyNumberData = rawData.map((data) => {
       return data
         .filter((logData) => !isNaN(parseFloat(logData.value)))
@@ -64,33 +65,34 @@ export class ReportService {
         }));
     });
 
-    let lastLog: any;
-    let beforeLastLog: any;
+    let lastLog: { dataPoint: DataPoint; value: number }[] = [];
+    let beforeLastLog: { dataPoint: DataPoint; value: number }[] = [];
     // console.log('onlyNumberData:', onlyNumberData);
     lastLog = onlyNumberData.pop();
     // console.log('lastLog:', lastLog);
     if (onlyNumberData.length > 1) {
       beforeLastLog = onlyNumberData[onlyNumberData.length - 1];
 
-      lastLog.forEach((logData: any) => {
+      lastLog.forEach((logData: { dataPoint: DataPoint; value: number }) => {
         // Find the matching dataPoint in beforeLastLog
         // console.log('logData:', logData);
         // console.log('dataPoint:', logData.dataPoint);
         const matchingBeforeLog = beforeLastLog.find(
-          (beforeLogData: any) =>
+          (beforeLogData: { dataPoint: DataPoint; value: number }) =>
             beforeLogData.dataPoint._id === logData.dataPoint._id,
         );
 
         // If a match is found, calculate the difference
-        if (matchingBeforeLog) {
-          differenceOfRecentLogs[logData.dataPoint._id] = {
-            dataPoint: logData.dataPoint,
+        if (matchingBeforeLog && logData.dataPoint !== null) {
+          differenceOfRecentLogs[logData.dataPoint._id as string] = {
+            dataPoint: logData.dataPoint as DataPointDocument,
             value: logData.value - matchingBeforeLog.value,
           };
         }
       });
     }
 
+    // creates standard report values
     let results: Record<
       string,
       {
@@ -99,43 +101,51 @@ export class ReportService {
       }
     > = {};
     if (onlyNumberData.length > 0) {
+      // console.log('Length of onlyNumberData:', onlyNumberData.length);
+      let valuesByDataPoint: Record<
+        string,
+        { text: string; values: number[] }
+      > = {};
+
+      // Group values by dataPoint
       onlyNumberData.forEach((data) => {
-        // TODO add code to create items of concern
-        let valuesByDataPoint: Record<
-          string,
-          { text: string; values: number[] }
-        > = {};
         data.forEach((logData) => {
           // console.log('logData:', logData);
-          const dataText = logData.dataPoint.text as string;
-          const dataPointId = logData.dataPoint.id as string;
-          if (!valuesByDataPoint[dataPointId]) {
-            valuesByDataPoint[dataPointId] = { text: dataText, values: [] };
+          if (logData.dataPoint !== null) {
+            // Check if dataPoint is not null as it may be undefined
+            const dataText = logData.dataPoint.text as string;
+            const dataPointId = logData.dataPoint._id as string;
+            if (!valuesByDataPoint[dataPointId]) {
+              valuesByDataPoint[dataPointId] = { text: dataText, values: [] };
+            }
+            valuesByDataPoint[dataPointId].values.push(logData.value);
           }
-          valuesByDataPoint[dataPointId].values.push(logData.value);
         });
         // console.log('valuesByDataPoint:', valuesByDataPoint);
-        Object.entries(valuesByDataPoint).forEach(
-          ([dataPointId, { text: dataText, values }]) => {
-            // console.log('dataPointId:', dataPointId);
-            // console.log('dataText:', dataText);
-            // console.log('values:', values);
-
-            const Mean = round(mean(values), 2);
-            // console.log('Mean:', Mean);
-            const stdDev = round(Number(std(values, 'unbiased')), 2);
-            // console.log('stdDev:', stdDev);
-            const Min = min(values);
-            // console.log('Min:', Min);
-            const Max = max(values);
-            // console.log('Max:', Max);
-            results[dataPointId] = {
-              name: dataText,
-              values: { mean: Mean, stdDev, min: Min, max: Max },
-            };
-          },
-        );
       });
+
+      // Now calculate mean, stdDev, min, max for each dataPoint
+      Object.entries(valuesByDataPoint).forEach(
+        ([dataPointId, { text: dataText, values }]) => {
+          // console.log('---');
+          // console.log('dataPointId:', dataPointId);
+          // console.log('dataText:', dataText);
+          // console.log('values:', values);
+
+          const Mean = round(mean(values), 2);
+          // console.log('Mean:', Mean);
+          const stdDev = round(Number(std(values, 'unbiased')), 2);
+          // console.log('stdDev:', stdDev);
+          const Min = min(values);
+          // console.log('Min:', Min);
+          const Max = max(values);
+          // console.log('Max:', Max);
+          results[dataPointId] = {
+            name: dataText,
+            values: { mean: Mean, stdDev, min: Min, max: Max },
+          };
+        },
+      );
     }
 
     if (lastLog && Object.keys(results).length > 0) {
@@ -166,13 +176,18 @@ export class ReportService {
       });
     }
 
-    if (Object.keys(differenceOfRecentLogs).length > 0 && Object.keys(results).length > 0) {
+    if (
+      Object.keys(differenceOfRecentLogs).length > 0 &&
+      Object.keys(results).length > 0
+    ) {
       for (const dataPointId in differenceOfRecentLogs) {
         const result = results[dataPointId];
         if (!result) return; // Skip if results for this dataPoint do not exist
 
         const { stdDev } = result.values;
-        const absDifference = Math.abs(differenceOfRecentLogs[dataPointId].value);
+        const absDifference = Math.abs(
+          differenceOfRecentLogs[dataPointId].value,
+        );
 
         // Initialize the itemsOfConcern entry if it doesn't exist
         if (!itemsOfConcern[dataPointId]) {
@@ -201,7 +216,8 @@ export class ReportService {
       results: Object.keys(results).length > 1 ? results : undefined,
       differenceOfRecentLogs:
         onlyNumberData.length > 1 ? differenceOfRecentLogs : undefined,
-      itemsOfConcern: Object.keys(itemsOfConcern).length > 0 ? itemsOfConcern : undefined,
+      itemsOfConcern:
+        Object.keys(itemsOfConcern).length > 0 ? itemsOfConcern : undefined,
     };
   }
 }

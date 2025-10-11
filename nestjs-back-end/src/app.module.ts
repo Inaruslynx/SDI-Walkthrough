@@ -45,7 +45,7 @@ export class AppModule {
   constructor(private readonly configService: ConfigService) {}
 
   OnModuleInit() {
-    console.log('MONGO_URI:', this.configService.get<string>('MONGO_URI'));
+    // console.log('MONGO_URI:', this.configService.get<string>('MONGO_URI'));
     const debugMode = this.configService.get<string>('MONGO_DEBUG') === 'true';
     if (debugMode) {
       mongoose.set('debug', true);
