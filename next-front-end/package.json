@@ -7,7 +7,8 @@
     "dev": "next dev --turbopack -p 3001",
     "build": "next build --turbopack",
     "start": "next start -p 3000",
-    "analyze": "cross-env ANALYZE=true next build"
+    "analyze": "cross-env ANALYZE=true next build",
+    "deploy": "powershell .\\deploy.ps1"
   },
   "dependencies": {
     "-": "^0.0.1",
@@ -29,6 +30,7 @@
     "mathjs": "^14.7.0",
     "next": "15.5.3",
     "node-windows": "1.0.0-beta.8",
+    "nookies": "^2.5.2",
     "react": "19.1.1",
     "react-camera-pro": "^1.4.0",
     "react-chartjs-2": "^5.3.0",
