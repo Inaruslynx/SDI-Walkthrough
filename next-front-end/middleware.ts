@@ -1,11 +1,7 @@
-import {
-  clerkMiddleware,
-  createRouteMatcher,
-} from "@clerk/nextjs/server";
-// import { NextResponse } from "next/server";
-// import type { NextRequest } from "next/server";
-// import { findUser } from "@/lib/api";
-// import { trueDependencies } from "mathjs";
+import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
+import { is } from "date-fns/locale";
+import { cookies } from "next/headers";
+import { NextResponse } from "next/server";
 
 const isProtectedAdminRoute = createRouteMatcher([
   "/(.*)/admin(.*)",
@@ -14,22 +10,10 @@ const isProtectedAdminRoute = createRouteMatcher([
 
 const isProtectedRoute = createRouteMatcher(["/(.*)/walkthrough(.*)"]);
 
-// async function checkAdminStatus(userId: string, request: NextRequest) {
-//   const response = await findUser(userId);
-//   if (response.status === 200) {
-//     return response.data.admin;
-//   } else return false;
-// }
-
-// export function middleware(request: NextRequest) {
-
-// }
-
-// export const config = {
-
-// }
-
 export default clerkMiddleware(async (auth, req) => {
+  const { sessionClaims } = await auth();
+  // console.log("Middleware sessionClaims:", sessionClaims?.metadata);
+  // If you need to access the current user, you can do so with the following:
   // const user = await currentUser();
   if (isProtectedAdminRoute(req)) {
     await auth.protect((has) => {
@@ -39,7 +23,44 @@ export default clerkMiddleware(async (auth, req) => {
     // if (isAdmin) return true;
     // else return false;
   }
-  if (isProtectedRoute(req)) await auth.protect();
+
+  // use metadata role to check for walkthrough access
+  if (isProtectedRoute(req)) {
+    await auth.protect();
+    const role = sessionClaims?.metadata?.role;
+    const isEnabled = sessionClaims?.metadata?.enabled;
+
+    if (isEnabled) {
+      console.log("Is Enabled");
+    }
+    if (!isEnabled) {
+      console.log("Is Not Enabled");
+    }
+
+    // Grab department from pathname: /electrical/walkthrough
+    const url = new URL(req.url);
+    const pathParts = url.pathname.split("/");
+    const departmentParam = pathParts[1]; // e.g. "electrical", "mechanical", "operations"
+
+    // Map Clerk roles to route params
+    const roleMap: Record<string, string> = {
+      "org:electrical": "electrical",
+      "org:mechanical": "mechanical",
+      "org:operations": "operations",
+    };
+
+    if (
+      !isEnabled ||
+      !role ||
+      roleMap[role] !== departmentParam.toLowerCase()
+    ) {
+      // const cookieStore = await cookies();
+      // cookieStore.set("reason", "forbidden");
+      const redirectUrl = new URL("/", req.url);
+      redirectUrl.searchParams.set("reason", "forbidden");
+      return NextResponse.redirect(redirectUrl);
+    }
+  }
 });
 
 export const config = {
