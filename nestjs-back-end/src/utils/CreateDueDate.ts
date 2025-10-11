@@ -166,7 +166,7 @@ function getSwingStartDate(): Date {
 
 function getSundayOfWeek(date: Date = new Date()): Date {
   const { hour, minute } = getShiftChangeTime();
-  console.log('Shift change time:', hour, minute);
+  // console.log('Shift change time:', hour, minute);
   const day = date.getDay(); // 0=Sun, 1=Mon, ...
   const diffToSunday = (day + 6) % 7; // days since Sunday
   const sundayOfWeek = new Date(date);

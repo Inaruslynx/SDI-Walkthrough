@@ -12,6 +12,7 @@ export class DataPoint extends Document {
   @Prop({ required: true, index: true })
   text: string;
 
+  // I think I added this for easier reporting so they can be grouped
   @Prop()
   name: string;
 
