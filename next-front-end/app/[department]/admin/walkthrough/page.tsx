@@ -33,7 +33,8 @@ const weeklyValues = Object.values(WeeklyOptions);
 const perSwingValues = Object.values(PerSwingOptions);
 
 function usePeriodicityState() {
-  const [selectedPeriodicity, setSelectedPeriodicity] = useState<PeriodicityOptions>();
+  const [selectedPeriodicity, setSelectedPeriodicity] =
+    useState<PeriodicityOptions>();
   const [selectedWeekly, setSelectedWeekly] = useState<WeeklyOptionsType>();
   const [selectedPerSwing, setSelectedPerSwing] =
     useState<PerSwingOptionsType>();
@@ -307,7 +308,7 @@ export default function WalkthroughPage(props: {
 
   useEffect(() => {
     if (!walkthroughData) return;
-    console.log("walkthroughData changed:", walkthroughData); 
+    console.log("walkthroughData changed:", walkthroughData);
     if (!walkthroughData) return;
     setSelectedPeriodicity(walkthroughData.periodicity);
 
@@ -321,7 +322,7 @@ export default function WalkthroughPage(props: {
     } else {
       setSelectedPerSwing(undefined);
     }
-  }, [walkthroughData])
+  }, [walkthroughData]);
 
   useEffect(() => {
     if (selectedWalkthroughQuery.isSuccess && selectedWalkthroughQuery.data) {

@@ -1,6 +1,6 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
-import { is } from "date-fns/locale";
-import { cookies } from "next/headers";
+// import { is } from "date-fns/locale";
+// import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
 const isProtectedAdminRoute = createRouteMatcher([
@@ -11,7 +11,9 @@ const isProtectedAdminRoute = createRouteMatcher([
 const isProtectedRoute = createRouteMatcher(["/(.*)/walkthrough(.*)"]);
 
 export default clerkMiddleware(async (auth, req) => {
-  const { sessionClaims } = await auth();
+  const { sessionClaims } = (await auth()) as {
+    sessionClaims: { metadata?: { role?: string; enabled?: boolean } };
+  };
   // console.log("Middleware sessionClaims:", sessionClaims?.metadata);
   // If you need to access the current user, you can do so with the following:
   // const user = await currentUser();
