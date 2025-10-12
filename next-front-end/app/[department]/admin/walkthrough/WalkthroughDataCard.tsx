@@ -31,9 +31,9 @@ interface FormValues {
   text: string;
   type: "number" | "string" | "boolean" | "choice";
   unit?: string;
-  min?: string;
-  max?: string;
-  choices: string[] | string;
+  min?: number;
+  max?: number;
+  choices?: string[];
 }
 
 interface WalkthroughDataCardProps {
@@ -67,8 +67,8 @@ export default function WalkthroughDataCard({
       text: dataPoint?.text || "New Data Point",
       type: dataPoint?.type || "number",
       unit: dataPoint?.unit || "%",
-      min: dataPoint?.min,
-      max: dataPoint?.max,
+      min: Number(dataPoint?.min),
+      max: Number(dataPoint?.max),
       choices: dataPoint?.choices || [],
     },
   });
@@ -90,8 +90,8 @@ export default function WalkthroughDataCard({
     text: dataPoint?.text || "New Data Point",
     type: dataPoint?.type || "number",
     unit: dataPoint?.unit || "%",
-    min: dataPoint?.min,
-    max: dataPoint?.max,
+    min: Number(dataPoint?.min),
+    max: Number(dataPoint?.max),
     choices: dataPoint?.choices || [],
   };
 
@@ -145,6 +145,7 @@ export default function WalkthroughDataCard({
   });
 
   const handleSaveClick = async (formData: FormValues) => {
+    const updatedChoices = formData.choices ?? [];
     const dataPointPackage: DataPoint = {
       _id: _id,
       text: formData.text,
@@ -155,9 +156,7 @@ export default function WalkthroughDataCard({
       max: formData.max?.toString(),
       parentArea: parentArea,
       parentWalkthrough: selectedWalkthrough,
-      choices: Array.isArray(formData.choices)
-        ? formData.choices
-        : [formData.choices],
+      choices: updatedChoices,
     };
 
     try {
@@ -190,11 +189,15 @@ export default function WalkthroughDataCard({
   };
 
   const handleAddChoice = () => {
-    const currentChoices = getValues("choices");
+    const currentChoices = getValues("choices") || [];
     const currentChoicesArray = Array.isArray(currentChoices)
       ? currentChoices
       : [currentChoices];
-    if (newChoice && !currentChoicesArray.includes(newChoice)) {
+    if (
+      newChoice &&
+      typeof newChoice === "string" &&
+      !currentChoicesArray.includes(newChoice)
+    ) {
       const updatedChoices = [...currentChoicesArray, newChoice];
       setValue("choices", updatedChoices);
       setNewChoice("");
@@ -203,7 +206,7 @@ export default function WalkthroughDataCard({
 
   const handleDeleteChoice = async (choiceToDelete: string) => {
     console.log("in handleDeleteChoice");
-    const currentChoices = getValues("choices");
+    const currentChoices = getValues("choices") || [];
     const currentChoicesArray = Array.isArray(currentChoices)
       ? currentChoices
       : [currentChoices];
@@ -222,12 +225,14 @@ export default function WalkthroughDataCard({
 
   const handleUpdateChoice = async (index: number) => {
     const currentChoices = getValues("choices");
-    const updatedChoices = [...currentChoices];
-    updatedChoices[index] = editChoiceValue;
-    setValue("choices", updatedChoices);
-    await trigger("choices");
-    setEditChoiceIndex(null);
-    setEditChoiceValue("");
+    if (currentChoices !== undefined) {
+      const updatedChoices = [...currentChoices];
+      updatedChoices[index] = editChoiceValue;
+      setValue("choices", updatedChoices);
+      await trigger("choices");
+      setEditChoiceIndex(null);
+      setEditChoiceValue("");
+    }
   };
 
   const handleCancelEditChoice = () => {
@@ -378,9 +383,9 @@ export default function WalkthroughDataCard({
                       </div>
                     </div>
                     {Array.isArray(getValues("choices")) &&
-                      getValues("choices").length > 0 && (
+                      (getValues("choices") || []).length > 0 && (
                         <div className="flex flex-col items-center mt-2">
-                          {getValues("choices").map((choice, index) => (
+                          {(getValues("choices") || []).map((choice, index) => (
                             <div key={index} className="join m-1">
                               {editChoiceIndex === index ? (
                                 <>
