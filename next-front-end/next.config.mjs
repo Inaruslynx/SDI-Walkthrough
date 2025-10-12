@@ -9,6 +9,7 @@ const withBundleAnalyzer = bundleAnalyser({
 const nextConfig = {
   // basePath: "/SDI_Walkthrough",
   output: "standalone",
+  typedRoutes: true,
 };
 
 // export default nextConfig;
