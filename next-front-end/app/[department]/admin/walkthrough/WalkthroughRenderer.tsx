@@ -14,7 +14,7 @@ interface WalkthroughRendererProps {
 // Function to initialize or merge visibility state
 const initializeOrMergeVisibility = (
   areas: Area[],
-  currentVisibility: Record<string, boolean> = {},
+  currentVisibility: Record<string, boolean> = {}
 ) => {
   const visibility = { ...currentVisibility };
 
@@ -52,10 +52,18 @@ const WalkthroughRenderer: React.FC<WalkthroughRendererProps> = ({
     }));
   };
 
-  const renderAreas = (areas: Area[], indent = false, passDownName = ""): React.ReactNode => {
+  const renderAreas = (
+    areas: Area[],
+    indent = false,
+    passDownName: string = ""
+  ): React.ReactNode => {
     return areas.map((area, index) => {
       const isVisible = visibleAreas[area._id!] ?? true;
-      passDownName = passDownName + " - " + area.name;
+      // Update passDownName for nested areas
+      const currentPassDownName = passDownName
+        ? passDownName + " :: " + area.name
+        : area.name;
+      // console.log("passDownName:", currentPassDownName);
       return (
         <div className={indent ? "ml-20" : ""} key={index}>
           <WalkthroughAreaCard
@@ -74,7 +82,7 @@ const WalkthroughRenderer: React.FC<WalkthroughRendererProps> = ({
               {area.dataPoints.map((dataPoint, index) => (
                 <WalkthroughDataCard
                   key={index}
-                  namePassDown={passDownName}
+                  namePassDown={currentPassDownName}
                   selectedWalkthrough={selectedWalkthrough}
                   dataPoint={dataPoint}
                   parentArea={area._id!}
@@ -88,7 +96,7 @@ const WalkthroughRenderer: React.FC<WalkthroughRendererProps> = ({
           {/* <h1>Hi</h1> */}
           {isVisible &&
             area?.areas?.length > 0 &&
-            renderAreas(area.areas, true, passDownName)}
+            renderAreas(area.areas, true, currentPassDownName)}
           {/* <h1>Hi 2</h1> */}
         </div>
       );

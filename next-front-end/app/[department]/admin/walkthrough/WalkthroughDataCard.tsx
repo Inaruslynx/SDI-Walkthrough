@@ -51,6 +51,7 @@ export default function WalkthroughDataCard({
   namePassDown,
   onDeleteClick,
 }: WalkthroughDataCardProps): ReactNode {
+  console.log("namePassDown in DataCard:", namePassDown);
   // React Hook Form controller
   const {
     register,
@@ -148,7 +149,7 @@ export default function WalkthroughDataCard({
     const dataPointPackage: DataPoint = {
       _id: _id,
       text: formData.text,
-      name: namePassDown + " - " + formData.text,
+      name: namePassDown,
       type: formData.type,
       unit: formData.unit,
       min: formData.min?.toString(),

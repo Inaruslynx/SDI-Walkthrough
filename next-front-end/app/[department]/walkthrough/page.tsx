@@ -54,7 +54,9 @@ export default function WalkthroughPage(props: {
     ],
     queryFn: () => masterGetLog(logAction),
     enabled: !!selectedWalkthrough && !!logAction,
-    staleTime: 0,
+    staleTime: Infinity,
+    refetchOnReconnect: false,
+    refetchOnWindowFocus: false,
   });
 
   const masterGetWalkthrough = async (
@@ -142,9 +144,9 @@ export default function WalkthroughPage(props: {
     if (logQuery.isSuccess && logQuery.data && logQuery.data._id) {
       setLoadedLog(logQuery.data._id);
       setSelectedDate(new Date(logQuery.data.date!));
-      console.log("logQuery.data.user:", logQuery.data.user);
+      console.log("logQuery.data.user:", logQuery.data.user?.clerkId);
       console.log("user?.id:", user?.id);
-      if (logQuery.data.user !== user?.id) {
+      if (logQuery.data.user?.clerkId !== user?.id) {
         setFormDisabled(true);
       } else {
         setFormDisabled(false);

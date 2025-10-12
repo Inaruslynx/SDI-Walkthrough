@@ -1,11 +1,15 @@
 import { toast } from "react-toastify";
 import {
+  createArea,
+  createDataPoint,
   createWalkthrough,
   deleteWalkthrough,
+  updateArea,
+  updateDataPoint,
   updateWalkthrough,
 } from "@/lib/api";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Area } from "@/types";
+import { Area, DataPoint } from "@/types";
 import { useOrganization } from "@clerk/nextjs";
 
 export function useCreateWalkthrough(
@@ -115,5 +119,41 @@ export function useSavePeriodicity() {
     onError: () => {
       toast.error("Could not change periodicity.");
     },
+  });
+}
+
+export function useSaveNewArea() {
+  const { organization } = useOrganization();
+  return useMutation({
+    mutationFn: async (data: Area) => { 
+      await createArea(data, organization!.id);
+    }
+  });
+}
+
+export function useSaveUpdatedArea() {
+  const { organization } = useOrganization();
+  return useMutation({
+    mutationFn: async (data: Area) => {
+      await updateArea(data, organization!.id);
+    }
+  });
+}
+
+export function useSaveNewDataPoint() {
+  const { organization } = useOrganization();
+  return useMutation({
+    mutationFn: async (data: DataPoint) => {
+      await createDataPoint(data, organization!.id);
+    }
+  });
+}
+
+export function useSaveUpdatedDataPoint() {
+  const { organization } = useOrganization();
+  return useMutation({
+    mutationFn: async (data: DataPoint) => {
+      await updateDataPoint(data, organization!.id);
+    }
   });
 }
