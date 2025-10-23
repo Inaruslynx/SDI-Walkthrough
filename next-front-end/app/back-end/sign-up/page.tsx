@@ -7,6 +7,7 @@ import { Theme, User } from "@/types";
 import { useUser } from "@clerk/nextjs";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { Suspense, useEffect, useState } from "react";
+import { Route } from "next";
 
 export default function SignUpPageWrapper() {
   return (
@@ -44,7 +45,7 @@ function SignUpPage() {
       toast.success("Welcome to SDI Walkthrough!");
       const redirectUrl = searchParams.get("redirect_url");
       if (redirectUrl) {
-        router.push(redirectUrl);
+        router.push(redirectUrl as Route);
       } else {
         router.push("/");
       }

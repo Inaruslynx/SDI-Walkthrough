@@ -1,5 +1,6 @@
 "use client";
 
+import { Route } from "next";
 // Import necessary types from Next.js
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -46,7 +47,7 @@ export default function NavLink({
   if (button) {
     return (
       <Link
-        href={href}
+        href={href as Route}
         className={`btn m-2 px-4 py-2 ${path === href ? "btn-primary" : "hover:btn-primary"} rounded-btn ${className}`}
       >
         {children}
@@ -60,11 +61,11 @@ export default function NavLink({
         key={id + "1"}
         data-to-scrollspy-id={id}
         onClick={(e) => onPress(e)}
-        href={href}
+        href={href as Route}
       >
         {children}
       </Link>
     );
   }
-  return <Link href={href}>{children}</Link>;
+  return <Link href={href as Route}>{children}</Link>;
 }
