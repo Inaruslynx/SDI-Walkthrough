@@ -32,12 +32,12 @@ export default clerkMiddleware(async (auth, req) => {
     const role = sessionClaims?.metadata?.role;
     const isEnabled = sessionClaims?.metadata?.enabled;
 
-    if (isEnabled) {
-      console.log("Is Enabled");
-    }
-    if (!isEnabled) {
-      console.log("Is Not Enabled");
-    }
+    // if (isEnabled) {
+    //   console.log("Is Enabled");
+    // }
+    // if (!isEnabled) {
+    //   console.log("Is Not Enabled");
+    // }
 
     // Grab department from pathname: /electrical/walkthrough
     const url = new URL(req.url);

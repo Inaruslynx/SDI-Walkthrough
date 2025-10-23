@@ -1,17 +1,18 @@
 "use client";
 import type { DataPoint } from "@/types";
 import { ReactNode, useEffect, useState } from "react";
-import { useForm, useWatch } from "react-hook-form";
+import { SubmitErrorHandler, useForm, useWatch } from "react-hook-form";
 import { DevTool } from "@hookform/devtools";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { toast } from "react-toastify";
 import IconSave from "@/components/ui/icons/save";
 import IconDelete from "@/components/ui/icons/delete";
 import IconEdit from "@/components/ui/icons/edit";
-import { createDataPoint, updateDataPoint, deleteDataPoint } from "@/lib/api";
-import { useOrganization } from "@clerk/nextjs";
+import {
+  useDeleteDataPoint,
+  useSaveNewDataPoint,
+  useSaveUpdatedDataPoint,
+} from "./mutations";
 
 const dataPointSchema = z.object({
   text: z.string().min(1, "Text is required"),
@@ -24,17 +25,18 @@ const dataPointSchema = z.object({
   unit: z.string().optional(),
   min: z.number().optional(),
   max: z.number().optional(),
+  // min: z.preprocess(
+  //   (val) => (Number.isNaN(val) ? undefined : Number(val)),
+  //   z.number().optional()
+  // ),
+  // max: z.preprocess(
+  //   (val) => (Number.isNaN(val) ? undefined : Number(val)),
+  //   z.number().optional()
+  // ),
   choices: z.string().array().optional(),
 });
 
-interface FormValues {
-  text: string;
-  type: "number" | "string" | "boolean" | "choice";
-  unit?: string;
-  min?: number;
-  max?: number;
-  choices?: string[];
-}
+type FormValues = z.output<typeof dataPointSchema>;
 
 interface WalkthroughDataCardProps {
   selectedWalkthrough: string;
@@ -51,18 +53,21 @@ export default function WalkthroughDataCard({
   namePassDown,
   onDeleteClick,
 }: WalkthroughDataCardProps): ReactNode {
-  console.log("namePassDown in DataCard:", namePassDown);
+  // console.log("namePassDown in DataCard:", namePassDown);
   // React Hook Form controller
   const {
     register,
+    unregister,
     handleSubmit,
     control,
     formState: { errors },
+    watch,
     setValue,
     getValues,
     reset,
     trigger,
   } = useForm({
+    // ! The input shows as unknown for the preprocess values
     resolver: zodResolver(dataPointSchema),
     defaultValues: {
       text: dataPoint?.text || "New Data Point",
@@ -72,9 +77,10 @@ export default function WalkthroughDataCard({
       max: Number(dataPoint?.max),
       choices: dataPoint?.choices || [],
     },
+    shouldUnregister: true,
   });
 
-  const queryClient = useQueryClient();
+  // const queryClient = useQueryClient();
   const [canEdit, setCanEdit] = useState<boolean>(false);
   const [newChoice, setNewChoice] = useState<string>("");
   const [editChoiceIndex, setEditChoiceIndex] = useState<number | null>(null);
@@ -85,16 +91,20 @@ export default function WalkthroughDataCard({
     name: "type",
     defaultValue: dataPoint?.type || "number",
   });
-  const { organization } = useOrganization();
+  // const typeChoice = watch("type", dataPoint?.type || "number");
+  const choices = watch("choices", dataPoint?.choices || []);
+  const [initialFormValues, setInitialFormValues] = useState<FormValues>();
+  // const { organization } = useOrganization();
 
-  const initialFormValues = {
-    text: dataPoint?.text || "New Data Point",
-    type: dataPoint?.type || "number",
-    unit: dataPoint?.unit || "%",
-    min: Number(dataPoint?.min),
-    max: Number(dataPoint?.max),
-    choices: dataPoint?.choices || [],
-  };
+  // const initialFormValues = {
+  //   text: dataPoint?.text || "New Data Point",
+  //   type: dataPoint?.type || "number",
+  //   unit: dataPoint?.unit || "%",
+  //   min: Number(dataPoint?.min) || undefined,
+  //   max: Number(dataPoint?.max) || undefined,
+  //   choices: dataPoint?.choices || [],
+  // };
+  console.log("initialFormValues:", initialFormValues);
 
   useEffect(() => {
     if (dataPoint?._id) {
@@ -102,50 +112,59 @@ export default function WalkthroughDataCard({
     }
   }, [dataPoint._id]);
 
+  useEffect(() => {
+    if (dataPoint) {
+      setInitialFormValues({
+        text: dataPoint?.text || "New Data Point",
+        type: dataPoint?.type || "number",
+        unit: dataPoint?.unit || "%",
+        min: Number(dataPoint?.min) || undefined,
+        max: Number(dataPoint?.max) || undefined,
+        choices: dataPoint?.choices || [],
+      });
+      reset({
+        text: dataPoint?.text || "New Data Point",
+        type: dataPoint?.type || "number",
+        unit: dataPoint?.unit || "%",
+        min: Number(dataPoint?.min) || undefined,
+        max: Number(dataPoint?.max) || undefined,
+        choices: dataPoint?.choices || [],
+      });
+    }
+  }, [dataPoint]);
+
+  useEffect(() => {
+    if (typeChoice === "choice") {
+      setValue("choices", dataPoint?.choices || []);
+      unregister("unit");
+      unregister("min");
+      unregister("max");
+    } else if (typeChoice === "number") {
+      setValue("unit", dataPoint?.unit || "%");
+      setValue("min", Number(dataPoint?.min) || undefined);
+      setValue("max", Number(dataPoint?.max) || undefined);
+      unregister("choices");
+    } else {
+      unregister("choices");
+      unregister("unit");
+      unregister("min");
+      unregister("max");
+    }
+    // May have to load default value if switching back to number
+  }, [typeChoice]);
+
   const handleEditClick = () => {
     setCanEdit(true);
   };
 
-  const createDataPointMutation = useMutation({
-    mutationFn: (data: DataPoint) => createDataPoint(data, organization!.id),
-    onSuccess: () => {
-      toast.success("Successfully created Data Point.");
-      queryClient.invalidateQueries({
-        queryKey: ["walkthrough", { id: selectedWalkthrough }],
-      });
-    },
-    onError: (err) => {
-      toast.error(`Failed to create Data Point: ${err}.`);
-    },
-  });
+  const createDataPointMutation = useSaveNewDataPoint(selectedWalkthrough);
 
-  const updateDataPointMutation = useMutation({
-    mutationFn: (data: DataPoint) => updateDataPoint(data, organization!.id),
-    onSuccess: () => {
-      toast.success("Successfully updated Data Point.");
-      queryClient.invalidateQueries({
-        queryKey: ["walkthrough", { id: selectedWalkthrough }],
-      });
-    },
-    onError: (err) => {
-      toast.error(`Failed to update Data Point: ${err}`);
-    },
-  });
+  const updateDataPointMutation = useSaveUpdatedDataPoint(selectedWalkthrough);
 
-  const deleteDataPointMutation = useMutation({
-    mutationFn: (id: string) => deleteDataPoint(id, organization!.id),
-    onSuccess: () => {
-      toast.success("Successfully deleted Data Point.");
-      queryClient.invalidateQueries({
-        queryKey: ["walkthrough", { id: selectedWalkthrough }],
-      });
-    },
-    onError: (err) => {
-      toast.error(`Failed to delete Data Point: ${err}`);
-    },
-  });
+  const deleteDataPointMutation = useDeleteDataPoint(selectedWalkthrough);
 
   const handleSaveClick = async (formData: FormValues) => {
+    // console.log("In handleSaveClick");
     const updatedChoices = formData.choices ?? [];
     const dataPointPackage: DataPoint = {
       _id: _id,
@@ -175,7 +194,7 @@ export default function WalkthroughDataCard({
   const handleDeleteClick = async () => {
     try {
       if (dataPoint._id) {
-        await deleteDataPointMutation.mutateAsync(dataPoint._id);
+        await deleteDataPointMutation.mutateAsync({ id: dataPoint._id });
       } else {
         onDeleteClick();
       }
@@ -206,7 +225,7 @@ export default function WalkthroughDataCard({
   };
 
   const handleDeleteChoice = async (choiceToDelete: string) => {
-    console.log("in handleDeleteChoice");
+    // console.log("in handleDeleteChoice");
     const currentChoices = getValues("choices") || [];
     const currentChoicesArray = Array.isArray(currentChoices)
       ? currentChoices
@@ -214,7 +233,7 @@ export default function WalkthroughDataCard({
     const updatedChoices = currentChoicesArray.filter(
       (choice) => choice !== choiceToDelete
     );
-    console.log("updatedChoice:", updatedChoices);
+    // console.log("updatedChoice:", updatedChoices);
     setValue("choices", updatedChoices);
     await trigger("choices");
   };
@@ -224,6 +243,7 @@ export default function WalkthroughDataCard({
     setEditChoiceValue(value);
   };
 
+  // ! With new choices watch, this could be updated to not use getValues
   const handleUpdateChoice = async (index: number) => {
     const currentChoices = getValues("choices");
     if (currentChoices !== undefined) {
@@ -241,6 +261,15 @@ export default function WalkthroughDataCard({
     setEditChoiceValue("");
   };
 
+  const onSubmit = handleSubmit(async (data) => {
+    // console.log("In onSubmit");
+    await handleSaveClick(data);
+  });
+  const onError: SubmitErrorHandler<FormValues> = (errors: any, e) => {
+    console.log("Errors on submit:", errors);
+    console.log("Event on submit error:", e);
+  };
+
   return (
     <>
       <div
@@ -251,7 +280,8 @@ export default function WalkthroughDataCard({
           {canEdit ? (
             <>
               <DevTool control={control} />
-              <form onSubmit={handleSubmit(handleSaveClick)}>
+              {/* <form onSubmit={handleSubmit(handleSaveClick)} id="formDataPoint"> */}
+              <form onSubmit={onSubmit} id="formDataPoint">
                 <div>
                   <label className="form-control">
                     <div className="label">
@@ -323,10 +353,7 @@ export default function WalkthroughDataCard({
                           type="number"
                           className={`input input-bordered m-2 focus:placeholder-transparent ${errors?.min ? "input-error" : ""}`}
                           placeholder="Enter minimum value"
-                          {...register("min", {
-                            setValueAs: (v) => v || null,
-                            valueAsNumber: true,
-                          })}
+                          {...register("min", { valueAsNumber: true })}
                         />
                         {errors?.min && (
                           <div className="label">
@@ -346,10 +373,7 @@ export default function WalkthroughDataCard({
                           type="number"
                           className={`input input-bordered m-2 focus:placeholder-transparent ${errors?.max ? "input-error" : ""}`}
                           placeholder="Enter max value"
-                          {...register("max", {
-                            setValueAs: (v) => v || null,
-                            valueAsNumber: true,
-                          })}
+                          {...register("max", { valueAsNumber: true })}
                         />
                         {errors?.max && (
                           <div className="label">
@@ -383,68 +407,74 @@ export default function WalkthroughDataCard({
                         </button>
                       </div>
                     </div>
-                    {Array.isArray(getValues("choices")) &&
-                      (getValues("choices") || []).length > 0 && (
-                        <div className="flex flex-col items-center mt-2">
-                          {(getValues("choices") || []).map((choice, index) => (
-                            <div key={index} className="join m-1">
-                              {editChoiceIndex === index ? (
-                                <>
-                                  <input
-                                    type="text"
-                                    className="input input-bordered input-sm join-item"
-                                    value={editChoiceValue}
-                                    onChange={(e) =>
-                                      setEditChoiceValue(e.target.value)
-                                    }
-                                  />
-                                  <button
-                                    type="button"
-                                    className="btn btn-success btn-sm join-item"
-                                    onClick={() => handleUpdateChoice(index)}
-                                  >
-                                    Update
-                                  </button>
-                                  <button
-                                    type="button"
-                                    className="btn btn-secondary btn-sm join-item"
-                                    onClick={handleCancelEditChoice}
-                                  >
-                                    Cancel
-                                  </button>
-                                </>
-                              ) : (
-                                <>
-                                  <span className="join-item p-2">
-                                    {choice || "Blank"}
-                                  </span>
-                                  <button
-                                    type="button"
-                                    className="btn btn-warning btn-sm join-item"
-                                    onClick={() =>
-                                      handleEditChoice(index, choice)
-                                    }
-                                  >
-                                    Edit
-                                  </button>
-                                  <button
-                                    type="button"
-                                    className="btn btn-error btn-sm join-item"
-                                    onClick={() => handleDeleteChoice(choice)}
-                                  >
-                                    Delete
-                                  </button>
-                                </>
-                              )}
-                            </div>
-                          ))}
-                        </div>
-                      )}
+                    {choices && choices?.length > 0 && (
+                      <div className="flex flex-col items-center mt-2">
+                        {(choices || []).map((choice, index) => (
+                          <div key={index} className="join m-1">
+                            {editChoiceIndex === index ? (
+                              <>
+                                <input
+                                  type="text"
+                                  title="Edit Choice"
+                                  className="input input-bordered input-sm join-item"
+                                  value={editChoiceValue}
+                                  onChange={(e) =>
+                                    setEditChoiceValue(e.target.value)
+                                  }
+                                />
+                                <button
+                                  type="button"
+                                  className="btn btn-success btn-sm join-item"
+                                  onClick={() => handleUpdateChoice(index)}
+                                >
+                                  Update
+                                </button>
+                                <button
+                                  type="button"
+                                  className="btn btn-secondary btn-sm join-item"
+                                  onClick={handleCancelEditChoice}
+                                >
+                                  Cancel
+                                </button>
+                              </>
+                            ) : (
+                              <>
+                                <span className="join-item p-2">
+                                  {choice || "Blank"}
+                                </span>
+                                <button
+                                  type="button"
+                                  className="btn btn-warning btn-sm join-item"
+                                  onClick={() =>
+                                    handleEditChoice(index, choice)
+                                  }
+                                >
+                                  Edit
+                                </button>
+                                <button
+                                  type="button"
+                                  className="btn btn-error btn-sm join-item"
+                                  onClick={() => handleDeleteChoice(choice)}
+                                >
+                                  Delete
+                                </button>
+                              </>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 )}
+                {errors?.choices
+                  ? `errors: ${JSON.stringify(errors.choices.message)}`
+                  : null}
                 <button
                   type="submit"
+                  title="SaveDataPoint"
                   className="btn btn-success btn-circle p-2 mt-4"
+                  form="formDataPoint"
+                  onClick={handleSubmit(handleSaveClick, onError)}
                 >
                   <IconSave />
                 </button>
@@ -458,6 +488,7 @@ export default function WalkthroughDataCard({
           {!canEdit ? (
             <>
               <button
+                title="EditDataPoint"
                 className="btn btn-accent btn-circle p-2 m-1 mr-2 mb-2"
                 onClick={handleEditClick}
               >
@@ -470,6 +501,7 @@ export default function WalkthroughDataCard({
                 Cancel
               </button>
               <button
+                title="DeleteDataPoint"
                 className="btn btn-error btn-circle p-2 m-1 mr-2 mb-2"
                 onClick={handleDeleteClick}
               >

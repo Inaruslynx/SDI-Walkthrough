@@ -7,10 +7,10 @@ function capitalizeFirstLetter(str: string) {
 export default function ThemeItem({
   value,
   isActive,
-  onClick
+  onClick,
 }: {
-    value: string;
-    isActive?: boolean;
+  value: string;
+  isActive?: boolean;
   onClick: () => void;
 }): React.ReactNode {
   return (

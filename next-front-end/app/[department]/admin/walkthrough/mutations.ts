@@ -3,6 +3,8 @@ import {
   createArea,
   createDataPoint,
   createWalkthrough,
+  deleteArea,
+  deleteDataPoint,
   deleteWalkthrough,
   updateArea,
   updateDataPoint,
@@ -11,10 +13,11 @@ import {
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Area, DataPoint } from "@/types";
 import { useOrganization } from "@clerk/nextjs";
+import SelectWalkthrough from "../../../../components/ui/SelectWalkthrough";
 
 export function useCreateWalkthrough(
   setSelectedWalkthrough: (name: string) => void,
-  setAreas: (areas: Area[]) => void,
+  setAreas: (areas: Area[]) => void
 ) {
   const queryClient = useQueryClient();
   const { organization } = useOrganization();
@@ -45,7 +48,7 @@ export function useCreateWalkthrough(
 }
 
 export function useRenameWalkthrough(
-  setSelectedWalkthrough: (name: string) => void,
+  setSelectedWalkthrough: (name: string) => void
 ) {
   const queryClient = useQueryClient();
   const { organization } = useOrganization();
@@ -58,7 +61,7 @@ export function useRenameWalkthrough(
         undefined,
         undefined,
         undefined,
-        false,
+        false
       ),
     onSuccess: (data) => {
       toast.success("Successfully renamed walkthrough.");
@@ -70,7 +73,7 @@ export function useRenameWalkthrough(
 }
 
 export function useDeleteWalkthrough(
-  setSelectedWalkthrough: (name: string) => void,
+  setSelectedWalkthrough: (name: string) => void
 ) {
   const queryClient = useQueryClient();
   const { organization } = useOrganization();
@@ -111,7 +114,7 @@ export function useSavePeriodicity() {
         periodicity,
         weekly,
         perSwing,
-        true,
+        true
       ),
     onSuccess: () => {
       toast.success("Successfully changed periodicity.");
@@ -122,38 +125,140 @@ export function useSavePeriodicity() {
   });
 }
 
-export function useSaveNewArea() {
+export function useSaveNewArea(
+  selectedWalkthrough: string,
+  onAreaSave?: () => void
+) {
+  const queryClient = useQueryClient();
   const { organization } = useOrganization();
   return useMutation({
-    mutationFn: async (data: Area) => { 
+    mutationFn: async (data: Area) => {
       await createArea(data, organization!.id);
-    }
+    },
+    onSuccess: () => {
+      toast.success("Successfully created Area.");
+      queryClient.invalidateQueries({
+        queryKey: ["area", { walkthrough: selectedWalkthrough }],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["walkthrough", { id: selectedWalkthrough }],
+      });
+
+      if (onAreaSave) {
+        onAreaSave();
+      }
+    },
   });
 }
 
-export function useSaveUpdatedArea() {
+export function useSaveUpdatedArea(
+  area: Area,
+  selectedWalkthrough: string,
+  onAreaSave?: () => void
+) {
+  const queryClient = useQueryClient();
   const { organization } = useOrganization();
   return useMutation({
     mutationFn: async (data: Area) => {
       await updateArea(data, organization!.id);
-    }
+    },
+    onSuccess: () => {
+      toast.success("Successfully updated Area.");
+      queryClient.invalidateQueries({
+        queryKey: ["area", { id: area._id }],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["walkthrough", { id: selectedWalkthrough }],
+      });
+
+      if (onAreaSave) {
+        onAreaSave();
+      }
+    },
   });
 }
 
-export function useSaveNewDataPoint() {
+export function useDeleteArea(
+  selectedWalkthrough: string,
+  onAreaSave?: () => void
+) {
+  const queryClient = useQueryClient();
   const { organization } = useOrganization();
+  return useMutation({
+    mutationFn: async ({ id }: { id: string }) =>
+      await deleteArea(id, organization!.id),
+    onSuccess: () => {
+      toast.success("Successfully deleted Area.");
+      queryClient.invalidateQueries({
+        queryKey: ["area", { walkthrough: selectedWalkthrough }],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["walkthrough", { id: selectedWalkthrough }],
+      });
+
+      if (onAreaSave) {
+        onAreaSave();
+      }
+    },
+    onError: (error) => {
+      toast.error("Failed to delete Area. " + error);
+    },
+  });
+}
+
+export function useSaveNewDataPoint(selectedWalkthrough: string) {
+  const { organization } = useOrganization();
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (data: DataPoint) => {
       await createDataPoint(data, organization!.id);
-    }
+    },
+    onSuccess: () => {
+      toast.success("Successfully created Data Point.");
+      queryClient.invalidateQueries({
+        queryKey: ["walkthrough", { id: selectedWalkthrough }],
+      });
+    },
+    onError: (err) => {
+      toast.error(`Failed to create Data Point: ${err}.`);
+    },
   });
 }
 
-export function useSaveUpdatedDataPoint() {
+export function useSaveUpdatedDataPoint(selectedWalkthrough: string) {
   const { organization } = useOrganization();
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (data: DataPoint) => {
       await updateDataPoint(data, organization!.id);
-    }
+    },
+    onSuccess: () => {
+      toast.success("Successfully updated Data Point.");
+      queryClient.invalidateQueries({
+        queryKey: ["walkthrough", { id: selectedWalkthrough }],
+      });
+    },
+    onError: (err) => {
+      toast.error(`Failed to update Data Point: ${err}`);
+    },
+  });
+}
+
+export function useDeleteDataPoint(selectedWalkthrough: string) {
+  const { organization } = useOrganization();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id }: { id: string }) => {
+      await deleteDataPoint(id, organization!.id);
+    },
+    onSuccess: () => {
+      toast.success("Successfully deleted Data Point.");
+      queryClient.invalidateQueries({
+        queryKey: ["walkthrough", { id: selectedWalkthrough }],
+      });
+    },
+    onError: (err) => {
+      toast.error(`Failed to delete Data Point: ${err}`);
+    },
   });
 }

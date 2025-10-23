@@ -7,12 +7,13 @@ import IconPlus from "@/components/ui/icons/plus";
 import { z } from "zod";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+// import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 import { DevTool } from "@hookform/devtools";
 import type { Area } from "@/types";
-import { createArea, updateArea, deleteArea } from "@/lib/api";
-import { useOrganization } from "@clerk/nextjs";
+// import { createArea, updateArea, deleteArea } from "@/lib/api";
+// import { useOrganization } from "@clerk/nextjs";
+import { useDeleteArea, useSaveNewArea, useSaveUpdatedArea } from "./mutations";
 
 const nameSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -65,68 +66,76 @@ export default function WalkthroughAreaCard({
 
   const [canEdit, setCanEdit] = useState<boolean>(false);
   const name = useWatch({ control, name: "name" });
-  const queryClient = useQueryClient();
+  // const queryClient = useQueryClient();
   const initialFormValues = useMemo<FormValues>(
     () => ({
       name: area?.name || "",
     }),
     [area?.name]
   );
-  const { organization } = useOrganization();
+  // const { organization } = useOrganization();
 
-  const createAreaMutation = useMutation({
-    mutationFn: (data: Area) => createArea(data, organization!.id),
-    onSuccess: () => {
-      toast.success("Successfully created Area.");
-      queryClient.invalidateQueries({
-        queryKey: ["area", { walkthrough: selectedWalkthrough }],
-      });
-      queryClient.invalidateQueries({
-        queryKey: ["walkthrough", { id: selectedWalkthrough }],
-      });
+  const createAreaMutation = useSaveNewArea(selectedWalkthrough, onAreaSave);
 
-      if (onAreaSave) {
-        onAreaSave();
-      }
-    },
-  });
+  //   useMutation({
+  //   mutationFn: (data: Area) => createArea(data, organization!.id),
+  //   onSuccess: () => {
+  //     toast.success("Successfully created Area.");
+  //     queryClient.invalidateQueries({
+  //       queryKey: ["area", { walkthrough: selectedWalkthrough }],
+  //     });
+  //     queryClient.invalidateQueries({
+  //       queryKey: ["walkthrough", { id: selectedWalkthrough }],
+  //     });
 
-  const updateAreaMutation = useMutation({
-    mutationFn: (data: Area) => updateArea(data, organization!.id),
-    onSuccess: () => {
-      toast.success("Successfully updated Area.");
-      queryClient.invalidateQueries({
-        queryKey: ["area", { id: area._id }],
-      });
-      queryClient.invalidateQueries({
-        queryKey: ["walkthrough", { id: selectedWalkthrough }],
-      });
+  //     if (onAreaSave) {
+  //       onAreaSave();
+  //     }
+  //   },
+  // });
 
-      if (onAreaSave) {
-        onAreaSave();
-      }
-    },
-  });
+  const updateAreaMutation = useSaveUpdatedArea(
+    area,
+    selectedWalkthrough,
+    onAreaSave
+  );
+  //   useMutation({
+  //   mutationFn: (data: Area) => updateArea(data, organization!.id),
+  //   onSuccess: () => {
+  //     toast.success("Successfully updated Area.");
+  //     queryClient.invalidateQueries({
+  //       queryKey: ["area", { id: area._id }],
+  //     });
+  //     queryClient.invalidateQueries({
+  //       queryKey: ["walkthrough", { id: selectedWalkthrough }],
+  //     });
 
-  const deleteAreaMutation = useMutation({
-    mutationFn: (id: string) => deleteArea(id, organization!.id),
-    onSuccess: () => {
-      toast.success("Deleted Area.");
-      queryClient.invalidateQueries({
-        queryKey: ["area", { walkthrough: selectedWalkthrough }],
-      });
-      queryClient.invalidateQueries({
-        queryKey: ["walkthrough", { id: selectedWalkthrough }],
-      });
+  //     if (onAreaSave) {
+  //       onAreaSave();
+  //     }
+  //   },
+  // });
 
-      if (onAreaSave) {
-        onAreaSave();
-      }
-    },
-    onError: (error) => {
-      toast.error("Failed to delete Area. " + error);
-    },
-  });
+  const deleteAreaMutation = useDeleteArea(selectedWalkthrough, onAreaSave);
+  //   useMutation({
+  //   mutationFn: (id: string) => deleteArea(id, organization!.id),
+  //   onSuccess: () => {
+  //     toast.success("Deleted Area.");
+  //     queryClient.invalidateQueries({
+  //       queryKey: ["area", { walkthrough: selectedWalkthrough }],
+  //     });
+  //     queryClient.invalidateQueries({
+  //       queryKey: ["walkthrough", { id: selectedWalkthrough }],
+  //     });
+
+  //     if (onAreaSave) {
+  //       onAreaSave();
+  //     }
+  //   },
+  //   onError: (error) => {
+  //     toast.error("Failed to delete Area. " + error);
+  //   },
+  // });
 
   const handleEditClick = () => {
     setCanEdit(true);
@@ -165,7 +174,7 @@ export default function WalkthroughAreaCard({
   const handleDeleteClick = async () => {
     try {
       if (area._id) {
-        await deleteAreaMutation.mutateAsync(area._id);
+        await deleteAreaMutation.mutateAsync({ id: area._id });
       } else {
         throw new Error("no area id.");
       }
@@ -206,6 +215,7 @@ export default function WalkthroughAreaCard({
               </label>
               <button
                 type="submit"
+                title="Save Area"
                 form="formName"
                 className="btn btn-success btn-circle p-2 m-2"
                 onClick={handleSubmit(handleSaveClick)}
@@ -239,12 +249,14 @@ export default function WalkthroughAreaCard({
             {area && area._id && (
               <>
                 <button
+                  title="Add Sub Area"
                   className="btn btn-primary m-1"
                   onClick={() => onAddArea(area)}
                 >
                   <IconPlus /> Sub Area
                 </button>
                 <button
+                  title="Add Data Point"
                   className="btn btn-primary m-1"
                   onClick={() => onAddDataPoint(area)}
                 >
@@ -253,12 +265,14 @@ export default function WalkthroughAreaCard({
               </>
             )}
             <button
+              title={isVisible ? "Hide Sub-Areas" : "Show Sub-Areas"}
               className="btn btn-warning p-2 m-1 mr-2 mb-2"
               onClick={onToggleVisibility}
             >
               {isVisible ? "Hide" : "Show"} Sub-Areas
             </button>
             <button
+              title="Edit Area"
               className="btn btn-accent btn-circle p-2 m-1 mr-2 mb-2"
               onClick={handleEditClick}
             >

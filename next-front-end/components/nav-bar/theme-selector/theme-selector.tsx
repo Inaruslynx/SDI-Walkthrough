@@ -91,6 +91,7 @@ export default function ThemeSelector(): ReactNode {
 
   const handleThemeChange = (themeValue: string) => {
     setCurrentTheme(getTheme(themeValue));
+    localStorage.setItem("theme", themeValue);
     if (isSignedIn && userId) {
       handleUpdateUser({ clerkId: userId, type: getTheme(themeValue) }); // send to backend
     }

@@ -400,6 +400,7 @@ export default function WalkthroughPage(props: {
               <select
                 ref={periodicitySelectRef}
                 name="periodicity"
+                title="periodicity"
                 id="periodicity"
                 className="select select-bordered align-end m-2"
                 value={selectedPeriodicity}
@@ -421,6 +422,7 @@ export default function WalkthroughPage(props: {
                 <select
                   value={selectedWeekly}
                   name="weekly"
+                  title="weekly"
                   id="weekly"
                   className="select select-bordered align-end m-2"
                   onChange={(e) => {
@@ -441,6 +443,7 @@ export default function WalkthroughPage(props: {
               {selectedPeriodicity && selectedPeriodicity === "Per Swing" && (
                 <select
                   name="perSwing"
+                  title="perSwing"
                   id="perSwing"
                   className="select select-bordered align-end m-2"
                   onChange={(e) => {
