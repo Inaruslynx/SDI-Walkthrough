@@ -51,7 +51,7 @@ NEXT_PUBLIC_CLERK_SIGN_UP_URL=/sign-up
 NEXT_PUBLIC_CLERK_SIGN_UP_FORCE_REDIRECT_URL=/back-end/sign-up
 ```
 
-- In an admin commandline console, navigate the nestjs-back-end folder and run:
+- In an admin commandline console, navigate the nestjs-back-end folder:
 
 ```bash
 pnpm build
@@ -63,16 +63,6 @@ pnpm build
 node installService.js
 ```
 
-- Navigate to next-front-end and run (as admin):
-
-```bash
-pnpm build
-```
-
-- Next.js requires a couple of things to run. Look at `.things-to-drag-into-next.md` and copy those folders as described then in a console:
-
-```bash
-node installService.js
-```
+- Navigate to next-front-end and run the doploy.ps1 powershell script. I recommend looking through it and changing it how you like.
 
 - Server should be up and running
