@@ -4,6 +4,7 @@ if (-not ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdent
     Start-Process powershell "-ExecutionPolicy Bypass -File `"$PSCommandPath`"" -Verb RunAs
     exit
 }
+Clear-Host
 
 Write-Host "Deploying Next.js app..."
 cd "C:\walkthrough\next-front-end"
