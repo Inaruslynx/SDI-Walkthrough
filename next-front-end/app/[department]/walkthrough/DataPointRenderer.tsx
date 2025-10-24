@@ -17,6 +17,15 @@ interface DataPointRendererProps {
   formDisabled: boolean;
 }
 
+const getOptimalColumns = (count: number) => {
+  if (count <= 2) return count; // 1–2 → same
+  if (count <= 4) return count; // 3–4 → same
+  if (count <= 6) return 3; // 5–6 → 3 columns
+  if (count <= 8) return 4; // 7–8 → 4 columns
+  if (count <= 10) return 5; // 9–10 → 5 columns
+  return 6; // 11+ → max 6
+};
+
 const DataPointRenderer: React.FC<DataPointRendererProps> = ({
   data,
   walkthroughId,
@@ -37,11 +46,11 @@ const DataPointRenderer: React.FC<DataPointRendererProps> = ({
   const hasNumberType = numbersAndChoices.length > 0;
   const columns = hasNumberType
     ? {
-        lg: min([6, numbersAndChoices.length]),
-        md: min([4, numbersAndChoices.length]),
-        sm: min([3, numbersAndChoices.length]),
-        xs: min([2, numbersAndChoices.length]),
-        xxs: min([1, numbersAndChoices.length]),
+        lg: getOptimalColumns(numbersAndChoices.length),
+        md: min(getOptimalColumns(numbersAndChoices.length - 1), 4),
+        sm: min(getOptimalColumns(numbersAndChoices.length - 2), 3),
+        xs: min(getOptimalColumns(numbersAndChoices.length - 3), 2),
+        xxs: 1,
       }
     : {
         lg: 1,
